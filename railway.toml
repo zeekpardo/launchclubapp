@@ -2,8 +2,6 @@
 builder = "nixpacks"
 buildCommand = "pnpm --filter web build"
 
-[build.nixpacksPlan.variables]
-NIXPACKS_NODE_VERSION = "22"
 
 [deploy]
 startCommand = "pnpm --filter web start"
