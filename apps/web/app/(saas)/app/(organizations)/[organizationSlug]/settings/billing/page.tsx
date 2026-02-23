@@ -1,5 +1,5 @@
 import { createPurchasesHelper } from "@repo/payments/lib/helper";
-import { getActiveOrganization } from "@saas/auth/lib/server";
+import { getActiveOrganization, getSession } from "@saas/auth/lib/server";
 import { ActivePlan } from "@saas/payments/components/ActivePlan";
 import { ChangePlan } from "@saas/payments/components/ChangePlan";
 import { SettingsList } from "@saas/shared/components/SettingsList";
@@ -24,11 +24,19 @@ export default async function BillingSettingsPage({
 	params: Promise<{ organizationSlug: string }>;
 }) {
 	const { organizationSlug } = await params;
-	const organization = await getActiveOrganization(organizationSlug);
+	const [organization, session] = await Promise.all([
+		getActiveOrganization(organizationSlug),
+		getSession(),
+	]);
 
-	if (!organization) {
+	if (!organization || !session) {
 		return notFound();
 	}
+
+	const currentMember = organization.members.find(
+		(m) => m.userId === session.user.id,
+	);
+	if (currentMember?.role === "member") return notFound();
 
 	const [error, purchasesData] = await attemptAsync(() =>
 		orpcClient.payments.listPurchases({

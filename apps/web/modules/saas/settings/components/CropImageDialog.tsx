@@ -17,11 +17,17 @@ export function CropImageDialog({
 	open,
 	onOpenChange,
 	onCrop,
+	aspectRatio = 1,
+	maxWidth = 256,
+	maxHeight = 256,
 }: {
 	image: File | null;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onCrop: (croppedImage: Blob | null) => void;
+	aspectRatio?: number;
+	maxWidth?: number;
+	maxHeight?: number;
 }) {
 	const cropperRef = useRef<ReactCropperElement>(null);
 
@@ -31,8 +37,8 @@ export function CropImageDialog({
 		const imageBlob = await new Promise<Blob | null>((resolve) => {
 			cropper
 				?.getCroppedCanvas({
-					maxWidth: 256,
-					maxHeight: 256,
+					maxWidth,
+					maxHeight,
 				})
 				.toBlob(resolve);
 		});
@@ -56,8 +62,8 @@ export function CropImageDialog({
 						<Cropper
 							src={imageSrc}
 							style={{ width: "100%" }}
-							initialAspectRatio={1}
-							aspectRatio={1}
+							initialAspectRatio={aspectRatio}
+							aspectRatio={aspectRatio}
 							guides={true}
 							ref={cropperRef}
 						/>

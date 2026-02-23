@@ -40,6 +40,11 @@ model User {
   members            Member[]
   twofactors         TwoFactor[]
 
+  userSites                UserSite[]        @relation("UserSites")
+  userGroups               UserGroup[]       @relation("UserGroups")
+  submittedPurchaseRequests PurchaseRequest[] @relation("PurchaseRequestedBy")
+  reviewedPurchaseRequests  PurchaseRequest[] @relation("PurchaseReviewedBy")
+
   @@unique([email])
   @@unique([username])
   @@map("user")
@@ -144,6 +149,12 @@ model Organization {
   invitations        Invitation[]
   purchases          Purchase[]
 
+  areas               Area[]                          @relation("OrganizationAreas")
+  households          Household[]                     @relation("OrganizationHouseholds")
+  people              Person[]                        @relation("OrganizationPeople")
+  applicationSettings OrganizationApplicationSettings? @relation("OrganizationApplicationSettings")
+  customFields        CustomField[]
+
   @@unique([slug])
   @@map("organization")
 }
@@ -181,6 +192,16 @@ model Invitation {
   @@map("invitation")
 }
 
+model InvitationRoleAssignment {
+  invitationId String   @id
+  lcRole       String
+  siteIds      String[]
+  groupIds     String[]
+  createdAt    DateTime @default(now())
+
+  @@map("invitation_role_assignment")
+}
+
 enum PurchaseType {
   SUBSCRIPTION
   ONE_TIME
@@ -202,4 +223,434 @@ model Purchase {
 
   @@index([subscriptionId])
   @@map("purchase")
+}
+
+// ============================================================
+// LaunchClub Models
+// ============================================================
+
+model Area {
+  id             String       @id @default(cuid())
+  organizationId String
+  name           String
+  description    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation("OrganizationAreas", fields: [organizationId], references: [id], onDelete: Cascade)
+  sites          Site[]
+  formFields     FormField[]
+
+  @@index([organizationId])
+  @@map("area")
+}
+
+model Site {
+  id                  String        @id @default(cuid())
+  areaId              String
+  name                String
+  slug                String        @unique
+  address             String?
+  city                String?
+  state               String?
+  zipCode             String?
+  phone               String?
+  email               String?
+  acceptApplications  Boolean       @default(true)
+  applicationDeadline DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  area                Area          @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  groups              Group[]
+  userSites           UserSite[]
+  applications        Application[]
+  formFields          FormField[]
+
+  @@index([areaId])
+  @@map("site")
+}
+
+model UserSite {
+  userId    String
+  siteId    String
+  createdAt DateTime @default(now())
+  user      User     @relation("UserSites", fields: [userId], references: [id], onDelete: Cascade)
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@id([userId, siteId])
+  @@map("user_site")
+}
+
+model Household {
+  id             String       @id @default(cuid())
+  organizationId String
+  name           String
+  address        String?
+  city           String?
+  state          String?
+  zipCode        String?
+  phone          String?
+  email          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation("OrganizationHouseholds", fields: [organizationId], references: [id], onDelete: Cascade)
+  people         Person[]
+
+  @@index([organizationId])
+  @@map("household")
+}
+
+model Person {
+  id             String        @id @default(cuid())
+  organizationId String
+  householdId    String?
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  dateOfBirth    DateTime?
+  gender         String?
+  isChild        Boolean       @default(false)
+  grade          String?
+  notes          String?       @db.Text
+  avatarUrl      String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  organization       Organization       @relation("OrganizationPeople", fields: [organizationId], references: [id], onDelete: Cascade)
+  household          Household?         @relation(fields: [householdId], references: [id], onDelete: SetNull)
+  personGroups       PersonGroup[]
+  attendance         Attendance[]
+  guardianOf         Guardian[]         @relation("GuardianPerson")
+  guardians          Guardian[]         @relation("GuardianKid")
+  customFieldValues  CustomFieldValue[]
+
+  @@index([organizationId])
+  @@index([householdId])
+  @@map("person")
+}
+
+model Guardian {
+  personId String
+  kidId    String
+  relation String?
+  person   Person  @relation("GuardianPerson", fields: [personId], references: [id], onDelete: Cascade)
+  kid      Person  @relation("GuardianKid", fields: [kidId], references: [id], onDelete: Cascade)
+
+  @@id([personId, kidId])
+  @@map("guardian")
+}
+
+model Group {
+  id                String        @id @default(cuid())
+  siteId            String
+  name              String
+  description       String?       @db.Text
+  gradeLevel        String?
+  startDate         DateTime?
+  endDate           DateTime?
+  meetingDay        String?
+  meetingTime       String?
+  meetingEndTime    String?
+  meetingRecurrence String?
+  image             String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  site             Site              @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  personGroups     PersonGroup[]
+  events           Event[]
+  userGroups       UserGroup[]
+  resources        GroupResource[]
+  purchaseRequests PurchaseRequest[]
+
+  @@index([siteId])
+  @@map("group")
+}
+
+model UserGroup {
+  userId    String
+  groupId   String
+  createdAt DateTime @default(now())
+  user      User     @relation("UserGroups", fields: [userId], references: [id], onDelete: Cascade)
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+  @@map("user_group")
+}
+
+model PersonGroup {
+  personId String
+  groupId  String
+  role     String   @default("MEMBER")
+  joinedAt DateTime @default(now())
+  person   Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([personId, groupId])
+  @@map("person_group")
+}
+
+enum EventType {
+  regular
+  guest
+  family_site_visit
+}
+
+model Event {
+  id              String       @id @default(cuid())
+  groupId         String
+  name            String
+  description     String?      @db.Text
+  eventType       EventType    @default(regular)
+  guestName       String?
+  guestCompany    String?
+  guestIndustry   String?
+  startsAt        DateTime
+  endsAt          DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  group           Group           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  attendance      Attendance[]
+  resources       GroupResource[]
+
+  @@index([groupId])
+  @@map("event")
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  eventId   String
+  personId  String
+  status    String   @default("PRESENT")
+  notes     String?
+  createdAt DateTime @default(now())
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, personId])
+  @@index([eventId])
+  @@index([personId])
+  @@map("attendance")
+}
+
+model Application {
+  id              String             @id @default(cuid())
+  siteId          String
+  parentFirstName String
+  parentLastName  String
+  parentEmail     String?
+  parentPhone     String?
+  parentAddress   String?
+  spouseFirstName String?
+  spouseLastName  String?
+  spouseEmail     String?
+  spousePhone     String?
+  status          String             @default("PENDING")
+  reviewedAt      DateTime?
+  reviewedBy      String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  site                   Site                          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  children               ApplicationChild[]
+  customFieldValues      ApplicationFieldValue[]
+  profileFieldValues     ApplicationCustomFieldValue[]
+
+  @@index([siteId])
+  @@index([status])
+  @@map("application")
+}
+
+model ApplicationChild {
+  id                    String      @id @default(cuid())
+  applicationId         String
+  firstName             String
+  lastName              String
+  birthday              DateTime?
+  grade                 String?
+  isPartOfChurch        Boolean     @default(false)
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  emergencyContactEmail String?
+  photoUrl              String?
+  observationConsent    Boolean     @default(false)
+  termsConsent          Boolean     @default(false)
+  photoVideoConsent     Boolean     @default(false)
+  createdAt             DateTime    @default(now())
+  application           Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  profileFieldValues    ApplicationChildCustomFieldValue[]
+
+  @@index([applicationId])
+  @@map("application_child")
+}
+
+model ApplicationChildCustomFieldValue {
+  id                   String           @id @default(cuid())
+  applicationChildId   String
+  customFieldId        String
+  value                String?          @db.Text
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  applicationChild     ApplicationChild @relation(fields: [applicationChildId], references: [id], onDelete: Cascade)
+  customField          CustomField      @relation(fields: [customFieldId], references: [id], onDelete: Cascade)
+
+  @@unique([applicationChildId, customFieldId])
+  @@map("application_child_custom_field_value")
+}
+
+model GroupResource {
+  id          String   @id @default(cuid())
+  groupId     String
+  eventId     String?
+  name        String
+  url         String
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  event       Event?   @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  @@index([groupId])
+  @@map("group_resource")
+}
+
+model PurchaseRequest {
+  id            String    @id @default(cuid())
+  groupId       String
+  item          String
+  description   String?   @db.Text
+  url           String?
+  amount        Decimal   @db.Decimal(10, 2)
+  category      String
+  justification String    @db.Text
+  status        String    @default("PENDING")
+  requestedById String
+  reviewedById  String?
+  reviewedAt    DateTime?
+  reviewNote    String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  group         Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  requestedBy   User      @relation("PurchaseRequestedBy", fields: [requestedById], references: [id])
+  reviewedBy    User?     @relation("PurchaseReviewedBy", fields: [reviewedById], references: [id])
+
+  @@index([groupId])
+  @@index([requestedById])
+  @@map("purchase_request")
+}
+
+enum FormFieldType {
+  TEXT
+  TEXTAREA
+  NUMBER
+  DATE
+  SELECT
+  CHECKBOX
+  RADIO
+  FILE
+}
+
+model FormField {
+  id          String        @id @default(cuid())
+  label       String
+  fieldKey    String
+  type        FormFieldType
+  placeholder String?
+  helpText    String?
+  required    Boolean       @default(false)
+  order       Int           @default(0)
+  options     Json?
+  validation  Json?
+  areaId      String?
+  siteId      String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  area        Area?         @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  site        Site?         @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  fieldValues ApplicationFieldValue[]
+
+  @@index([areaId])
+  @@index([siteId])
+  @@map("form_field")
+}
+
+model ApplicationFieldValue {
+  id            String      @id @default(cuid())
+  applicationId String
+  formFieldId   String
+  value         String
+  createdAt     DateTime    @default(now())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  formField     FormField   @relation(fields: [formFieldId], references: [id], onDelete: Cascade)
+
+  @@unique([applicationId, formFieldId])
+  @@index([applicationId])
+  @@map("application_field_value")
+}
+
+model OrganizationApplicationSettings {
+  id                 String       @id @default(cuid())
+  organizationId     String       @unique
+  autoMigrate        Boolean      @default(false)
+  emailNotifications Boolean      @default(false)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  organization       Organization @relation("OrganizationApplicationSettings", fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("organization_application_settings")
+}
+
+enum CustomFieldType {
+  TEXT
+  TEXTAREA
+  NUMBER
+  CHECKBOX
+  SELECT
+  DATE
+  FILE
+}
+
+model CustomField {
+  id                   String             @id @default(cuid())
+  organizationId       String
+  name                 String
+  type                 CustomFieldType
+  required             Boolean            @default(false)
+  options              String[]
+  order                Int                @default(0)
+  collectInApplication Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  organization         Organization                    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  values               CustomFieldValue[]
+  applicationValues    ApplicationCustomFieldValue[]
+  applicationChildValues ApplicationChildCustomFieldValue[]
+
+  @@index([organizationId])
+  @@map("custom_field")
+}
+
+model CustomFieldValue {
+  id            String      @id @default(cuid())
+  customFieldId String
+  personId      String
+  value         String?     @db.Text
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  customField   CustomField @relation(fields: [customFieldId], references: [id], onDelete: Cascade)
+  person        Person      @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([customFieldId, personId])
+  @@map("custom_field_value")
+}
+
+model ApplicationCustomFieldValue {
+  id            String      @id @default(cuid())
+  applicationId String
+  customFieldId String
+  value         String?     @db.Text
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  customField   CustomField @relation(fields: [customFieldId], references: [id], onDelete: Cascade)
+
+  @@unique([applicationId, customFieldId])
+  @@map("application_custom_field_value")
 }

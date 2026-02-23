@@ -1,5 +1,6 @@
 import { config as authConfig } from "@repo/auth/config";
 import { config as paymentsConfig } from "@repo/payments/config";
+import { ImpersonationBanner } from "@saas/admin/component/ImpersonationBanner";
 import { SessionProvider } from "@saas/auth/components/SessionProvider";
 import { sessionQueryKey } from "@saas/auth/lib/api";
 import { getOrganizationList, getSession } from "@saas/auth/lib/server";
@@ -51,6 +52,7 @@ export default async function SaaSLayout({ children }: PropsWithChildren) {
 			<NextIntlClientProvider messages={messages}>
 				<HydrationBoundary state={dehydrate(queryClient)}>
 					<SessionProvider>
+						<ImpersonationBanner />
 						<ActiveOrganizationProvider>
 							<ConfirmationAlertProvider>
 								{children}

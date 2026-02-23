@@ -127,6 +127,13 @@ export async function getOrganizationWithPurchasesAndMembersCount(
 		: null;
 }
 
+export async function getUserIsOrgOwner(userId: string): Promise<boolean> {
+  const count = await db.member.count({
+    where: { userId, role: "owner" },
+  });
+  return count > 0;
+}
+
 export async function getPendingInvitationByEmail(email: string) {
 	return db.invitation.findFirst({
 		where: {

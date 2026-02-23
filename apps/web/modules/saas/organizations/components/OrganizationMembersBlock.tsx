@@ -1,11 +1,5 @@
 "use client";
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from "@repo/ui/components/tabs";
-import { SettingsItem } from "@saas/shared/components/SettingsItem";
+import { Card } from "@repo/ui/components/card";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { OrganizationInvitationsList } from "./OrganizationInvitationsList";
@@ -17,31 +11,46 @@ export function OrganizationMembersBlock({
 	organizationId: string;
 }) {
 	const t = useTranslations();
-	const [activeTab, setActiveTab] = useState("members");
+	const [activeTab, setActiveTab] = useState<"members" | "invitations">("members");
 
 	return (
-		<SettingsItem
-			title={t("organizations.settings.members.title")}
-			description={t("organizations.settings.members.description")}
-		>
-			<Tabs value={activeTab} onValueChange={(tab) => setActiveTab(tab)}>
-				<TabsList className="mb-4">
-					<TabsTrigger value="members">
-						{t("organizations.settings.members.activeMembers")}
-					</TabsTrigger>
-					<TabsTrigger value="invitations">
-						{t("organizations.settings.members.pendingInvitations")}
-					</TabsTrigger>
-				</TabsList>
-				<TabsContent value="members">
+		<Card className="p-4 md:p-6">
+			<div className="flex flex-col gap-4">
+				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+					<div className="flex flex-col gap-1.5">
+						<h3 className="m-0 font-semibold leading-tight">
+							{t("organizations.settings.members.title")}
+						</h3>
+						<p className="m-0 text-foreground/60 text-xs">
+							{t("organizations.settings.members.description")}
+						</p>
+					</div>
+					<div className="inline-flex rounded-lg border bg-muted p-1 self-start sm:self-auto">
+						{(["members", "invitations"] as const).map((tab) => (
+							<button
+								key={tab}
+								type="button"
+								onClick={() => setActiveTab(tab)}
+								className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+									activeTab === tab
+										? "bg-background text-foreground shadow-sm"
+										: "text-muted-foreground hover:text-foreground"
+								}`}
+							>
+								{tab === "members"
+									? t("organizations.settings.members.activeMembers")
+									: t("organizations.settings.members.pendingInvitations")}
+							</button>
+						))}
+					</div>
+				</div>
+
+				{activeTab === "members" ? (
 					<OrganizationMembersList organizationId={organizationId} />
-				</TabsContent>
-				<TabsContent value="invitations">
-					<OrganizationInvitationsList
-						organizationId={organizationId}
-					/>
-				</TabsContent>
-			</Tabs>
-		</SettingsItem>
+				) : (
+					<OrganizationInvitationsList organizationId={organizationId} />
+				)}
+			</div>
+		</Card>
 	);
 }

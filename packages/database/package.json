@@ -1,8 +1,9 @@
 {
 	"dependencies": {
 		"@paralleldrive/cuid2": "^3.1.0",
-		"@prisma/adapter-pg": "^6.19.0",
+		"@prisma/adapter-pg": "7.1.0",
 		"@prisma/client": "7.1.0",
+		"better-auth": "1.4.7",
 		"drizzle-orm": "^0.44.7",
 		"drizzle-zod": "0.8.3",
 		"pg": "^8.16.0",
@@ -15,15 +16,17 @@
 		"dotenv-cli": "^11.0.0",
 		"drizzle-kit": "^0.31.7",
 		"prisma": "7.1.0",
-		"prisma-zod-generator": "2.1.2"
+		"prisma-zod-generator": "2.1.2",
+		"tsx": "^4.19.2"
 	},
 	"main": "./index.ts",
 	"name": "@repo/database",
 	"scripts": {
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
-		"generate": "dotenv -c -e ../../.env -- prisma generate --no-hints",
+		"generate": "dotenv -c -e ../../.env -- prisma generate --no-hints && node -e \"const fs=require('fs'),f='./prisma/zod/index.ts',c=fs.readFileSync(f,'utf8');if(!c.includes(\\\"import { Prisma }\\\")){fs.writeFileSync(f,c.replace(\\\"import * as z from 'zod';\\\",\\\"import * as z from 'zod';\\\\nimport { Prisma } from '../generated/client';\\\"))}else{fs.writeFileSync(f,c.replace(\\\"import { Prisma } from '@prisma/client';\\\",\\\"import { Prisma } from '../generated/client';\\\"))}\"",
 		"push": "dotenv -c -e ../../.env -- prisma db push",
 		"migrate": "dotenv -c -e ../../.env -- prisma migrate dev",
+		"seed": "dotenv -c -e ../../.env -- tsx prisma/seed.ts",
 		"studio": "dotenv -c -e ../../.env -- prisma studio",
 		"type-check": "tsc --noEmit"
 	},

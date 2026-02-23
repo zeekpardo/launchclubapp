@@ -1,0 +1,195 @@
+"use client";
+
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@repo/ui/components/alert-dialog";
+import { Badge } from "@repo/ui/components/badge";
+import { Button } from "@repo/ui/components/button";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@repo/ui/components/table";
+import { toastError, toastSuccess } from "@repo/ui/components/toast";
+import { useDeleteEvent } from "@saas/events/hooks/use-events";
+import { CalendarCheckIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { EventDialog } from "./EventDialog";
+
+interface EventRow {
+	id: string;
+	name: string;
+	groupId: string;
+	description?: string | null;
+	startsAt: Date | string;
+	endsAt?: Date | string | null;
+	_count?: { attendance: number };
+	group: { name: string };
+}
+
+interface EventsTableProps {
+	events: EventRow[];
+	organizationId: string;
+}
+
+function EventTableRow({
+	event,
+	organizationId,
+}: { event: EventRow; organizationId: string }) {
+	const t = useTranslations();
+	const deleteEvent = useDeleteEvent();
+	const [editOpen, setEditOpen] = useState(false);
+	const [deleteOpen, setDeleteOpen] = useState(false);
+
+	const startsAt = new Date(event.startsAt);
+	const dateLabel = new Intl.DateTimeFormat(undefined, {
+		weekday: "short",
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+	}).format(startsAt);
+	const timeLabel = new Intl.DateTimeFormat(undefined, {
+		hour: "2-digit",
+		minute: "2-digit",
+	}).format(startsAt);
+
+	const attendanceCount = event._count?.attendance ?? 0;
+
+	const handleDelete = async () => {
+		try {
+			await deleteEvent.mutateAsync({ id: event.id });
+			toastSuccess(t("launchclub.events.form.notifications.deleted"));
+		} catch {
+			toastError(t("launchclub.events.form.notifications.error"));
+		} finally {
+			setDeleteOpen(false);
+		}
+	};
+
+	return (
+		<>
+			<TableRow>
+				<TableCell className="font-medium">{event.name}</TableCell>
+				<TableCell className="text-muted-foreground">
+					{event.group.name}
+				</TableCell>
+				<TableCell className="text-muted-foreground whitespace-nowrap">
+					{dateLabel}
+				</TableCell>
+				<TableCell className="text-muted-foreground whitespace-nowrap">
+					{timeLabel}
+				</TableCell>
+				<TableCell>
+					<Badge
+						status={attendanceCount > 0 ? "success" : "info"}
+						className="flex w-fit items-center gap-1 whitespace-nowrap"
+					>
+						<CalendarCheckIcon className="size-3" />
+						{t("launchclub.events.attendanceCount", {
+							count: attendanceCount,
+						})}
+					</Badge>
+				</TableCell>
+				<TableCell className="text-muted-foreground max-w-xs truncate">
+					{event.description ?? "—"}
+				</TableCell>
+				<TableCell className="text-right">
+					<div className="flex justify-end gap-0.5">
+						<Button
+							variant="ghost"
+							size="icon"
+							className="size-7"
+							onClick={() => setEditOpen(true)}
+							aria-label={t("launchclub.events.edit")}
+						>
+							<PencilIcon className="size-3.5" />
+						</Button>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="size-7"
+							onClick={() => setDeleteOpen(true)}
+							aria-label={t("launchclub.events.delete")}
+						>
+							<TrashIcon className="size-3.5 text-destructive" />
+						</Button>
+					</div>
+				</TableCell>
+			</TableRow>
+
+			<EventDialog
+				open={editOpen}
+				onOpenChange={setEditOpen}
+				event={{
+					id: event.id,
+					name: event.name,
+					groupId: event.groupId,
+					description: event.description,
+					startsAt: event.startsAt,
+					endsAt: event.endsAt,
+				}}
+				organizationId={organizationId}
+			/>
+
+			<AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							{t("launchclub.events.confirmDelete.title")}
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							{t("launchclub.events.confirmDelete.message")}
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>{t("launchclub.events.form.cancel")}</AlertDialogCancel>
+						<AlertDialogAction onClick={handleDelete}>
+							{t("launchclub.events.confirmDelete.confirm")}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+		</>
+	);
+}
+
+export function EventsTable({ events, organizationId }: EventsTableProps) {
+	const t = useTranslations();
+	return (
+		<div className="rounded-xl border">
+			<Table>
+				<TableHeader>
+					<TableRow>
+						<TableHead>{t("launchclub.events.table.event")}</TableHead>
+						<TableHead>{t("launchclub.events.table.group")}</TableHead>
+						<TableHead>{t("launchclub.events.table.date")}</TableHead>
+						<TableHead>{t("launchclub.events.table.time")}</TableHead>
+						<TableHead>{t("launchclub.events.table.attendance")}</TableHead>
+						<TableHead>{t("launchclub.events.table.description")}</TableHead>
+						<TableHead />
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{events.map((event) => (
+						<EventTableRow
+							key={event.id}
+							event={event}
+							organizationId={organizationId}
+						/>
+					))}
+				</TableBody>
+			</Table>
+		</div>
+	);
+}

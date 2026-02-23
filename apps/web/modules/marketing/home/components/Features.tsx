@@ -2,11 +2,12 @@
 
 import { cn } from "@repo/ui";
 import {
-	CloudIcon,
-	ComputerIcon,
-	SmartphoneIcon,
-	StarIcon,
-	WandIcon,
+	CalendarCheckIcon,
+	ClipboardListIcon,
+	DollarSignIcon,
+	MapPinIcon,
+	ShieldCheckIcon,
+	UsersIcon,
 } from "lucide-react";
 import Image, { type StaticImageData } from "next/image";
 import type { JSXElementConstructor, ReactNode } from "react";
@@ -34,63 +35,64 @@ export const featureTabs: Array<{
 	}[];
 }> = [
 	{
-		id: "feature1",
-		title: "Feature 1",
-		icon: StarIcon,
-		subtitle: "Do more with our amazing SaaS.",
+		id: "groups",
+		title: "Groups & Attendance",
+		icon: UsersIcon,
+		subtitle: "Keep every group organized and every session accounted for.",
 		description:
-			"This is a brilliant feature. And below you can see some reasons why. This is basically just a dummy text.",
+			"Create and manage groups across multiple sites and areas. Assign staff, track members, and record attendance for every event — all in one place.",
 		stack: [],
 		image: heroImage,
 		imageBorder: false,
 		highlights: [
 			{
-				title: "Benefit 1",
+				title: "Flexible hierarchy",
 				description:
-					"This is an awesome benefit. And below you can see some reasons why. This is basically just a dummy text.",
-				icon: WandIcon,
+					"Organize programs across organizations, areas, sites, and groups — mirroring how your programs actually run.",
+				icon: MapPinIcon,
 			},
 			{
-				title: "Benefit 2",
+				title: "Attendance tracking",
 				description:
-					"This is an awesome benefit. And below you can see some reasons why. This is basically just a dummy text.",
-				icon: ComputerIcon,
+					"Mark attendance quickly for any event and monitor real-time attendance rates per group.",
+				icon: CalendarCheckIcon,
 			},
 			{
-				title: "Benefit 3",
+				title: "People & households",
 				description:
-					"This is an awesome benefit. And below you can see some reasons why. This is basically just a dummy text.",
-				icon: SmartphoneIcon,
+					"Maintain detailed profiles for every participant, linked to their household and assigned groups.",
+				icon: UsersIcon,
 			},
 		],
 	},
 	{
-		id: "feature2",
-		title: "Feature 2",
-		icon: CloudIcon,
-		subtitle: "Your SaaS can also do this.",
-		description: "Another dummy text for another feature.",
+		id: "operations",
+		title: "Operations",
+		icon: ClipboardListIcon,
+		subtitle: "Streamline the admin work so your team can focus on the kids.",
+		description:
+			"From purchase requests to new participant applications, keep your approval workflows moving — with full visibility for everyone involved.",
 		stack: [],
 		image: heroImage,
 		imageBorder: false,
 		highlights: [
 			{
-				title: "Benefit 1",
+				title: "Purchase approvals",
 				description:
-					"This is an awesome benefit. And below you can see some reasons why. This is basically just a dummy text.",
-				icon: WandIcon,
+					"Staff submit purchase requests with justifications and product links. Admins approve or decline with a full audit trail.",
+				icon: DollarSignIcon,
 			},
 			{
-				title: "Benefit 2",
+				title: "Application flow",
 				description:
-					"This is an awesome benefit. And below you can see some reasons why. This is basically just a dummy text.",
-				icon: ComputerIcon,
+					"Share a public apply link and let families sign up directly. Review, approve, and assign applicants to groups — no paperwork.",
+				icon: ClipboardListIcon,
 			},
 			{
-				title: "Benefit 3",
+				title: "Role-based access",
 				description:
-					"This is an awesome benefit. And below you can see some reasons why. This is basically just a dummy text.",
-				icon: SmartphoneIcon,
+					"Admins, site managers, and group leaders each see exactly what they need — no more, no less.",
+				icon: ShieldCheckIcon,
 			},
 		],
 	},
@@ -102,15 +104,14 @@ export function Features() {
 			<div className="container">
 				<div className="mb-6 lg:mb-0 max-w-3xl">
 					<small className="font-medium text-xs uppercase tracking-wider text-primary mb-4 block">
-						Incredible features
+						Everything you need
 					</small>
 					<h2 className="text-3xl lg:text-4xl xl:text-5xl font-medium">
-						Features your clients will love
+						Built for the people running programs, not just managing them
 					</h2>
 					<p className="mt-2 text-base lg:text-lg text-foreground/60">
-						In this section you can showcase all the features of
-						your SaaS provides and how they can benefit your
-						clients.
+						Everything your team needs to manage participants,
+						track attendance, and run operations — in one place.
 					</p>
 				</div>
 			</div>

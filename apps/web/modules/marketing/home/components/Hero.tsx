@@ -17,18 +17,19 @@ export function Hero() {
 							New:
 						</span>
 						<span className="ml-1 block font-medium">
-							Amazing feature of your SaaS
+							Purchase request approvals are here
 						</span>
 					</div>
 				</div>
 
 				<h1 className="text-balance font-medium text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tighter text-foreground">
-					Your revolutionary SaaS built with Next.js
+					Run your youth programs — from sign-up to sign-off
 				</h1>
 
 				<p className="mt-2 text-foreground/60 text-sm sm:text-lg max-w-3xl">
-					This is a demo application built with supastarter. It will
-					save you a lot of time and effort building your next SaaS.
+					Manage every area, site, group, and person in one place.
+					Track attendance, approve purchase requests, and process
+					new applications — without the spreadsheets.
 				</p>
 
 				<div className="mt-4 flex items-center justify-start gap-2">
@@ -64,7 +65,7 @@ export function Hero() {
 
 				<div className="mt-12 lg:mt-16 text-center">
 					<h5 className="font-semibold text-foreground/50 text-xs uppercase tracking-wider">
-						Built & shipped with these awesome tools
+						Powered by modern, reliable technology
 					</h5>
 
 					<div className="mt-4 flex flex-col-reverse items-center justify-center gap-4 text-foreground/50 md:flex-row md:gap-8">

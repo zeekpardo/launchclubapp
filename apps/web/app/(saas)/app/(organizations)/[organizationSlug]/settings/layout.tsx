@@ -6,8 +6,12 @@ import { OrganizationLogo } from "@saas/organizations/components/OrganizationLog
 import { SettingsMenu } from "@saas/settings/components/SettingsMenu";
 import { PageHeader } from "@saas/shared/components/PageHeader";
 import {
+	Building2Icon,
+	ClipboardListIcon,
 	CreditCardIcon,
 	Settings2Icon,
+	ShieldIcon,
+	SlidersIcon,
 	TriangleAlertIcon,
 	Users2Icon,
 } from "lucide-react";
@@ -35,6 +39,11 @@ export default async function SettingsLayout({
 		session?.user,
 	);
 
+	const currentMember = organization.members.find(
+		(m) => m.userId === session?.user.id,
+	);
+	const isGroupLeader = currentMember?.role === "member";
+
 	const organizationSettingsBasePath = `/app/${organizationSlug}/settings`;
 
 	const menuItems = [
@@ -57,6 +66,25 @@ export default async function SettingsLayout({
 					href: `${organizationSettingsBasePath}/members`,
 					icon: <Users2Icon className="size-4 opacity-50" />,
 				},
+				...(!isGroupLeader
+					? [
+							{
+								title: t("settings.menu.organization.areas"),
+								href: `${organizationSettingsBasePath}/areas`,
+								icon: <Building2Icon className="size-4 opacity-50" />,
+							},
+							{
+								title: t("settings.menu.organization.applications"),
+								href: `${organizationSettingsBasePath}/applications`,
+								icon: <ClipboardListIcon className="size-4 opacity-50" />,
+							},
+							{
+								title: t("settings.menu.organization.customFields"),
+								href: `${organizationSettingsBasePath}/custom-fields`,
+								icon: <SlidersIcon className="size-4 opacity-50" />,
+							},
+						]
+					: []),
 				...(authConfig.organizations.enable &&
 				paymentsConfig.billingAttachedTo === "organization" &&
 				userIsOrganizationAdmin
@@ -79,6 +107,17 @@ export default async function SettingsLayout({
 								href: `${organizationSettingsBasePath}/danger-zone`,
 								icon: (
 									<TriangleAlertIcon className="size-4 opacity-50" />
+								),
+							},
+						]
+					: []),
+				...(session?.user?.role === "admin"
+					? [
+							{
+								title: t("settings.menu.organization.superAdmin"),
+								href: `${organizationSettingsBasePath}/super-admin`,
+								icon: (
+									<ShieldIcon className="size-4 opacity-50" />
 								),
 							},
 						]

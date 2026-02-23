@@ -14,7 +14,7 @@ export const subscribeToNewsletter = publicProcedure
 	})
 	.input(
 		z.object({
-			email: z.string().email(),
+			email: z.string().email().max(254),
 		}),
 	)
 	.use(localeMiddleware)

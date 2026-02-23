@@ -40,7 +40,7 @@ import {
 import { LogOutIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { OrganizationRoleSelect } from "./OrganizationRoleSelect";
+import { MemberRoleEditor } from "./MemberRoleEditor";
 
 export function OrganizationMembersList({
 	organizationId,
@@ -57,36 +57,10 @@ export function OrganizationMembersList({
 
 	const userIsOrganizationAdmin = isOrganizationAdmin(organization, user);
 
-	const updateMemberRole = async (
-		memberId: string,
-		role: OrganizationMemberRole,
-	) => {
-		toastPromise(
-			async () => {
-				await authClient.organization.updateMemberRole({
-					memberId,
-					role,
-					organizationId,
-				});
-			},
-			{
-				loading: t(
-					"organizations.settings.members.notifications.updateMembership.loading.description",
-				),
-				success: () => {
-					queryClient.invalidateQueries({
-						queryKey: fullOrganizationQueryKey(organizationId),
-					});
-
-					return t(
-						"organizations.settings.members.notifications.updateMembership.success.description",
-					);
-				},
-				error: t(
-					"organizations.settings.members.notifications.updateMembership.error.description",
-				),
-			},
-		);
+	const handleRoleUpdateSuccess = () => {
+		queryClient.invalidateQueries({
+			queryKey: fullOrganizationQueryKey(organizationId),
+		});
 	};
 
 	const removeMember = async (memberId: string) => {
@@ -153,15 +127,12 @@ export function OrganizationMembersList({
 					<div className="flex flex-row justify-end gap-2">
 						{userIsOrganizationAdmin ? (
 							<>
-								<OrganizationRoleSelect
-									value={row.original.role}
-									onSelect={async (value) =>
-										updateMemberRole(row.original.id, value)
-									}
-									disabled={
-										!userIsOrganizationAdmin ||
-										row.original.role === "owner"
-									}
+								<MemberRoleEditor
+									memberId={row.original.id}
+									organizationId={organizationId}
+									currentRole={row.original.role as OrganizationMemberRole}
+									disabled={row.original.role === "owner"}
+									onSuccess={handleRoleUpdateSuccess}
 								/>
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
@@ -242,8 +213,8 @@ export function OrganizationMembersList({
 	});
 
 	return (
-		<div className="rounded-lg border">
-			<Table>
+		<div className="w-full rounded-lg border">
+			<Table className="w-full">
 				<TableBody>
 					{table.getRowModel().rows?.length ? (
 						table.getRowModel().rows.map((row) => (

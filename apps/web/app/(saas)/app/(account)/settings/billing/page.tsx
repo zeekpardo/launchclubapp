@@ -1,3 +1,4 @@
+import { getUserIsOrgOwner } from "@repo/database";
 import { createPurchasesHelper } from "@repo/payments/lib/helper";
 import { getSession } from "@saas/auth/lib/server";
 import { ActivePlan } from "@saas/payments/components/ActivePlan";
@@ -8,6 +9,7 @@ import { orpc } from "@shared/lib/orpc-query-utils";
 import { getServerQueryClient } from "@shared/lib/server";
 import { attemptAsync } from "es-toolkit";
 import { getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata() {
 	const t = await getTranslations();
@@ -19,6 +21,13 @@ export async function generateMetadata() {
 
 export default async function BillingSettingsPage() {
 	const session = await getSession();
+
+	if (!session) return notFound();
+
+	const isGlobalAdmin = session.user.role === "admin";
+	const isOrgOwner = isGlobalAdmin || (await getUserIsOrgOwner(session.user.id));
+	if (!isOrgOwner) return notFound();
+
 	const [error, data] = await attemptAsync(() =>
 		orpcClient.payments.listPurchases({}),
 	);

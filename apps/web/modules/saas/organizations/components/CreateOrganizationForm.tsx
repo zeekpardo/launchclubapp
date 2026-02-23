@@ -61,7 +61,7 @@ export function CreateOrganizationForm({
 				queryKey: organizationListQueryKey,
 			});
 
-			router.replace(`/app/${newOrganization.slug}`);
+			router.replace(`/app/${newOrganization.slug}/onboarding`);
 		} catch {
 			toastError(t("organizations.createForm.notifications.error"));
 		}

@@ -1,3 +1,4 @@
+import { getUserIsOrgOwner } from "@repo/database";
 import { config as paymentsConfig } from "@repo/payments/config";
 import { getSession } from "@saas/auth/lib/server";
 import { SettingsMenu } from "@saas/settings/components/SettingsMenu";
@@ -20,6 +21,9 @@ export default async function SettingsLayout({ children }: PropsWithChildren) {
 		redirect("/auth/login");
 	}
 
+	const isGlobalAdmin = session.user.role === "admin";
+	const isOrgOwner = isGlobalAdmin || (await getUserIsOrgOwner(session.user.id));
+
 	const menuItems = [
 		{
 			title: t("settings.menu.account.title"),
@@ -40,7 +44,7 @@ export default async function SettingsLayout({ children }: PropsWithChildren) {
 					href: "/app/settings/security",
 					icon: <LockKeyholeIcon className="size-4 opacity-50" />,
 				},
-				...(paymentsConfig.billingAttachedTo === "user"
+				...(paymentsConfig.billingAttachedTo === "user" && isOrgOwner
 					? [
 							{
 								title: t("settings.menu.account.billing"),
@@ -51,11 +55,15 @@ export default async function SettingsLayout({ children }: PropsWithChildren) {
 							},
 						]
 					: []),
-				{
-					title: t("settings.menu.account.dangerZone"),
-					href: "/app/settings/danger-zone",
-					icon: <TriangleAlertIcon className="size-4 opacity-50" />,
-				},
+				...(isOrgOwner
+					? [
+							{
+								title: t("settings.menu.account.dangerZone"),
+								href: "/app/settings/danger-zone",
+								icon: <TriangleAlertIcon className="size-4 opacity-50" />,
+							},
+						]
+					: []),
 			],
 		},
 	];

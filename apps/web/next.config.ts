@@ -6,6 +6,42 @@ import nextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = nextIntlPlugin("./modules/i18n/request.ts");
 
+// Cloudflare Turnstile is used on the public application form.
+// All Turnstile assets (script, iframe, verification) live on this origin.
+const TURNSTILE_ORIGIN = "https://challenges.cloudflare.com";
+
+const ContentSecurityPolicy = `
+	default-src 'self';
+	script-src 'self' 'unsafe-inline' 'unsafe-eval' ${TURNSTILE_ORIGIN};
+	style-src 'self' 'unsafe-inline';
+	img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com;
+	font-src 'self';
+	connect-src 'self' https: ${TURNSTILE_ORIGIN};
+	frame-src ${TURNSTILE_ORIGIN};
+	frame-ancestors 'none';
+	base-uri 'self';
+	form-action 'self';
+`
+	.replace(/\t/g, " ")
+	.replace(/\n/g, "")
+	.replace(/\s{2,}/g, " ")
+	.trim();
+
+const securityHeaders = [
+	{ key: "X-DNS-Prefetch-Control", value: "on" },
+	{ key: "X-Content-Type-Options", value: "nosniff" },
+	// DENY — this app is never intentionally embedded. frame-ancestors in CSP covers
+	// modern browsers; X-Frame-Options covers older ones.
+	{ key: "X-Frame-Options", value: "DENY" },
+	{ key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+	{ key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+	{
+		key: "Strict-Transport-Security",
+		value: "max-age=63072000; includeSubDomains; preload",
+	},
+	{ key: "Content-Security-Policy", value: ContentSecurityPolicy },
+];
+
 const nextConfig: NextConfig = {
 	transpilePackages: [
 		"@repo/api",
@@ -25,12 +61,15 @@ const nextConfig: NextConfig = {
 				protocol: "https",
 				hostname: "avatars.githubusercontent.com",
 			},
-			{
-				// placeholder images
-				protocol: "https",
-				hostname: "picsum.photos",
-			},
 		],
+	},
+	async headers() {
+		return [
+			{
+				source: "/(.*)",
+				headers: securityHeaders,
+			},
+		];
 	},
 	async redirects() {
 		return [

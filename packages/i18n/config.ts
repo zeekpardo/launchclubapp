@@ -10,6 +10,10 @@ export const config = {
 			label: "Deutsch",
 			currency: "USD",
 		},
+		es: {
+			label: "Español",
+			currency: "USD",
+		},
 	},
 	// The default locale is used if no locale is provided
 	defaultLocale: "en",

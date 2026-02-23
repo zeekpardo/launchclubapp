@@ -202,8 +202,8 @@ export function OrganizationInvitationsList({
 	});
 
 	return (
-		<div className="rounded-md border">
-			<Table>
+		<div className="w-full rounded-md border">
+			<Table className="w-full">
 				<TableBody>
 					{table.getRowModel().rows?.length ? (
 						table.getRowModel().rows.map((row) => (

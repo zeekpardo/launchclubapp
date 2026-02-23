@@ -1,6 +1,12 @@
 export const config = {
-	// the name of the app
-	appName: "supastarter for Next.js Demo",
+	// the name of the app — update this one value and it propagates everywhere
+	appName: "Launch Club App",
+
+	// the domain of the app — update when purchased
+	appDomain: "launchclub.app",
+
+	// the effective date for legal documents (privacy policy, terms)
+	legalEffectiveDate: "YOUR_EFFECTIVE_DATE",
 
 	// the link to the documentation app (if not defined, the documentation link will not be shown in the app)
 	docsLink: process.env.NEXT_PUBLIC_DOCS_URL as string | undefined,

@@ -16,7 +16,7 @@ export const listOrganizations = adminProcedure
 	})
 	.input(
 		z.object({
-			query: z.string().optional(),
+			query: z.string().max(200).optional(),
 			limit: z.number().min(1).max(100).default(10),
 			offset: z.number().min(0).default(0),
 		}),
@@ -41,7 +41,7 @@ export const getOrganizationById = adminProcedure
 	})
 	.input(
 		z.object({
-			id: z.string(),
+			id: z.string().max(36),
 		}),
 	)
 	.handler(async ({ input: { id } }) => {

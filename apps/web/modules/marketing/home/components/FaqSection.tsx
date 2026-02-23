@@ -14,20 +14,20 @@ export function FaqSection({ className }: { className?: string }) {
 
 	const items = [
 		{
-			question: "What is the refund policy?",
-			answer: "We offer a 30-day money-back guarantee if you're not happy with our product.",
+			question: "Who is this for?",
+			answer: "This platform is built for youth program operators — after-school programs, community clubs, sports leagues, and any organization that manages participants across multiple locations.",
 		},
 		{
-			question: "How do I cancel my subscription?",
-			answer: "You can cancel your subscription by visiting the billing page.",
+			question: "Can multiple staff members use the same account?",
+			answer: "Yes. Each organization supports multiple team members with role-based access. Admins manage everything; site leads and group managers see only what's relevant to them.",
 		},
 		{
-			question: "Can I change my plan?",
-			answer: "Yes, you can change your plan at any time by visiting the billing page.",
+			question: "How is billing handled?",
+			answer: "We offer simple per-organization pricing. Choose the plan that fits your team and upgrade or cancel any time from your billing settings.",
 		},
 		{
-			question: "Do you offer a free trial?",
-			answer: "Yes, we offer a 14-day free trial.",
+			question: "Is there a free trial?",
+			answer: "Yes, we offer a 14-day free trial with full access to all features. No credit card required to start.",
 		},
 	];
 

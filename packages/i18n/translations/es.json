@@ -1,0 +1,1626 @@
+{
+  "admin": {
+    "menu": {
+      "organizations": "Organizaciones",
+      "users": "Usuarios"
+    },
+    "organizations": {
+      "backToList": "Volver a la lista",
+      "confirmDelete": {
+        "confirm": "Eliminar",
+        "message": "¿Estás seguro de que deseas eliminar esta organización? Esta acción no se puede deshacer.",
+        "title": "Eliminar organización"
+      },
+      "create": "Crear",
+      "delete": "Eliminar",
+      "deleteOrganization": {
+        "deleted": "¡La organización ha sido eliminada exitosamente!",
+        "deleting": "Eliminando organización...",
+        "notDeleted": "No se pudo eliminar la organización. Por favor, inténtalo de nuevo."
+      },
+      "edit": "Editar",
+      "form": {
+        "createTitle": "Crear una organización",
+        "name": "Nombre de la organización",
+        "notifications": {
+          "error": "No se pudo guardar la organización. Por favor, inténtalo más tarde.",
+          "success": "La organización ha sido guardada."
+        },
+        "save": "Guardar",
+        "updateTitle": "Editar organización"
+      },
+      "loading": "Cargando organizaciones...",
+      "membersCount": "{count} {count, plural, one {miembro} other {miembros}}",
+      "search": "Buscar una organización...",
+      "title": "Administrar organizaciones"
+    },
+    "title": "Administración",
+    "users": {
+      "confirmDelete": {
+        "confirm": "Eliminar",
+        "message": "¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.",
+        "title": "Eliminar usuario"
+      },
+      "delete": "Eliminar",
+      "deleteUser": {
+        "deleted": "¡El usuario ha sido eliminado exitosamente!",
+        "deleting": "Eliminando usuario...",
+        "notDeleted": "No se pudo eliminar el usuario. Por favor, inténtalo de nuevo."
+      },
+      "emailVerified": {
+        "verified": "Correo verificado",
+        "waiting": "Correo pendiente de verificación"
+      },
+      "impersonate": "Suplantar",
+      "impersonation": {
+        "impersonating": "Suplantando a {name}..."
+      },
+      "loading": "Cargando usuarios...",
+      "resendVerificationMail": {
+        "error": "No se pudo reenviar el correo de verificación. Por favor, inténtalo de nuevo.",
+        "submitting": "Reenviando correo de verificación...",
+        "success": "El correo de verificación ha sido enviado.",
+        "title": "Reenviar correo de verificación"
+      },
+      "search": "Buscar por nombre o correo...",
+      "title": "Administrar usuarios",
+      "assignAdminRole": "Asignar rol de administrador",
+      "removeAdminRole": "Quitar rol de administrador"
+    },
+    "description": "Administra tu aplicación."
+  },
+  "app": {
+    "menu": {
+      "accountSettings": "Configuración de cuenta",
+      "admin": "Admin",
+      "aiChatbot": "Chatbot IA",
+      "organizationSettings": "Configuración de organización",
+      "start": "Inicio",
+      "areas": "Áreas",
+      "sites": "Sedes",
+      "groups": "Grupos",
+      "people": "Personas",
+      "kids": "Niños",
+      "guardians": "Tutores",
+      "events": "Eventos",
+      "applications": "Solicitudes",
+      "purchaseRequests": "Solicitudes de compra"
+    },
+    "userMenu": {
+      "accountSettings": "Configuración de cuenta",
+      "colorMode": "Modo de color",
+      "documentation": "Documentación",
+      "home": "Inicio",
+      "logout": "Cerrar sesión"
+    }
+  },
+  "auth": {
+    "errors": {
+      "invalidEmailOrPassword": "Las credenciales ingresadas son inválidas. Por favor, verifícalas e inténtalo de nuevo.",
+      "unknown": "Algo salió mal. Por favor, inténtalo de nuevo.",
+      "userNotFound": "Este usuario no existe",
+      "failedToCreateUser": "No se pudo crear el usuario. Por favor, inténtalo de nuevo.",
+      "failedToCreateSession": "No se pudo crear una sesión. Por favor, inténtalo de nuevo.",
+      "failedToUpdateUser": "No se pudo actualizar el usuario. Por favor, inténtalo de nuevo.",
+      "failedToGetSession": "No se pudo obtener la sesión.",
+      "invalidPassword": "La contraseña ingresada es incorrecta.",
+      "invalidEmail": "El correo ingresado es inválido.",
+      "invalidToken": "El token ingresado es inválido o ha expirado.",
+      "credentialAccountNotFound": "Cuenta no encontrada.",
+      "emailCanNotBeUpdated": "No se pudo actualizar el correo. Por favor, inténtalo de nuevo.",
+      "emailNotVerified": "Por favor, verifica tu correo antes de iniciar sesión.",
+      "failedToGetUserInfo": "No se pudo cargar la información del usuario.",
+      "idTokenNotSupported": "El token de ID no es compatible.",
+      "passwordTooLong": "La contraseña es demasiado larga.",
+      "passwordTooShort": "La contraseña es demasiado corta.",
+      "providerNotFound": "Este proveedor no es compatible.",
+      "socialAccountAlreadyLinked": "Esta cuenta ya está vinculada a un usuario.",
+      "userEmailNotFound": "Correo no encontrado.",
+      "userAlreadyExists": "Este usuario ya existe.",
+      "userAlreadyExistsUseAnotherEmail": "El usuario ya existe. Usa otro correo.",
+      "invalidInvitation": "La invitación es inválida o ha expirado.",
+      "sessionExpired": "La sesión ha expirado.",
+      "failedToUnlinkLastAccount": "Error al desvincular la cuenta",
+      "accountNotFound": "Cuenta no encontrada"
+    },
+    "forgotPassword": {
+      "backToSignin": "Volver al inicio de sesión",
+      "email": "Correo electrónico",
+      "hints": {
+        "linkNotSent": {
+          "message": "Lo sentimos, no pudimos enviarte un enlace para restablecer tu contraseña. Por favor, inténtalo más tarde.",
+          "title": "Enlace no enviado"
+        },
+        "linkSent": {
+          "message": "Te hemos enviado un enlace para continuar. Por favor, revisa tu bandeja de entrada.",
+          "title": "Enlace enviado"
+        }
+      },
+      "message": "Por favor, ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",
+      "submit": "Enviar enlace",
+      "title": "¿Olvidaste tu contraseña?"
+    },
+    "login": {
+      "continueWith": "O continúa con",
+      "createAnAccount": "Crear una cuenta",
+      "dontHaveAnAccount": "¿Aún no tienes una cuenta?",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "hints": {
+        "invalidCredentials": "El correo o la contraseña que ingresaste son inválidos. Por favor, inténtalo de nuevo.",
+        "linkSent": {
+          "message": "Te hemos enviado un enlace para continuar. Por favor, revisa tu bandeja de entrada.",
+          "title": "Enlace enviado"
+        }
+      },
+      "loginWithPasskey": "Iniciar sesión con clave de acceso",
+      "modes": {
+        "magicLink": "Enlace mágico",
+        "password": "Contraseña"
+      },
+      "submit": "Iniciar sesión",
+      "subtitle": "Por favor, ingresa tus credenciales para iniciar sesión.",
+      "title": "Bienvenido de nuevo",
+      "sendMagicLink": "Enviar enlace mágico"
+    },
+    "resetPassword": {
+      "backToSignin": "Volver al inicio de sesión",
+      "hints": {
+        "error": "Lo sentimos, no pudimos restablecer tu contraseña. Por favor, inténtalo de nuevo.",
+        "success": "Tu contraseña ha sido restablecida exitosamente."
+      },
+      "message": "Por favor, ingresa una nueva contraseña.",
+      "newPassword": "Nueva contraseña",
+      "submit": "Restablecer contraseña",
+      "title": "Restablece tu contraseña"
+    },
+    "signup": {
+      "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+      "email": "Correo electrónico",
+      "hints": {
+        "signupFailed": "Lo sentimos, no pudimos crear tu cuenta. Por favor, inténtalo más tarde.",
+        "verifyEmail": "Te hemos enviado un enlace para verificar tu correo. Por favor, revisa tu bandeja de entrada."
+      },
+      "message": "Estamos felices de que quieras unirte a nosotros. Por favor, completa el formulario para crear tu cuenta.",
+      "name": "Nombre",
+      "password": "Contraseña",
+      "signIn": "Iniciar sesión",
+      "submit": "Crear cuenta",
+      "title": "Crear una cuenta"
+    },
+    "verify": {
+      "title": "Verifica tu cuenta",
+      "code": "Contraseña de un solo uso",
+      "submit": "Verificar",
+      "backToSignin": "Volver al inicio de sesión",
+      "message": "Ingresa la contraseña de un solo uso de tu aplicación de autenticación para continuar."
+    }
+  },
+  "blog": {
+    "description": "Lee las últimas noticias de nuestra empresa",
+    "title": "Mi increíble blog",
+    "back": "Volver al blog"
+  },
+  "changelog": {
+    "description": "Mantente al día con los últimos cambios en nuestro producto.",
+    "title": "Registro de cambios"
+  },
+  "common": {
+    "confirmation": {
+      "cancel": "Cancelar",
+      "confirm": "Confirmar"
+    },
+    "menu": {
+      "blog": "Blog",
+      "changelog": "Cambios",
+      "contact": "Contacto",
+      "dashboard": "Panel",
+      "docs": "Docs",
+      "faq": "FAQ",
+      "login": "Iniciar sesión",
+      "pricing": "Precios"
+    },
+    "tableOfContents": {
+      "title": "En esta página"
+    },
+    "actions": {
+      "continue": "Continuar",
+      "verify": "Verificar"
+    },
+    "colorMode": {
+      "system": "Sistema",
+      "light": "Claro",
+      "dark": "Oscuro"
+    }
+  },
+  "contact": {
+    "description": "Estamos aquí para ayudarte. Por favor, usa el formulario a continuación para ponerte en contacto con nosotros.",
+    "form": {
+      "email": "Correo electrónico",
+      "message": "Mensaje",
+      "name": "Nombre",
+      "notifications": {
+        "error": "Lo sentimos, no pudimos enviar tu mensaje. Por favor, inténtalo más tarde.",
+        "success": "Tu mensaje ha sido enviado exitosamente. Nos pondremos en contacto contigo lo antes posible."
+      },
+      "submit": "Enviar mensaje"
+    },
+    "title": "Contáctanos"
+  },
+  "documentation": {
+    "title": "Documentación"
+  },
+  "faq": {
+    "description": "¿Tienes preguntas? Te tenemos cubierto.",
+    "title": "Preguntas frecuentes"
+  },
+  "mail": {
+    "common": {
+      "openLinkInBrowser": "Si deseas abrir el enlace en un navegador diferente al predeterminado, copia y pega este enlace:",
+      "otp": "Contraseña de un solo uso",
+      "useLink": "o usa el siguiente enlace:"
+    },
+    "emailVerification": {
+      "body": "Hola,\npor favor haz clic en el enlace a continuación para verificar esta nueva dirección de correo electrónico.",
+      "confirmEmail": "Verificar correo",
+      "subject": "Verifica tu correo electrónico"
+    },
+    "forgotPassword": {
+      "body": "Hola,\nsolicitaste un restablecimiento de contraseña.\n\nHaz clic en el botón a continuación para restablecer tu contraseña.",
+      "resetPassword": "Restablecer contraseña",
+      "subject": "Restablece tu contraseña"
+    },
+    "magicLink": {
+      "body": "Hola,\nsolicitaste un correo de inicio de sesión.\n\nHaz clic en el enlace a continuación para iniciar sesión.",
+      "login": "Iniciar sesión",
+      "subject": "Inicia sesión"
+    },
+    "newUser": {
+      "body": "Hola,\ngracias por registrarte.\n\nPara comenzar a usar nuestra aplicación, por favor confirma tu dirección de correo electrónico haciendo clic en el enlace a continuación.",
+      "confirmEmail": "Confirmar correo",
+      "subject": "Confirma tu correo electrónico"
+    },
+    "newsletterSignup": {
+      "body": "Gracias por suscribirte a nuestro boletín. Te mantendremos informado con las últimas noticias y actualizaciones.",
+      "subject": "Bienvenido a nuestro boletín"
+    },
+    "organizationInvitation": {
+      "body": "Has sido invitado a unirte a la organización {organizationName}. Haz clic en el botón a continuación o copia y pega el enlace en tu navegador para aceptar la invitación y unirte a la organización.",
+      "headline": "Únete a la organización {organizationName}",
+      "join": "Unirse a la organización",
+      "subject": "Has sido invitado a unirte a una organización"
+    }
+  },
+  "newsletter": {
+    "email": "Correo electrónico",
+    "hints": {
+      "error": {
+        "message": "No se pudo suscribir al boletín. Por favor, inténtalo más tarde."
+      },
+      "success": {
+        "message": "Gracias por suscribirte a nuestro boletín. Te mantendremos informado.",
+        "title": "Suscrito"
+      }
+    },
+    "submit": "Suscribirse",
+    "subtitle": "Sé de los primeros en obtener acceso.",
+    "title": "Obtén acceso anticipado"
+  },
+  "onboarding": {
+    "account": {
+      "avatar": "Avatar",
+      "avatarDescription": "Haz clic en el círculo o arrastra una imagen para subir tu avatar.",
+      "name": "Nombre"
+    },
+    "continue": "Continuar",
+    "message": "Solo unos pocos pasos rápidos para comenzar.",
+    "notifications": {
+      "accountSetupFailed": "Lo sentimos, no pudimos configurar tu cuenta. Por favor, inténtalo más tarde."
+    },
+    "step": "Paso {step} / {total}",
+    "title": "Configura tu cuenta"
+  },
+  "organizations": {
+    "createForm": {
+      "name": "Nombre de la organización",
+      "notifications": {
+        "error": "Lo sentimos, no pudimos crear tu organización. Por favor, inténtalo más tarde.",
+        "success": "Tu organización ha sido creada. Ahora puedes invitar miembros."
+      },
+      "submit": "Crear organización",
+      "subtitle": "Ingresa un nombre para tu organización para comenzar. Puedes cambiar el nombre más tarde en la configuración de la organización.",
+      "title": "Crear una organización"
+    },
+    "invitationAlert": {
+      "description": "Necesitas iniciar sesión o crear una cuenta para unirte a la organización.",
+      "title": "Has sido invitado a unirte a una organización."
+    },
+    "invitationModal": {
+      "accept": "Aceptar",
+      "decline": "Rechazar",
+      "description": "Has sido invitado a unirte a la organización {organizationName}. ¿Deseas aceptar la invitación y unirte a la organización?",
+      "title": "Unirse a la organización"
+    },
+    "organizationSelect": {
+      "createNewOrganization": "Crear nueva organización",
+      "organizations": "Organizaciones",
+      "personalAccount": "Cuenta personal"
+    },
+    "organizationsGrid": {
+      "createNewOrganization": "Crear nueva organización",
+      "title": "Tus organizaciones"
+    },
+    "roles": {
+      "admin": "Administrador",
+      "member": "Miembro",
+      "owner": "Propietario"
+    },
+    "settings": {
+      "changeName": {
+        "title": "Nombre de la organización"
+      },
+      "deleteOrganization": {
+        "confirmation": "¿Estás seguro de que deseas eliminar tu organización?",
+        "description": "Elimina permanentemente tu organización. Una vez que elimines tu organización, no hay vuelta atrás. Para confirmar, ingresa tu contraseña a continuación:",
+        "submit": "Eliminar organización",
+        "title": "Eliminar organización"
+      },
+      "logo": {
+        "description": "Sube un logotipo para tu organización.",
+        "title": "Logotipo de la organización"
+      },
+      "members": {
+        "activeMembers": "Miembros activos",
+        "description": "Ve todos los miembros activos y las invitaciones pendientes de tu organización.",
+        "invitations": {
+          "empty": "Aún no has invitado a ningún miembro.",
+          "expiresAt": "Expira el {date}",
+          "invitationStatus": {
+            "accepted": "Aceptada",
+            "canceled": "Cancelada",
+            "pending": "Pendiente",
+            "rejected": "Rechazada"
+          },
+          "revoke": "Revocar invitación",
+          "resend": "Reenviar invitación"
+        },
+        "inviteMember": {
+          "description": "Para invitar a un nuevo miembro, envíale una invitación.",
+          "email": "Correo electrónico",
+          "notifications": {
+            "error": {
+              "description": "No pudimos invitar al miembro. Por favor, inténtalo más tarde.",
+              "title": "No se pudo invitar al miembro"
+            },
+            "success": {
+              "description": "El miembro ha sido invitado.",
+              "title": "Miembro invitado"
+            }
+          },
+          "role": "Rol",
+          "submit": "Invitar",
+          "title": "Invitar miembro"
+        },
+        "leaveOrganization": "Salir de la organización",
+        "notifications": {
+          "removeMember": {
+            "error": {
+              "description": "No se pudo eliminar al miembro de tu organización. Por favor, inténtalo de nuevo."
+            },
+            "loading": {
+              "description": "Eliminando miembro de la organización..."
+            },
+            "success": {
+              "description": "El miembro ha sido eliminado exitosamente de tu organización."
+            }
+          },
+          "revokeInvitation": {
+            "error": {
+              "description": "No se pudo revocar la invitación. Por favor, inténtalo más tarde."
+            },
+            "loading": {
+              "description": "Revocando invitación..."
+            },
+            "success": {
+              "description": "La invitación ha sido revocada."
+            }
+          },
+          "updateMembership": {
+            "error": {
+              "description": "No se pudo actualizar la membresía de la organización. Por favor, inténtalo de nuevo."
+            },
+            "loading": {
+              "description": "Actualizando membresía..."
+            },
+            "success": {
+              "description": "La membresía fue actualizada exitosamente"
+            }
+          },
+          "resendInvitation": {
+            "loading": {
+              "description": "Reenviando invitación..."
+            },
+            "success": {
+              "description": "Invitación enviada"
+            },
+            "error": {
+              "description": "No se pudo enviar la invitación. Por favor, inténtalo de nuevo."
+            }
+          }
+        },
+        "pendingInvitations": "Invitaciones pendientes",
+        "removeMember": "Eliminar miembro",
+        "title": "Miembros"
+      },
+      "notifications": {
+        "organizationDeleted": "Tu organización ha sido eliminada.",
+        "organizationNameNotUpdated": "No pudimos actualizar el nombre de tu organización. Por favor, inténtalo más tarde.",
+        "organizationNameUpdated": "El nombre de tu organización ha sido actualizado.",
+        "organizationNotDeleted": "No pudimos eliminar tu organización. Por favor, inténtalo más tarde."
+      },
+      "subtitle": "Administra la configuración de la organización.",
+      "title": "Organización",
+      "dangerZone": {
+        "title": "Zona de peligro"
+      }
+    },
+    "start": {
+      "subtitle": "¡Bienvenido a la página de inicio de esta organización!"
+    }
+  },
+  "pricing": {
+    "choosePlan": "Elegir plan",
+    "contactSales": "Contactar ventas",
+    "description": "Elige el plan que mejor funcione para ti.",
+    "getStarted": "Comenzar",
+    "month": "{count, plural, one {mes} other {{count} meses}}",
+    "monthly": "Mensual",
+    "products": {
+      "basic": {
+        "description": "Perfecto para equipos pequeños.",
+        "features": {
+          "anotherFeature": "Otra función increíble",
+          "limitedSupport": "Soporte limitado"
+        },
+        "title": "Básico"
+      },
+      "enterprise": {
+        "description": "Plan personalizado adaptado a tus necesidades",
+        "features": {
+          "enterpriseSupport": "Soporte empresarial",
+          "unlimitedProjects": "Proyectos ilimitados"
+        },
+        "title": "Empresarial"
+      },
+      "free": {
+        "description": "Comienza gratis",
+        "features": {
+          "anotherFeature": "Otra función increíble",
+          "limitedSupport": "Soporte limitado"
+        },
+        "title": "Gratis"
+      },
+      "lifetime": {
+        "description": "Compra una vez. Úsalo para siempre.",
+        "features": {
+          "extendSupport": "Soporte extendido",
+          "noRecurringCosts": "Sin costos recurrentes"
+        },
+        "title": "De por vida"
+      },
+      "pro": {
+        "description": "El mejor para equipos",
+        "features": {
+          "anotherFeature": "Otra función increíble",
+          "fiveMembers": "Hasta 5 miembros",
+          "fullSupport": "Soporte completo"
+        },
+        "title": "Pro"
+      }
+    },
+    "purchase": "Comprar",
+    "recommended": "Recomendado",
+    "subscribe": "Suscribirse",
+    "title": "Precios",
+    "trialPeriod": "{days} {days, plural, one {día} other {días}} de prueba gratis",
+    "year": "{count, plural, one {año} other {{count} años}}",
+    "yearly": "Anual",
+    "perSeat": "asiento"
+  },
+  "settings": {
+    "account": {
+      "avatar": {
+        "description": "Para cambiar tu avatar, haz clic en la imagen en este bloque y selecciona un archivo de tu computadora para subir.",
+        "notifications": {
+          "error": "No se pudo actualizar el avatar",
+          "success": "El avatar fue actualizado exitosamente"
+        },
+        "title": "Tu avatar"
+      },
+      "changeEmail": {
+        "description": "Para cambiar tu correo, ingresa el nuevo correo y guarda. Tendrás que confirmar el nuevo correo antes de que se active.",
+        "notifications": {
+          "error": "No se pudo actualizar el correo",
+          "success": "El correo fue actualizado exitosamente"
+        },
+        "title": "Tu correo electrónico"
+      },
+      "changeName": {
+        "notifications": {
+          "error": "No se pudo actualizar el nombre",
+          "success": "El nombre fue actualizado exitosamente"
+        },
+        "title": "Tu nombre"
+      },
+      "deleteAccount": {
+        "confirmation": "¿Estás seguro de que deseas eliminar tu cuenta?",
+        "description": "Elimina permanentemente tu cuenta. Una vez que elimines tu cuenta, no hay vuelta atrás. Para confirmar, ingresa tu contraseña a continuación:",
+        "notifications": {
+          "error": "No se pudo eliminar la cuenta",
+          "success": "La cuenta fue eliminada exitosamente"
+        },
+        "submit": "Eliminar cuenta",
+        "title": "Eliminar cuenta"
+      },
+      "language": {
+        "description": "Para cambiar el idioma de la aplicación para tu cuenta, selecciona un idioma de la lista y haz clic en guardar.",
+        "notifications": {
+          "error": "No se pudo actualizar el idioma",
+          "success": "El idioma fue actualizado exitosamente"
+        },
+        "title": "Tu idioma"
+      },
+      "security": {
+        "activeSessions": {
+          "description": "Estas son todas las sesiones activas de tu cuenta. Haz clic en la X para cerrar una sesión específica.",
+          "title": "Sesiones activas",
+          "notifications": {
+            "revokeSession": {
+              "success": "Sesión revocada"
+            }
+          },
+          "currentSession": "Sesión actual"
+        },
+        "changePassword": {
+          "currentPassword": "Contraseña actual",
+          "newPassword": "Nueva contraseña",
+          "notifications": {
+            "error": "No se pudo actualizar la contraseña",
+            "success": "La contraseña fue actualizada exitosamente"
+          },
+          "title": "Tu contraseña"
+        },
+        "connectedAccounts": {
+          "connect": "Conectar",
+          "disconnect": "Desconectar",
+          "title": "Cuentas conectadas"
+        },
+        "passkeys": {
+          "description": "Usa claves de acceso como alternativa segura a las contraseñas.",
+          "notifications": {
+            "addPasskey": {
+              "error": {
+                "title": "No se pudo agregar la clave de acceso"
+              },
+              "success": {
+                "title": "Clave de acceso agregada"
+              }
+            },
+            "deletePasskey": {
+              "error": {
+                "title": "No se pudo eliminar la clave de acceso"
+              },
+              "loading": {
+                "title": "Eliminando clave de acceso..."
+              },
+              "success": {
+                "title": "Clave de acceso eliminada"
+              }
+            }
+          },
+          "title": "Claves de acceso"
+        },
+        "setPassword": {
+          "description": "Aún no has establecido una contraseña. Para hacerlo, debes pasar por el flujo de restablecimiento de contraseña. Haz clic en el botón a continuación para enviarte un correo para restablecer tu contraseña y sigue las instrucciones en el correo.",
+          "notifications": {
+            "error": "No se pudo enviar el enlace para establecer la contraseña. Por favor, inténtalo de nuevo.",
+            "success": "Revisa tu bandeja de entrada para el enlace para establecer tu contraseña."
+          },
+          "submit": "Establecer contraseña",
+          "title": "Tu contraseña"
+        },
+        "title": "Seguridad",
+        "twoFactor": {
+          "title": "Autenticación de dos factores",
+          "description": "Agrega una capa adicional de seguridad a tu cuenta.",
+          "dialog": {
+            "password": {
+              "title": "Verificar con contraseña",
+              "description": "Por favor, verifica tu cuenta ingresando tu contraseña:",
+              "label": "Tu contraseña:"
+            },
+            "totpUrl": {
+              "description": "Usa tu aplicación de autenticación preferida y escanea el código QR o ingresa el secreto a continuación manualmente para configurar la autenticación de dos factores.",
+              "code": "Ingresa el código de 6 dígitos para verificar la configuración:",
+              "title": "Activar autenticación de dos factores"
+            }
+          },
+          "enable": "Activar autenticación de dos factores",
+          "notifications": {
+            "verify": {
+              "success": {
+                "title": "La autenticación de dos factores ha sido activada exitosamente."
+              }
+            },
+            "enable": {
+              "error": {
+                "title": "No se pudo verificar tu cuenta con la contraseña proporcionada. Por favor, inténtalo de nuevo."
+              }
+            },
+            "disable": {
+              "success": {
+                "title": "La autenticación de dos factores ha sido desactivada exitosamente."
+              }
+            }
+          },
+          "disable": "Desactivar autenticación de dos factores",
+          "enabled": "Tienes la autenticación de dos factores activada para tu cuenta."
+        }
+      },
+      "subtitle": "Administra la configuración de tu cuenta personal.",
+      "title": "Configuración de cuenta"
+    },
+    "billing": {
+      "createCustomerPortal": {
+        "label": "Administrar facturación",
+        "notifications": {
+          "error": {
+            "title": "No se pudo crear una sesión del portal de cliente. Por favor, inténtalo de nuevo."
+          }
+        }
+      },
+      "activePlan": {
+        "status": {
+          "active": "Activo",
+          "canceled": "Cancelado",
+          "expired": "Vencido",
+          "incomplete": "Incompleto",
+          "past_due": "Atrasado",
+          "paused": "Pausado",
+          "trialing": "En período de prueba",
+          "unpaid": "No pagado"
+        },
+        "title": "Tu plan"
+      },
+      "changePlan": {
+        "description": "Elige un plan al que suscribirte.",
+        "title": "Cambia tu plan"
+      },
+      "title": "Facturación"
+    },
+    "menu": {
+      "account": {
+        "billing": "Facturación",
+        "dangerZone": "Zona de peligro",
+        "general": "General",
+        "security": "Seguridad",
+        "title": "Cuenta"
+      },
+      "organization": {
+        "billing": "Facturación",
+        "general": "General",
+        "members": "Miembros",
+        "title": "Organización",
+        "dangerZone": "Zona de peligro",
+        "areas": "Áreas y Sedes",
+        "applications": "Solicitudes",
+        "customFields": "Campos Personalizados",
+        "superAdmin": "Super Admin"
+      }
+    },
+    "save": "Guardar"
+  },
+  "start": {
+    "subtitle": "Ve las últimas estadísticas de tu negocio.",
+    "welcome": "¡Bienvenido {name}!"
+  },
+  "zod": {
+    "errors": {
+      "invalid_arguments": "Argumentos de función inválidos",
+      "invalid_date": "Fecha inválida",
+      "invalid_enum_value": "Valor de enumeración inválido. Se esperaba {- options}, se recibió '{received}'",
+      "invalid_intersection_types": "Los resultados de intersección no se pudieron fusionar",
+      "invalid_literal": "Valor literal inválido, se esperaba {expected}",
+      "invalid_return_type": "Tipo de retorno de función inválido",
+      "invalid_string": {
+        "cuid": "{validation} inválido",
+        "datetime": "{validation} inválido",
+        "email": "{validation} inválido",
+        "endsWith": "Entrada inválida: debe terminar con \"{endsWith}\"",
+        "regex": "Inválido",
+        "startsWith": "Entrada inválida: debe comenzar con \"{startsWith}\"",
+        "url": "{validation} inválida",
+        "uuid": "{validation} inválido"
+      },
+      "invalid_type": "Se esperaba {expected}, se recibió {received}",
+      "invalid_type_received_undefined": "Requerido",
+      "invalid_union": "Entrada inválida",
+      "invalid_union_discriminator": "Valor discriminador inválido. Se esperaba {- options}",
+      "not_finite": "El número debe ser finito",
+      "not_multiple_of": "El número debe ser múltiplo de {multipleOf}",
+      "too_big": {
+        "array": {
+          "exact": "El arreglo debe contener exactamente {maximum} elemento(s)",
+          "inclusive": "El arreglo debe contener como máximo {maximum} elemento(s)",
+          "not_inclusive": "El arreglo debe contener menos de {maximum} elemento(s)"
+        },
+        "date": {
+          "exact": "La fecha debe ser exactamente {- maximum, datetime}",
+          "inclusive": "La fecha debe ser menor o igual a {- maximum, datetime}",
+          "not_inclusive": "La fecha debe ser menor que {- maximum, datetime}"
+        },
+        "number": {
+          "exact": "El número debe ser exactamente {maximum}",
+          "inclusive": "El número debe ser menor o igual a {maximum}",
+          "not_inclusive": "El número debe ser menor que {maximum}"
+        },
+        "set": {
+          "exact": "Entrada inválida",
+          "inclusive": "Entrada inválida",
+          "not_inclusive": "Entrada inválida"
+        },
+        "string": {
+          "exact": "La cadena debe contener exactamente {maximum} carácter(es)",
+          "inclusive": "La cadena debe contener como máximo {maximum} carácter(es)",
+          "not_inclusive": "La cadena debe contener menos de {maximum} carácter(es)"
+        }
+      },
+      "too_small": {
+        "array": {
+          "exact": "El arreglo debe contener exactamente {minimum} elemento(s)",
+          "inclusive": "El arreglo debe contener al menos {minimum} elemento(s)",
+          "not_inclusive": "El arreglo debe contener más de {minimum} elemento(s)"
+        },
+        "date": {
+          "exact": "La fecha debe ser exactamente {- minimum, datetime}",
+          "inclusive": "La fecha debe ser mayor o igual a {- minimum, datetime}",
+          "not_inclusive": "La fecha debe ser mayor que {- minimum, datetime}"
+        },
+        "number": {
+          "exact": "El número debe ser exactamente {minimum}",
+          "inclusive": "El número debe ser mayor o igual a {minimum}",
+          "not_inclusive": "El número debe ser mayor que {minimum}"
+        },
+        "set": {
+          "exact": "Entrada inválida",
+          "inclusive": "Entrada inválida",
+          "not_inclusive": "Entrada inválida"
+        },
+        "string": {
+          "exact": "La cadena debe contener exactamente {minimum} carácter(es)",
+          "inclusive": "La cadena debe contener al menos {minimum} carácter(es)",
+          "not_inclusive": "La cadena debe contener más de {minimum} carácter(es)"
+        }
+      },
+      "unrecognized_keys": "Clave(s) no reconocida(s) en el objeto: {- keys}"
+    },
+    "types": {
+      "array": "arreglo",
+      "bigint": "bigint",
+      "boolean": "booleano",
+      "date": "fecha",
+      "float": "flotante",
+      "function": "función",
+      "integer": "entero",
+      "map": "mapa",
+      "nan": "nan",
+      "never": "never",
+      "null": "nulo",
+      "number": "número",
+      "object": "objeto",
+      "promise": "promesa",
+      "set": "conjunto",
+      "string": "cadena",
+      "symbol": "símbolo",
+      "undefined": "indefinido",
+      "unknown": "desconocido",
+      "void": "void"
+    },
+    "validations": {
+      "cuid": "cuid",
+      "cuid2": "cuid2",
+      "datetime": "fecha y hora",
+      "email": "correo electrónico",
+      "emoji": "emoji",
+      "ip": "ip",
+      "regex": "regex",
+      "ulid": "ulid",
+      "url": "url",
+      "uuid": "uuid"
+    }
+  },
+  "choosePlan": {
+    "title": "Elige tu plan",
+    "description": "Para continuar, por favor selecciona un plan."
+  },
+  "notFound": {
+    "code": "404",
+    "title": "Página no encontrada",
+    "goToDashboard": "Ir al panel",
+    "goToHomepage": "Ir a la página de inicio"
+  },
+  "launchclub": {
+    "areas": {
+      "title": "Áreas",
+      "subtitle": "Administrar áreas del programa",
+      "new": "Nueva Área",
+      "edit": "Editar Área",
+      "delete": "Eliminar Área",
+      "confirmDelete": {
+        "title": "Eliminar Área",
+        "message": "¿Estás seguro de que deseas eliminar esta área? Todas las sedes y grupos dentro de ella también serán eliminados.",
+        "confirm": "Eliminar"
+      },
+      "form": {
+        "name": "Nombre",
+        "description": "Descripción",
+        "save": "Guardar",
+        "notifications": {
+          "created": "Área creada exitosamente.",
+          "updated": "Área actualizada exitosamente.",
+          "deleted": "Área eliminada exitosamente.",
+          "error": "Algo salió mal. Por favor, inténtalo de nuevo."
+        },
+        "cancel": "Cancelar"
+      },
+      "sitesCount": "{count} {count, plural, one {sede} other {sedes}}",
+      "pageTitle": "Áreas y Sedes",
+      "addArea": "Agregar Área",
+      "empty": "Aún no hay áreas. Crea una para comenzar.",
+      "noSites": "Aún no hay sedes."
+    },
+    "sites": {
+      "title": "Sedes",
+      "subtitle": "Administrar sedes del programa",
+      "new": "Nueva Sede",
+      "edit": "Editar Sede",
+      "delete": "Eliminar Sede",
+      "confirmDelete": {
+        "title": "Eliminar Sede",
+        "message": "¿Estás seguro de que deseas eliminar esta sede? Todos los grupos dentro de ella también serán eliminados.",
+        "confirm": "Eliminar"
+      },
+      "form": {
+        "name": "Nombre",
+        "slug": "Slug",
+        "area": "Área",
+        "address": "Dirección",
+        "city": "Ciudad",
+        "state": "Estado",
+        "zipCode": "Código Postal",
+        "phone": "Teléfono",
+        "email": "Correo electrónico",
+        "save": "Guardar",
+        "notifications": {
+          "created": "Sede creada exitosamente.",
+          "updated": "Sede actualizada exitosamente.",
+          "deleted": "Sede eliminada exitosamente.",
+          "error": "Algo salió mal. Por favor, inténtalo de nuevo."
+        },
+        "cancel": "Cancelar"
+      },
+      "groupsCount": "{count} {count, plural, one {grupo} other {grupos}}",
+      "addSite": "Agregar Sede",
+      "appSettings": "Configuración de solicitudes",
+      "noGroups": "Aún no hay grupos."
+    },
+    "groups": {
+      "title": "Grupos",
+      "subtitle": "Administrar grupos del programa",
+      "new": "Nuevo Grupo",
+      "edit": "Editar Grupo",
+      "delete": "Eliminar Grupo",
+      "confirmDelete": {
+        "title": "Eliminar Grupo",
+        "message": "¿Estás seguro de que deseas eliminar este grupo?",
+        "confirm": "Eliminar"
+      },
+      "form": {
+        "name": "Nombre",
+        "site": "Sede",
+        "description": "Descripción",
+        "meetingDay": "Día de Reunión",
+        "meetingTime": "Hora de Reunión",
+        "meetingRecurrence": "Recurrencia",
+        "startDate": "Fecha de inicio",
+        "endDate": "Fecha de fin",
+        "startTime": "Hora de inicio",
+        "endTime": "Hora de fin",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "notifications": {
+          "created": "Grupo creado exitosamente.",
+          "updated": "Grupo actualizado exitosamente.",
+          "deleted": "Grupo eliminado exitosamente.",
+          "error": "Algo salió mal. Por favor, inténtalo de nuevo."
+        }
+      },
+      "tabs": {
+        "members": "Miembros",
+        "events": "Eventos",
+        "resources": "Recursos",
+        "purchaseRequests": "Solicitudes de Compra",
+        "settings": "Configuración",
+        "notes": "Notas",
+        "reports": "Reportes",
+        "overview": "Resumen",
+        "attendance": "Asistencia"
+      },
+      "acceptingMembers": "Aceptando miembros",
+      "members": {
+        "add": "Agregar Miembro",
+        "remove": "Eliminar",
+        "searchPlaceholder": "Buscar por nombre",
+        "showRemoved": "Mostrar miembros eliminados",
+        "noResults": "No se encontraron miembros",
+        "roleLabel": "Rol",
+        "editRole": "Editar",
+        "cancel": "Cancelar",
+        "countLabel": "{count} Miembros",
+        "role": {
+          "MEMBER": "Miembro",
+          "LEADER": "Líder"
+        },
+        "columns": {
+          "firstName": "Nombre",
+          "lastName": "Apellido",
+          "role": "Rol",
+          "email": "Correo Electrónico",
+          "phone": "Número de Teléfono",
+          "memberSince": "Miembro Desde"
+        }
+      },
+      "membersCount": "{count} {count, plural, one {miembro} other {miembros}}",
+      "empty": "Aún no hay grupos. Crea uno para comenzar.",
+      "columns": {
+        "name": "Nombre",
+        "site": "Sede",
+        "gradeLevel": "Nivel de Grado",
+        "meetingDays": "Días de Reunión",
+        "mentor": "Mentor"
+      },
+      "image": {
+        "title": "Imagen del Grupo",
+        "description": "Haz clic o arrastra una imagen para subir"
+      },
+      "dangerZone": {
+        "title": "Zona de Peligro"
+      },
+      "stats": {
+        "members": "Miembros",
+        "activeMembers": "Miembros activos del grupo",
+        "avgMeetingsPerMonth": "Promedio de reuniones por mes",
+        "last30Days": "Últimos 30 días",
+        "turnover90": "Rotación en 90 días",
+        "newVsTotal": "Nuevos miembros vs total"
+      },
+      "charts": {
+        "statsOverTime": "Estadísticas en el tiempo",
+        "timePeriod": {
+          "month": "Mes",
+          "week": "Semana",
+          "day": "Día"
+        },
+        "eventAttendance": "Asistencia a Eventos",
+        "noAttendanceData": "No hay datos de asistencia disponibles",
+        "groupMembership": "Membresía del Grupo",
+        "noMembershipData": "No hay datos de membresía"
+      },
+      "demographics": {
+        "title": "Demografía",
+        "noData": "No hay datos demográficos"
+      },
+      "gradeLevel": {
+        "allAges": "Todas las Edades"
+      },
+      "recurrence": {
+        "weekly": "Semanal",
+        "biweekly": "Cada 2 semanas",
+        "monthly": "Mensual",
+        "bimonthly": "Cada 2 meses",
+        "quarterly": "Trimestral",
+        "asNeeded": "Según sea necesario",
+        "placeholder": "Seleccionar recurrencia…"
+      },
+      "addGroup": "Agregar Grupo",
+      "tbd": "Por determinar"
+    },
+    "people": {
+      "title": "Personas",
+      "subtitle": "Administrar miembros del programa",
+      "new": "Nueva Persona",
+      "edit": "Editar Persona",
+      "delete": "Eliminar Persona",
+      "confirmDelete": {
+        "title": "Eliminar Persona",
+        "message": "¿Estás seguro de que deseas eliminar esta persona?",
+        "confirm": "Eliminar"
+      },
+      "form": {
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "email": "Correo electrónico",
+        "phone": "Teléfono",
+        "dateOfBirth": "Fecha de Nacimiento",
+        "gender": "Género",
+        "household": "Hogar",
+        "notes": "Notas",
+        "save": "Guardar",
+        "genderOptions": {
+          "male": "Masculino",
+          "female": "Femenino",
+          "other": "Otro",
+          "preferNotToSay": "Prefiero no decir"
+        },
+        "notifications": {
+          "created": "Persona creada exitosamente.",
+          "updated": "Persona actualizada exitosamente.",
+          "deleted": "Persona eliminada exitosamente.",
+          "error": "Algo salió mal. Por favor, inténtalo de nuevo."
+        },
+        "cancel": "Cancelar",
+        "isChild": "¿Es un niño?",
+        "grade": "Grado",
+        "gradePlaceholder": "Seleccionar grado"
+      },
+      "search": "Buscar personas...",
+      "notFound": "Persona no encontrada.",
+      "groups": "Grupos",
+      "noGroups": "Sin grupos.",
+      "noResults": "No se encontraron personas.",
+      "statusActive": "activo",
+      "manageGuardians": "Administrar tutores",
+      "allAreas": "Todas las Áreas",
+      "allSites": "Todas las Sedes",
+      "tabs": {
+        "all": "Todos",
+        "adults": "Adultos",
+        "kids": "Niños"
+      },
+      "type": {
+        "child": "Niño",
+        "adult": "Adulto"
+      },
+      "guardianSheet": {
+        "title": "{name} — Tutores",
+        "fallback": "Tutores"
+      },
+      "columns": {
+        "name": "Nombre",
+        "type": "Tipo",
+        "gender": "Género",
+        "phone": "Teléfono",
+        "email": "Correo electrónico",
+        "groups": "Grupos",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "avatar": {
+        "upload": "Subir Foto",
+        "uploading": "Subiendo…",
+        "hint": "JPG, PNG o WEBP. Máx. 5MB.",
+        "notifications": {
+          "updated": "Foto actualizada.",
+          "error": "Error al subir la foto."
+        }
+      },
+      "personDetails": "Detalles de la Persona",
+      "groupsAvailableAfterSaving": "Disponible después de guardar."
+    },
+    "kids": {
+      "title": "Niños",
+      "subtitle": "Administrar niños registrados",
+      "new": "Nuevo Niño",
+      "search": "Buscar niños..."
+    },
+    "guardians": {
+      "title": "Tutores",
+      "subtitle": "Administrar relaciones de tutores",
+      "add": "Agregar Tutor",
+      "remove": "Eliminar",
+      "relation": "Relación",
+      "relationPlaceholder": "p.ej. Padre, Abuelo"
+    },
+    "households": {
+      "title": "Hogares",
+      "new": "Nuevo Hogar",
+      "edit": "Editar Hogar",
+      "form": {
+        "name": "Nombre del Hogar",
+        "address": "Dirección",
+        "city": "Ciudad",
+        "state": "Estado",
+        "zipCode": "Código Postal",
+        "phone": "Teléfono",
+        "email": "Correo electrónico",
+        "save": "Guardar",
+        "namePlaceholder": "ej. Familia Smith",
+        "confirm": "Confirmar",
+        "householdName": "Nombre del hogar"
+      },
+      "willBeCreated": "Se creará y asignará al guardar.",
+      "willBeAssigned": "Se asignará al guardar.",
+      "cardTitle": "Hogar",
+      "notAssigned": "No asignado a un hogar.",
+      "createNew": "Crear nuevo hogar",
+      "assignToExisting": "Asignar a existente",
+      "members": "Miembros",
+      "child": "niño",
+      "addPerson": "Agregar persona",
+      "removeFromHousehold": "Salir del hogar",
+      "notifications": {
+        "assigned": "Asignado al hogar.",
+        "assignError": "Error al asignar el hogar.",
+        "removed": "Eliminado del hogar.",
+        "removeError": "Error al eliminar del hogar.",
+        "personAdded": "Persona agregada al hogar.",
+        "personAddError": "Error al agregar la persona.",
+        "autoAssignError": "Hogar creado pero no se pudo asignar automáticamente — selecciónalo manualmente."
+      },
+      "assignDialog": {
+        "title": "Asignar a hogar existente",
+        "selectPlaceholder": "Seleccionar un hogar",
+        "cancel": "Cancelar",
+        "assign": "Asignar"
+      },
+      "addPersonDialog": {
+        "title": "Agregar persona al hogar",
+        "selectPlaceholder": "Seleccionar una persona",
+        "cancel": "Cancelar",
+        "add": "Agregar",
+        "childLabel": "(niño)"
+      }
+    },
+    "events": {
+      "title": "Eventos",
+      "subtitle": "Administrar eventos del grupo",
+      "new": "Nuevo Evento",
+      "edit": "Editar Evento",
+      "delete": "Eliminar Evento",
+      "empty": "Aún no hay eventos",
+      "confirmDelete": {
+        "title": "Eliminar Evento",
+        "message": "¿Estás seguro de que deseas eliminar este evento? Esta acción no se puede deshacer.",
+        "confirm": "Eliminar"
+      },
+      "form": {
+        "name": "Nombre del Evento",
+        "group": "Grupo",
+        "description": "Descripción",
+        "startsAt": "Fecha y Hora de Inicio",
+        "endsAt": "Fecha y Hora de Fin",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "createTitle": "Crear Evento",
+        "saveEvent": "Guardar Evento",
+        "createEvents": "Crear {count} Eventos",
+        "willCreateOne": "Se creará 1 evento",
+        "willCreateMany": "Se crearán {count} eventos",
+        "titleLabel": "Título",
+        "eventType": "Tipo de Evento",
+        "guestName": "Nombre del Invitado",
+        "companyName": "Nombre de la Empresa",
+        "industry": "Industria",
+        "descriptionOptional": "Descripción",
+        "optional": "(opcional)",
+        "date": "Fecha",
+        "endDate": "Fecha de Fin",
+        "startTime": "Hora de Inicio",
+        "endTime": "Hora de Fin",
+        "recurrence": "Recurrencia",
+        "notifications": {
+          "created": "Evento creado.",
+          "manyCreated": "{count} eventos creados.",
+          "deleted": "Evento eliminado.",
+          "updated": "Evento actualizado exitosamente.",
+          "error": "Algo salió mal. Por favor, inténtalo de nuevo.",
+          "createError": "No se pudieron crear los eventos. Por favor, inténtalo de nuevo."
+        },
+        "validation": {
+          "titleRequired": "El título es obligatorio",
+          "startDateRequired": "La fecha de inicio es obligatoria",
+          "endDateRequired": "La fecha de fin es obligatoria",
+          "startTimeRequired": "La hora de inicio es obligatoria",
+          "endDateAfterStart": "La fecha de fin debe ser igual o posterior a la fecha de inicio"
+        }
+      },
+      "selectGroup": "Seleccionar un grupo",
+      "attendanceCount": "{count} asistiendo",
+      "allAreas": "Todas las Áreas",
+      "allSites": "Todos los Sitios",
+      "searchPlaceholder": "Buscar eventos…",
+      "gridView": "Vista de cuadrícula",
+      "tableView": "Vista de tabla",
+      "noResults": "No se encontraron eventos.",
+      "table": {
+        "event": "Evento",
+        "group": "Grupo",
+        "date": "Fecha",
+        "time": "Hora",
+        "attendance": "Asistencia",
+        "description": "Descripción"
+      },
+      "eventTypes": {
+        "regular": "Regular",
+        "guest": "Invitado",
+        "familySiteVisit": "Visita Familiar al Sitio"
+      },
+      "recurrence": {
+        "never": "No se repite",
+        "daily": "Diario",
+        "weekday": "Cada día de semana (Lun–Vie)",
+        "weekly": "Semanal",
+        "biweekly": "Cada 2 semanas",
+        "monthlyWeekday": "Mensual (mismo día de semana)",
+        "monthlyDate": "Mensual (misma fecha)",
+        "yearly": "Anual"
+      }
+    },
+    "attendance": {
+      "title": "Asistencia",
+      "record": "Registrar Asistencia",
+      "save": "Guardar Asistencia",
+      "report": "Reporte de Asistencia",
+      "print": "Imprimir",
+      "history": "Historial de Asistencia",
+      "showRemoved": "Mostrar miembros eliminados",
+      "noMembers": "Sin miembros",
+      "totals": "Totales de asistencia:",
+      "take": "Tomar Asistencia",
+      "joined": "Se unió",
+      "cancel": "Cancelar",
+      "notes": "Notas",
+      "status": {
+        "PRESENT": "Presente",
+        "ABSENT": "Ausente",
+        "LATE": "Tarde",
+        "EXCUSED": "Justificado"
+      },
+      "rate": "Tasa de Asistencia",
+      "notifications": {
+        "saved": "Asistencia guardada exitosamente.",
+        "error": "No se pudo guardar la asistencia. Por favor, inténtalo de nuevo."
+      },
+      "dateRanges": {
+        "last7Days": "Últimos 7 Días",
+        "last30Days": "Últimos 30 Días",
+        "last3Months": "Últimos 3 Meses",
+        "last6Months": "Últimos 6 Meses",
+        "allTime": "Todo el Tiempo"
+      },
+      "columns": {
+        "name": "NOMBRE • APELLIDO",
+        "rate": "%"
+      }
+    },
+    "applications": {
+      "title": "Solicitudes",
+      "subtitle": "Revisar solicitudes del programa",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "status": {
+        "PENDING": "Pendiente",
+        "APPROVED": "Aprobada",
+        "REJECTED": "Rechazada"
+      },
+      "filter": {
+        "all": "Todas",
+        "pending": "Pendientes",
+        "approved": "Aprobadas",
+        "rejected": "Rechazadas"
+      },
+      "form": {
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "email": "Correo electrónico",
+        "phone": "Teléfono",
+        "message": "Mensaje",
+        "submit": "Enviar Solicitud",
+        "submitting": "Enviando...",
+        "success": {
+          "title": "¡Solicitud Enviada!",
+          "message": "Gracias por solicitar. Nos pondremos en contacto contigo pronto."
+        },
+        "notifications": {
+          "error": "No se pudo enviar tu solicitud. Por favor, inténtalo de nuevo."
+        }
+      },
+      "columns": {
+        "name": "Nombre",
+        "email": "Correo electrónico",
+        "phone": "Teléfono",
+        "site": "Sede",
+        "submitted": "Enviada",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "viewAll": "Ver todas las solicitudes",
+      "notifications": {
+        "approved": "Solicitud aprobada.",
+        "rejected": "Solicitud rechazada.",
+        "error": "No se pudo actualizar la solicitud. Por favor, inténtalo de nuevo.",
+        "resetPending": "Solicitud restablecida a pendiente.",
+        "approveError": "No se pudo aprobar la solicitud.",
+        "updateError": "No se pudo actualizar el estado de la solicitud."
+      },
+      "allAreas": "Todas las Áreas",
+      "allSites": "Todos los Sitios",
+      "searchPlaceholder": "Buscar por nombre o correo…",
+      "notFound": "No se encontraron solicitudes.",
+      "actions": {
+        "label": "Acciones",
+        "approve": "Aprobar",
+        "reject": "Rechazar",
+        "resetToPending": "Restablecer a pendiente"
+      },
+      "approveDialog": {
+        "title": "Aprobar Solicitud",
+        "assignChildren": "Opcionalmente, asigna cada niño a un grupo. Puedes omitir cualquiera o todos y asignarlos más tarde.",
+        "noGroup": "Sin grupo (asignar después)",
+        "noGroupsForSite": "No hay grupos para este sitio.",
+        "cancel": "Cancelar",
+        "approve": "Aprobar"
+      },
+      "settings": {
+        "title": "Configuración de Solicitudes",
+        "autoMigrate": "Migrar solicitudes aprobadas automáticamente",
+        "autoMigrateDesc": "Crear registros de personas automáticamente cuando las solicitudes sean aprobadas",
+        "emailNotifications": "Notificaciones por correo",
+        "emailNotificationsDesc": "Enviar notificaciones por correo a los padres cuando cambie el estado de su solicitud",
+        "loading": "Cargando…",
+        "save": "Guardar",
+        "notifications": {
+          "saved": "Configuración de solicitudes guardada.",
+          "error": "Error al guardar la configuración."
+        }
+      }
+    },
+    "dashboard": {
+      "title": "Panel",
+      "stats": {
+        "groups": "Total de Grupos",
+        "members": "Total de Miembros",
+        "kids": "Total de Niños",
+        "pendingApplications": "Solicitudes Pendientes"
+      },
+      "recentApplications": "Solicitudes Recientes",
+      "attendanceRate": "Tasa de Asistencia",
+      "noData": "Aún no hay datos disponibles."
+    },
+    "resources": {
+      "title": "Recursos",
+      "add": "Agregar Recurso",
+      "edit": "Editar Recurso",
+      "saveChanges": "Guardar Cambios",
+      "empty": "Aún no hay recursos",
+      "linkedTo": "Vinculado a:",
+      "confirmDelete": {
+        "title": "Eliminar Recurso",
+        "message": "¿Estás seguro de que deseas eliminar este recurso? Esta acción no se puede deshacer.",
+        "confirm": "Eliminar"
+      },
+      "form": {
+        "name": "Nombre del Recurso",
+        "url": "URL",
+        "description": "Descripción",
+        "linkedEvent": "Evento Vinculado (Opcional)",
+        "noLinkedEvent": "Sin evento vinculado",
+        "cancel": "Cancelar",
+        "validation": {
+          "nameRequired": "El nombre es obligatorio",
+          "invalidUrl": "Debe ser una URL válida"
+        }
+      },
+      "notifications": {
+        "deleted": "Recurso eliminado.",
+        "deleteError": "No se pudo eliminar el recurso.",
+        "updated": "Recurso actualizado.",
+        "added": "Recurso agregado.",
+        "error": "No se pudo guardar el recurso. Por favor, inténtalo de nuevo."
+      }
+    },
+    "purchaseRequests": {
+      "title": "Solicitudes de Compra",
+      "new": "Nueva Solicitud",
+      "empty": "Aún no hay solicitudes de compra.",
+      "submitFirst": "Enviar primera solicitud",
+      "pending": "pendiente",
+      "approved": "aprobada",
+      "approvedTotal": "total aprobado",
+      "status": {
+        "PENDING": "Pendiente",
+        "APPROVED": "Aprobada",
+        "DECLINED": "Rechazada"
+      },
+      "categories": {
+        "supplies": "Materiales",
+        "snacks": "Refrigerios",
+        "activities": "Actividades",
+        "equipment": "Equipo",
+        "field_trips": "Excursiones",
+        "guest_speakers": "Conferencistas Invitados",
+        "other": "Otro"
+      },
+      "card": {
+        "category": "Categoría:",
+        "by": "Por:",
+        "date": "Fecha:",
+        "justification": "Justificación:",
+        "viewProduct": "Ver producto",
+        "approve": "Aprobar",
+        "decline": "Rechazar",
+        "group": "Grupo:",
+        "site": "Sitio:",
+        "requestedBy": "Solicitado por:"
+      },
+      "form": {
+        "editTitle": "Editar Solicitud de Compra",
+        "newTitle": "Nueva Solicitud de Compra",
+        "itemName": "Nombre del Artículo",
+        "description": "Descripción",
+        "itemUrl": "URL del Artículo (opcional)",
+        "amount": "Monto ($)",
+        "category": "Categoría",
+        "justification": "Justificación",
+        "cancel": "Cancelar",
+        "submit": "Enviar Solicitud",
+        "update": "Actualizar Solicitud",
+        "validation": {
+          "itemRequired": "El nombre del artículo es obligatorio",
+          "invalidUrl": "Ingresa una URL válida",
+          "amountPositive": "El monto debe ser positivo",
+          "justificationRequired": "La justificación es obligatoria"
+        }
+      },
+      "notifications": {
+        "deleted": "Solicitud de compra eliminada.",
+        "deleteError": "No se pudo eliminar la solicitud. Por favor, inténtalo de nuevo.",
+        "updated": "Solicitud de compra actualizada.",
+        "submitted": "Solicitud de compra enviada.",
+        "submitError": "No se pudo enviar la solicitud. Por favor, inténtalo de nuevo.",
+        "approved": "Solicitud aprobada.",
+        "declined": "Solicitud rechazada.",
+        "reviewError": "No se pudo revisar la solicitud. Por favor, inténtalo de nuevo.",
+        "resetPending": "Solicitud restablecida a pendiente.",
+        "updateError": "No se pudo actualizar la solicitud. Por favor, inténtalo de nuevo."
+      },
+      "description": "Revisa y aprueba solicitudes de gastos de los grupos",
+      "pendingReview": "pendiente de revisión",
+      "notFound": "No se encontraron solicitudes de compra.",
+      "allAreas": "Todas las Áreas",
+      "allSites": "Todos los Sitios",
+      "allGroups": "Todos los Grupos",
+      "allCategories": "Todas las Categorías",
+      "dateFrom": "Fecha desde",
+      "dateTo": "Fecha hasta",
+      "searchPlaceholder": "Buscar artículo, grupo o solicitante…",
+      "clearFilters": "Limpiar filtros",
+      "tabs": {
+        "all": "Todos",
+        "pending": "Pendiente",
+        "approved": "Aprobada",
+        "declined": "Rechazada"
+      },
+      "dropdown": {
+        "setStatus": "Establecer estado",
+        "current": "actual",
+        "approve": "Aprobar",
+        "decline": "Rechazar",
+        "resetToPending": "Restablecer a pendiente"
+      }
+    },
+    "customFields": {
+      "title": "Campos Personalizados",
+      "subtitle": "Define campos adicionales para los registros de personas",
+      "new": "Nuevo Campo",
+      "edit": "Editar Campo",
+      "delete": "Eliminar Campo",
+      "noFields": "Aún no hay campos personalizados.",
+      "form": {
+        "name": "Nombre del Campo",
+        "type": "Tipo de Campo",
+        "required": "Obligatorio",
+        "options": "Opciones (una por línea)",
+        "save": "Guardar",
+        "types": {
+          "TEXT": "Texto",
+          "TEXTAREA": "Texto largo",
+          "NUMBER": "Número",
+          "CHECKBOX": "Casilla de verificación",
+          "SELECT": "Lista desplegable",
+          "DATE": "Fecha",
+          "FILE": "Archivo adjunto"
+        }
+      },
+      "confirmDelete": {
+        "title": "Eliminar Campo Personalizado",
+        "message": "Esto eliminará permanentemente el campo y todos sus valores.",
+        "confirm": "Eliminar"
+      },
+      "notifications": {
+        "created": "Campo personalizado creado.",
+        "updated": "Campo personalizado actualizado.",
+        "deleted": "Campo personalizado eliminado.",
+        "valueSaved": "Valor guardado.",
+        "error": "Algo salió mal. Por favor, inténtalo de nuevo."
+      }
+    }
+  },
+  "application": {
+    "title": "Únete a Launch Club",
+    "subtitle": "Completa esta solicitud para inscribir a tu hijo en Launch Club. Todos los campos marcados con * son obligatorios.",
+    "applyingFor": "Solicitando para:",
+    "closed": "Actualmente no se están aceptando solicitudes para este sitio.",
+    "submitted": {
+      "title": "¡Solicitud enviada!",
+      "message": "Gracias por solicitar unirte a Launch Club. Revisaremos tu solicitud y nos pondremos en contacto pronto."
+    },
+    "submit": "Enviar solicitud",
+    "submitting": "Enviando...",
+    "serverError": {
+      "notAccepted": "Actualmente no se están aceptando solicitudes para este sitio.",
+      "generic": "No se pudo enviar tu solicitud. Por favor, inténtalo de nuevo.",
+      "captcha": "Por favor completa la verificación CAPTCHA."
+    },
+    "fillTestData": "Rellenar datos de prueba",
+    "required": "Obligatorio",
+    "parent": {
+      "title": "Información del padre/madre",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "address": "Dirección",
+      "emergencyContact": {
+        "title": "Contacto de emergencia",
+        "name": "Nombre del contacto",
+        "phone": "Teléfono del contacto",
+        "email": "Correo del contacto (Opcional)"
+      }
+    },
+    "spouse": {
+      "title": "Información del cónyuge (Opcional)",
+      "addSpouse": "Agregar información del cónyuge",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Correo electrónico",
+      "phone": "Teléfono"
+    },
+    "children": {
+      "sectionTitle": "Información de los niños",
+      "addChild": "Agregar otro niño",
+      "childNumber": "Niño {number}",
+      "photo": {
+        "label": "Foto del niño (Opcional)",
+        "uploading": "Subiendo...",
+        "change": "Cambiar foto",
+        "upload": "Subir foto",
+        "hint": "JPG o PNG, usado para ayudar a identificar a tu hijo",
+        "error": "No se pudo subir la foto. Por favor, inténtalo de nuevo."
+      },
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "birthday": "Fecha de nacimiento",
+      "grade": "Grado",
+      "gradePlaceholder": "ej., 5.° grado",
+      "isPartOfChurch": "¿Tu hijo forma parte de una iglesia?",
+      "consents": {
+        "title": "Consentimientos requeridos",
+        "observation": "Doy permiso para las sesiones de observación *",
+        "terms": "Acepto los términos de Launch Club *",
+        "photoVideo": "Doy permiso para fotos/videos *"
+      },
+      "additionalInfo": "Información adicional"
+    }
+  }
+}

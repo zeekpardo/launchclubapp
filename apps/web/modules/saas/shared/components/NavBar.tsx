@@ -1,7 +1,12 @@
 "use client";
 
-import { config as authConfig } from "@repo/auth/config";
 import { Button, cn, Logo } from "@repo/ui";
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+} from "@repo/ui/components/sheet";
 import {
 	Tooltip,
 	TooltipContent,
@@ -9,31 +14,40 @@ import {
 	TooltipTrigger,
 } from "@repo/ui/components/tooltip";
 import { useSession } from "@saas/auth/hooks/use-session";
+import { usePendingApplicationCount } from "@saas/applications/hooks/use-applications";
+import { usePendingPurchaseRequestCount } from "@saas/groups/hooks/use-purchase-requests";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
+import { OrganizationLogo } from "@saas/organizations/components/OrganizationLogo";
 import { UserMenu } from "@saas/shared/components/UserMenu";
 import {
-	BotMessageSquareIcon,
-	ChevronRightIcon,
+	CalendarIcon,
+	ClipboardListIcon,
+	DollarSignIcon,
 	HomeIcon,
+	MenuIcon,
 	PanelLeftCloseIcon,
 	PanelLeftOpenIcon,
 	SettingsIcon,
-	UserCog2Icon,
-	UserCogIcon,
+	UserIcon,
+	UsersIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { config as webConfig } from "@/config";
-import { OrganzationSelect } from "../../organizations/components/OrganizationSelect";
 import { useSidebar } from "../lib/sidebar-context";
 
 export function NavBar() {
 	const t = useTranslations();
 	const pathname = usePathname();
+	const { data: pendingCount = 0 } = usePendingApplicationCount();
+	const { data: pendingPurchaseRequestCount = 0 } = usePendingPurchaseRequestCount();
 	const { user } = useSession();
-	const { activeOrganization, isOrganizationAdmin } = useActiveOrganization();
+	const { activeOrganization, isOrganizationAdmin, activeOrganizationUserRole } = useActiveOrganization();
+	const isGroupLeader = activeOrganizationUserRole === "member";
 	const { isCollapsed, toggleCollapsed } = useSidebar();
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
 	const { useSidebarLayout } = webConfig.saas;
 
@@ -48,14 +62,46 @@ export function NavBar() {
 			icon: HomeIcon,
 			isActive: pathname === basePath,
 		},
-		{
-			label: t("app.menu.aiChatbot"),
-			href: activeOrganization
-				? `/app/${activeOrganization.slug}/chatbot`
-				: "/app/chatbot",
-			icon: BotMessageSquareIcon,
-			isActive: pathname.includes("/chatbot"),
-		},
+		...(activeOrganization
+			? [
+					{
+						label: t("app.menu.groups"),
+						href: `${basePath}/groups`,
+						icon: UsersIcon,
+						isActive: pathname.startsWith(`${basePath}/groups`),
+					},
+					{
+						label: t("app.menu.people"),
+						href: `${basePath}/people`,
+						icon: UserIcon,
+						isActive: pathname.startsWith(`${basePath}/people`),
+					},
+					{
+						label: t("app.menu.events"),
+						href: `${basePath}/events`,
+						icon: CalendarIcon,
+						isActive: pathname.startsWith(`${basePath}/events`),
+					},
+					...(!isGroupLeader
+					? [
+							{
+								label: t("app.menu.applications"),
+								href: `${basePath}/applications`,
+								icon: ClipboardListIcon,
+								isActive: pathname.startsWith(`${basePath}/applications`),
+								hasBadge: pendingCount > 0,
+							},
+							{
+								label: t("app.menu.purchaseRequests"),
+								href: `${basePath}/purchase-requests`,
+								icon: DollarSignIcon,
+								isActive: pathname.startsWith(`${basePath}/purchase-requests`),
+								hasBadge: pendingPurchaseRequestCount > 0,
+							},
+						]
+					: []),
+			]
+			: []),
 		...(activeOrganization && isOrganizationAdmin
 			? [
 					{
@@ -63,22 +109,6 @@ export function NavBar() {
 						href: `${basePath}/settings`,
 						icon: SettingsIcon,
 						isActive: pathname.startsWith(`${basePath}/settings/`),
-					},
-				]
-			: []),
-		{
-			label: t("app.menu.accountSettings"),
-			href: "/app/settings",
-			icon: UserCog2Icon,
-			isActive: pathname.startsWith("/app/settings/"),
-		},
-		...(user?.role === "admin"
-			? [
-					{
-						label: t("app.menu.admin"),
-						href: "/app/admin",
-						icon: UserCogIcon,
-						isActive: pathname.startsWith("/app/admin/"),
 					},
 				]
 			: []),
@@ -106,40 +136,22 @@ export function NavBar() {
 						})}
 					>
 						<div className="flex items-center gap-2 md:w-full">
-							<Link href="/app" className="block">
-								<Logo withLabel={false} />
+							<Link href="/app" className="flex items-center gap-2.5">
+								{activeOrganization ? (
+									<>
+										<OrganizationLogo
+											name={activeOrganization.name}
+											logoUrl={activeOrganization.logo}
+											className="size-10 rounded-md shrink-0"
+										/>
+										<span className="font-semibold text-sm truncate">{activeOrganization.name}</span>
+									</>
+								) : (
+									<Logo withLabel={false} />
+								)}
 							</Link>
 						</div>
 
-						{authConfig.organizations.enable &&
-							!authConfig.organizations.hideOrganization && (
-								<>
-									{!isCollapsed && (
-										<span
-											className={cn(
-												"hidden opacity-30 md:block",
-												{
-													"md:hidden":
-														useSidebarLayout,
-												},
-											)}
-										>
-											<ChevronRightIcon className="size-4" />
-										</span>
-									)}
-
-									<OrganzationSelect
-										className={cn({
-											"md:mt-2": useSidebarLayout,
-											"md:flex md:justify-center":
-												useSidebarLayout && isCollapsed,
-										})}
-										collapsed={
-											isCollapsed && useSidebarLayout
-										}
-									/>
-								</>
-							)}
 					</div>
 
 					<div
@@ -150,14 +162,81 @@ export function NavBar() {
 							},
 						)}
 					>
+						{/* Hamburger — mobile only */}
+						<Button
+							variant="ghost"
+							size="icon"
+							className="md:hidden"
+							aria-label="Open menu"
+							onClick={() => setMobileMenuOpen(true)}
+						>
+							<MenuIcon className="size-5" />
+						</Button>
+
 						<UserMenu />
 					</div>
 				</div>
 
+				{/* Mobile sheet menu */}
+				<Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+					<SheetContent side="left" className="w-72 p-0">
+						<SheetHeader className="px-4 py-4 border-b">
+							<SheetTitle className="flex items-center gap-2">
+								<Logo withLabel={false} />
+								{activeOrganization?.name && (
+									<span className="text-sm font-semibold truncate">
+										{activeOrganization.name}
+									</span>
+								)}
+							</SheetTitle>
+						</SheetHeader>
+						<ul className="flex flex-col gap-1 p-3 text-sm">
+							{menuItems.map((menuItem) => (
+								<li key={menuItem.href}>
+									<Link
+										href={menuItem.href}
+										onClick={() => setMobileMenuOpen(false)}
+										className={cn(
+											"flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors border border-transparent",
+											menuItem.isActive
+												? "font-semibold bg-card border-border"
+												: "hover:bg-muted/50",
+										)}
+									>
+										<span className="relative shrink-0">
+											<menuItem.icon
+												className={cn(
+													"size-4",
+													menuItem.isActive
+														? "text-foreground"
+														: "text-muted-foreground opacity-60",
+												)}
+											/>
+											{"hasBadge" in menuItem && menuItem.hasBadge && (
+												<span className="absolute -top-1 -right-1 size-2 rounded-full bg-red-500" />
+											)}
+										</span>
+										<span
+											className={cn(
+												menuItem.isActive
+													? "text-foreground"
+													: "text-muted-foreground",
+											)}
+										>
+											{menuItem.label}
+										</span>
+									</Link>
+								</li>
+							))}
+						</ul>
+					</SheetContent>
+				</Sheet>
+
+				{/* Desktop nav (hidden on mobile) */}
 				<TooltipProvider delayDuration={0}>
 					<ul
 						className={cn(
-							"no-scrollbar mt-4 flex list-none items-center justify-start gap-2 overflow-x-auto text-sm",
+							"hidden list-none text-sm",
 							{
 								"md:mx-0 md:my-6 md:flex md:flex-col md:items-stretch md:gap-1 md:px-0":
 									useSidebarLayout,
@@ -184,14 +263,19 @@ export function NavBar() {
 									)}
 									prefetch
 								>
-									<menuItem.icon
-										className={cn(
-											"size-4 shrink-0",
-											menuItem.isActive
-												? "text-foreground"
-												: "text-muted-foreground opacity-60",
+									<span className="relative shrink-0">
+										<menuItem.icon
+											className={cn(
+												"size-4",
+												menuItem.isActive
+													? "text-foreground"
+													: "text-muted-foreground opacity-60",
+											)}
+										/>
+										{"hasBadge" in menuItem && menuItem.hasBadge && (
+											<span className="absolute -top-1 -right-1 size-2 rounded-full bg-red-500" />
 										)}
-									/>
+									</span>
 									{(!isCollapsed || !useSidebarLayout) && (
 										<span
 											className={cn({

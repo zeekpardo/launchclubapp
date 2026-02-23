@@ -1,6 +1,8 @@
 import { DeleteOrganizationForm } from "@saas/organizations/components/DeleteOrganizationForm";
+import { getActiveOrganization, getSession } from "@saas/auth/lib/server";
 import { SettingsList } from "@saas/shared/components/SettingsList";
 import { getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata() {
 	const t = await getTranslations();
@@ -10,7 +12,19 @@ export async function generateMetadata() {
 	};
 }
 
-export default function OrganizationSettingsPage() {
+export default async function OrganizationSettingsPage({
+	params,
+}: {
+	params: Promise<{ organizationSlug: string }>;
+}) {
+	const { organizationSlug } = await params;
+	const [org, session] = await Promise.all([
+		getActiveOrganization(organizationSlug),
+		getSession(),
+	]);
+	if (!org || !session) return notFound();
+	const currentMember = org.members.find((m) => m.userId === session.user.id);
+	if (currentMember?.role === "member") return notFound();
 	return (
 		<SettingsList>
 			<DeleteOrganizationForm />

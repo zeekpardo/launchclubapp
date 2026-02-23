@@ -1,17 +1,25 @@
 "use client";
 
 import { authClient } from "@repo/auth/client";
+import { config as authConfig } from "@repo/auth/config";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@repo/ui";
 import { useSession } from "@saas/auth/hooks/use-session";
+import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
+import { OrganizationLogo } from "@saas/organizations/components/OrganizationLogo";
+import { useOrganizationListQuery } from "@saas/organizations/lib/api";
 import { ColorModeToggle } from "@shared/components/ColorModeToggle";
 import { UserAvatar } from "@shared/components/UserAvatar";
+import { useRouter } from "@shared/hooks/router";
+import { clearCache } from "@shared/lib/cache";
 import {
 	BookIcon,
 	HomeIcon,
@@ -26,6 +34,9 @@ import { config } from "@/config";
 export function UserMenu({ showUserName }: { showUserName?: boolean }) {
 	const t = useTranslations();
 	const { user } = useSession();
+	const router = useRouter();
+	const { activeOrganization, setActiveOrganization } = useActiveOrganization();
+	const { data: allOrganizations } = useOrganizationListQuery();
 
 	const onLogout = () => {
 		authClient.signOut({
@@ -72,13 +83,50 @@ export function UserMenu({ showUserName }: { showUserName?: boolean }) {
 				</button>
 			</DropdownMenuTrigger>
 
-			<DropdownMenuContent align="end">
+			<DropdownMenuContent align="end" className="w-56">
 				<DropdownMenuLabel>
 					{name}
 					<span className="block font-normal text-xs opacity-70">
 						{email}
 					</span>
 				</DropdownMenuLabel>
+
+				{/* Org switcher */}
+				{authConfig.organizations.enable &&
+					!authConfig.organizations.hideOrganization &&
+					allOrganizations &&
+					allOrganizations.length > 0 && (
+						<>
+							<DropdownMenuSeparator />
+							<DropdownMenuLabel className="text-foreground/60 text-xs font-normal">
+								{t("organizations.organizationSelect.organizations")}
+							</DropdownMenuLabel>
+							<DropdownMenuRadioGroup
+								value={activeOrganization?.slug ?? ""}
+								onValueChange={async (slug) => {
+									await clearCache();
+									setActiveOrganization(slug);
+								}}
+							>
+								{allOrganizations.map((org) => (
+									<DropdownMenuRadioItem
+										key={org.slug}
+										value={org.slug}
+										className="cursor-pointer pl-3"
+									>
+										<div className="flex items-center gap-2">
+											<OrganizationLogo
+												className="size-5 shrink-0"
+												name={org.name}
+												logoUrl={org.logo}
+											/>
+											<span className="truncate">{org.name}</span>
+										</div>
+									</DropdownMenuRadioItem>
+								))}
+							</DropdownMenuRadioGroup>
+						</>
+					)}
 
 				<DropdownMenuSeparator />
 
