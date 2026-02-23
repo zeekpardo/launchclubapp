@@ -2,7 +2,7 @@
 title: Privacy Policy
 ---
 
-**Effective Date: YOUR_EFFECTIVE_DATE**
+**Effective Date: February 22, 2026**
 
 Thank you for visiting launchclub.app (the "Website"). Your privacy is important to us. This Privacy Policy (the "Policy") describes the types of information Launch Club App (the "Company", "us", "we", or "our") may collect from you or that you may provide when you visit the Website and the products, features, materials, and services we offer (collectively with the Website, the "Services"). This Policy also describes our policies and procedures for collecting, using, maintaining, protecting, and disclosing that information.
 
@@ -237,4 +237,4 @@ Email: [CONTACT_EMAIL]
 Phone: [CONTACT_PHONE]
 Website: launchclub.app
 
-*This Privacy Policy was last updated on YOUR_EFFECTIVE_DATE.*
+*This Privacy Policy was last updated on February 22, 2026.*

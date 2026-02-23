@@ -6,7 +6,7 @@ export const config = {
 	appDomain: "launchclub.app",
 
 	// the effective date for legal documents (privacy policy, terms)
-	legalEffectiveDate: "YOUR_EFFECTIVE_DATE",
+	legalEffectiveDate: "February 22, 2026",
 
 	// the link to the documentation app (if not defined, the documentation link will not be shown in the app)
 	docsLink: process.env.NEXT_PUBLIC_DOCS_URL as string | undefined,

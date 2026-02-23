@@ -2,7 +2,7 @@
 title: Terms and conditions
 ---
 
-**Effective Date: YOUR_EFFECTIVE_DATE**
+**Effective Date: February 22, 2026**
 
 Welcome to launchclub.app (the "Website"). This Terms of Use Agreement (the "Agreement") is made and entered into by and between you and Launch Club App (the "Company", "us", "we", or "our"). This Agreement sets forth the terms and conditions that govern your use of and access to the Website and any products, materials, and services provided by or on the Website (collectively, the "Services").
 
@@ -303,4 +303,4 @@ For feedback, comments, technical support, and all other communications relating
 Email: [CONTACT_EMAIL]
 Website: launchclub.app
 
-*This Terms of Use document was last updated on YOUR_EFFECTIVE_DATE.*
+*This Terms of Use document was last updated on February 22, 2026.*
