@@ -62,9 +62,9 @@ export const createCheckoutLink = protectedProcedure
 				planDetails.prices?.find(
 					(price) => price.productId === productId,
 				);
-			const trialPeriodDays =
+			const trialPeriodDays: number | undefined =
 				price && "trialPeriodDays" in price
-					? price.trialPeriodDays
+					? (price.trialPeriodDays as number)
 					: undefined;
 
 			const organization = organizationId

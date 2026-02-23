@@ -9,14 +9,14 @@ export const config = {
 			maxStudents: 75,
 			prices: [
 				{
-					type: "recurring",
+					type: "recurring" as "recurring" | "one-time",
 					productId: process.env.NEXT_PUBLIC_PRICE_ID_STARTER_MONTHLY as string,
 					interval: "month",
 					amount: 20,
 					currency: "USD",
 				},
 				{
-					type: "recurring",
+					type: "recurring" as "recurring" | "one-time",
 					productId: process.env.NEXT_PUBLIC_PRICE_ID_STARTER_YEARLY as string,
 					interval: "year",
 					amount: 200,
@@ -29,14 +29,14 @@ export const config = {
 			maxStudents: 200,
 			prices: [
 				{
-					type: "recurring",
+					type: "recurring" as "recurring" | "one-time",
 					productId: process.env.NEXT_PUBLIC_PRICE_ID_GROWTH_MONTHLY as string,
 					interval: "month",
 					amount: 37,
 					currency: "USD",
 				},
 				{
-					type: "recurring",
+					type: "recurring" as "recurring" | "one-time",
 					productId: process.env.NEXT_PUBLIC_PRICE_ID_GROWTH_YEARLY as string,
 					interval: "year",
 					amount: 370,
@@ -48,14 +48,14 @@ export const config = {
 			maxStudents: 500,
 			prices: [
 				{
-					type: "recurring",
+					type: "recurring" as "recurring" | "one-time",
 					productId: process.env.NEXT_PUBLIC_PRICE_ID_STANDARD_MONTHLY as string,
 					interval: "month",
 					amount: 75,
 					currency: "USD",
 				},
 				{
-					type: "recurring",
+					type: "recurring" as "recurring" | "one-time",
 					productId: process.env.NEXT_PUBLIC_PRICE_ID_STANDARD_YEARLY as string,
 					interval: "year",
 					amount: 750,
@@ -67,14 +67,14 @@ export const config = {
 			maxStudents: 1000,
 			prices: [
 				{
-					type: "recurring",
+					type: "recurring" as "recurring" | "one-time",
 					productId: process.env.NEXT_PUBLIC_PRICE_ID_PLUS_MONTHLY as string,
 					interval: "month",
 					amount: 120,
 					currency: "USD",
 				},
 				{
-					type: "recurring",
+					type: "recurring" as "recurring" | "one-time",
 					productId: process.env.NEXT_PUBLIC_PRICE_ID_PLUS_YEARLY as string,
 					interval: "year",
 					amount: 1200,
@@ -86,14 +86,14 @@ export const config = {
 			maxStudents: 1500,
 			prices: [
 				{
-					type: "recurring",
+					type: "recurring" as "recurring" | "one-time",
 					productId: process.env.NEXT_PUBLIC_PRICE_ID_PRO_MONTHLY as string,
 					interval: "month",
 					amount: 185,
 					currency: "USD",
 				},
 				{
-					type: "recurring",
+					type: "recurring" as "recurring" | "one-time",
 					productId: process.env.NEXT_PUBLIC_PRICE_ID_PRO_YEARLY as string,
 					interval: "year",
 					amount: 1850,
@@ -105,14 +105,14 @@ export const config = {
 			maxStudents: null, // no limit
 			prices: [
 				{
-					type: "recurring",
+					type: "recurring" as "recurring" | "one-time",
 					productId: process.env.NEXT_PUBLIC_PRICE_ID_UNLIMITED_MONTHLY as string,
 					interval: "month",
 					amount: 245,
 					currency: "USD",
 				},
 				{
-					type: "recurring",
+					type: "recurring" as "recurring" | "one-time",
 					productId: process.env.NEXT_PUBLIC_PRICE_ID_UNLIMITED_YEARLY as string,
 					interval: "year",
 					amount: 2450,

@@ -16,7 +16,7 @@ const ContentSecurityPolicy = `
 	style-src 'self' 'unsafe-inline';
 	img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com;
 	font-src 'self';
-	connect-src 'self' https: ${TURNSTILE_ORIGIN};
+	connect-src 'self' https: blob: ${TURNSTILE_ORIGIN};
 	frame-src ${TURNSTILE_ORIGIN};
 	frame-ancestors 'none';
 	base-uri 'self';
