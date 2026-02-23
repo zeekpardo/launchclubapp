@@ -515,6 +515,46 @@
           "fullSupport": "Full support"
         },
         "title": "Pro"
+      },
+      "starter": {
+        "title": "Starter",
+        "description": "For small groups just getting started.",
+        "features": {
+          "students": "Up to 75 students",
+          "support": "Email support"
+        }
+      },
+      "growth": {
+        "title": "Growth",
+        "description": "For growing programs that need more capacity.",
+        "features": {
+          "students": "Up to 200 students",
+          "support": "Priority email support"
+        }
+      },
+      "standard": {
+        "title": "Standard",
+        "description": "For established programs with multiple groups.",
+        "features": {
+          "students": "Up to 500 students",
+          "support": "Priority support"
+        }
+      },
+      "plus": {
+        "title": "Plus",
+        "description": "For large programs managing hundreds of kids.",
+        "features": {
+          "students": "Up to 1,000 students",
+          "support": "Dedicated support"
+        }
+      },
+      "unlimited": {
+        "title": "Unlimited",
+        "description": "For organizations with no limits.",
+        "features": {
+          "students": "Unlimited students",
+          "support": "Dedicated support"
+        }
       }
     },
     "purchase": "Purchase",
