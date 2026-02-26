@@ -18,22 +18,6 @@ const EMAIL_LIMIT = 5;
 // Per-site: max 200 submissions in any rolling 1-hour window
 const SITE_LIMIT = 200;
 
-async function verifyCaptcha(token: string): Promise<boolean> {
-  const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) {
-    // Allow in development when secret is not configured
-    if (process.env.NODE_ENV !== "production") return true;
-    throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "CAPTCHA is not configured." });
-  }
-  const body = new URLSearchParams({ secret, response: token });
-  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-    method: "POST",
-    body,
-  });
-  const data = await res.json() as { success: boolean };
-  return data.success === true;
-}
-
 export const submitApplication = publicProcedure
   .route({
     method: "POST",
@@ -43,11 +27,6 @@ export const submitApplication = publicProcedure
   })
   .input(submitApplicationSchema)
   .handler(async ({ input }) => {
-    const captchaValid = await verifyCaptcha(input.captchaToken);
-    if (!captchaValid) {
-      throw new ORPCError("FORBIDDEN", { message: "CAPTCHA verification failed. Please try again." });
-    }
-
     const site = await getSiteBySlug(input.siteSlug);
     if (!site) throw new ORPCError("NOT_FOUND");
     if (!site.acceptApplications) {
@@ -83,7 +62,7 @@ export const submitApplication = publicProcedure
     const validCustomFieldIds = new Set(validCustomFields.map((f) => f.id));
     const validFormFieldIds = new Set([...areaFields, ...siteFields].map((f) => f.id));
 
-    const { siteSlug, captchaToken: _captcha, children, customFieldValues, profileFieldValues, ...parentData } = input;
+    const { siteSlug, children, customFieldValues, profileFieldValues, ...parentData } = input;
 
     const safeCustomFieldValues = customFieldValues?.filter((v) => validFormFieldIds.has(v.formFieldId));
     const safeProfileFieldValues = profileFieldValues?.filter((v) => validCustomFieldIds.has(v.customFieldId));

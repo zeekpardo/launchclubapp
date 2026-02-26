@@ -21,7 +21,6 @@ const childSchema = z.object({
 
 export const submitApplicationSchema = z.object({
   siteSlug: z.string().max(200),
-  captchaToken: z.string().min(1, "CAPTCHA token is required"),
   parentFirstName: z.string().min(1, "First name is required").max(100),
   parentLastName: z.string().min(1, "Last name is required").max(100),
   parentEmail: z.string().email().max(254).optional().or(z.literal("")),

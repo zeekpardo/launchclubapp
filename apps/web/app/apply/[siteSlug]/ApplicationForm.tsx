@@ -14,7 +14,6 @@ import {
 } from "@repo/ui/components/form";
 import { Input } from "@repo/ui/components/input";
 import { Textarea } from "@repo/ui/components/textarea";
-import { Turnstile } from "@marsidev/react-turnstile";
 import { orpcClient } from "@shared/lib/orpc-client";
 import { CheckCircleIcon, LoaderIcon, PlusIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -83,7 +82,6 @@ export function ApplicationForm({ siteSlug, profileFields = [] }: ApplicationFor
 	const [submitted, setSubmitted] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 	const [serverError, setServerError] = useState<string | null>(null);
-	const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
 	const form = useForm<ApplicationFormValues>({
 		resolver: zodResolver(applicationFormSchema),
@@ -109,16 +107,11 @@ export function ApplicationForm({ siteSlug, profileFields = [] }: ApplicationFor
 	const hasSpouse = form.watch("hasSpouse");
 
 	const onSubmit = async (values: ApplicationFormValues) => {
-		if (!captchaToken) {
-			setServerError(t("serverError.captcha"));
-			return;
-		}
 		setSubmitting(true);
 		setServerError(null);
 		try {
 			await orpcClient.applications.submit({
 				siteSlug,
-				captchaToken,
 				parentFirstName: values.parentFirstName,
 				parentLastName: values.parentLastName,
 				parentEmail: values.parentEmail || undefined,
@@ -154,13 +147,9 @@ export function ApplicationForm({ siteSlug, profileFields = [] }: ApplicationFor
 			const message = (err as { message?: string })?.message;
 			if (message?.includes("not currently being accepted")) {
 				setServerError(t("serverError.notAccepted"));
-			} else if (message?.includes("CAPTCHA")) {
-				setServerError(t("serverError.captcha"));
 			} else {
 				setServerError(t("serverError.generic"));
 			}
-			// Turnstile tokens are single-use — reset so user can get a fresh one
-			setCaptchaToken(null);
 		} finally {
 			setSubmitting(false);
 		}
@@ -426,22 +415,13 @@ export function ApplicationForm({ siteSlug, profileFields = [] }: ApplicationFor
 					<p className="text-sm text-destructive text-center">{serverError}</p>
 				)}
 
-				<div className="flex flex-col items-center gap-4">
-					<Turnstile
-						siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "1x00000000000000000000AA"}
-						onSuccess={setCaptchaToken}
-						onExpire={() => setCaptchaToken(null)}
-						onError={() => setCaptchaToken(null)}
-					/>
-				</div>
-
 				<div className="flex justify-center">
 					<Button
 						type="submit"
 						variant="primary"
 						size="lg"
 						className="px-12"
-						disabled={submitting || !captchaToken}
+						disabled={submitting}
 					>
 						{submitting ? (
 							<>
