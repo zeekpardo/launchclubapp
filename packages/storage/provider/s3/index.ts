@@ -63,7 +63,6 @@ export const getSignedUploadUrl: GetSignedUploadUrlHandler = async (
 				Bucket: bucketName,
 				Key: path,
 				ContentType: contentType ?? "application/octet-stream",
-				...(maxBytes !== undefined ? { ContentLength: maxBytes } : {}),
 			}),
 			{
 				expiresIn: 30,
