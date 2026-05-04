@@ -532,7 +532,7 @@ model PurchaseRequest {
   groupId       String
   name          String
   description   String                @db.Text
-  dueDate       DateTime?
+  dueDate       DateTime?             @map("due_date")
   status        String                @default("PENDING")
   requestedById String
   reviewedById  String?
