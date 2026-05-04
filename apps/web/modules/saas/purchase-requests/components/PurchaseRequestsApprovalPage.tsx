@@ -23,7 +23,9 @@ import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import {
 	useAllPurchaseRequests,
 	useReviewPurchaseRequest,
+	type PurchaseRequest,
 } from "@saas/groups/hooks/use-purchase-requests";
+import { PurchaseRequestDialog } from "@saas/groups/components/PurchaseRequestDialog";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { SearchInput } from "@shared/components/SearchInput";
 import { orpc } from "@shared/lib/orpc-query-utils";
@@ -48,6 +50,9 @@ export function PurchaseRequestsApprovalPage() {
 	const t = useTranslations("launchclub.purchaseRequests");
 	const { activeOrganization } = useActiveOrganization();
 	const organizationId = activeOrganization?.id ?? "";
+
+	const [editRequest, setEditRequest] = useState<PurchaseRequest | null>(null);
+	const [editDialogOpen, setEditDialogOpen] = useState(false);
 
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>("PENDING");
 	const [selectedAreaId, setSelectedAreaId] = useState(ALL);
@@ -298,9 +303,29 @@ export function PurchaseRequestsApprovalPage() {
 			) : (
 				<div className="space-y-3">
 					{filteredRequests.map((request) => (
-						<ApprovalCard key={request.id} request={request} categoryLabels={categoryLabels} />
+						<ApprovalCard
+							key={request.id}
+							request={request}
+							categoryLabels={categoryLabels}
+							onEdit={(r) => {
+								setEditRequest(r as PurchaseRequest);
+								setEditDialogOpen(true);
+							}}
+						/>
 					))}
 				</div>
+			)}
+
+			{editRequest && (
+				<PurchaseRequestDialog
+					groupId={editRequest.group.id}
+					open={editDialogOpen}
+					onOpenChange={(open) => {
+						setEditDialogOpen(open);
+						if (!open) setEditRequest(null);
+					}}
+					editRequest={editRequest}
+				/>
 			)}
 		</div>
 	);
@@ -309,9 +334,11 @@ export function PurchaseRequestsApprovalPage() {
 function ApprovalCard({
 	request,
 	categoryLabels,
+	onEdit,
 }: {
 	request: NonNullable<ReturnType<typeof useAllPurchaseRequests>["data"]>[number];
 	categoryLabels: Record<string, string>;
+	onEdit: (request: NonNullable<ReturnType<typeof useAllPurchaseRequests>["data"]>[number]) => void;
 }) {
 	const t = useTranslations("launchclub.purchaseRequests");
 	const reviewRequest = useReviewPurchaseRequest();
@@ -350,7 +377,13 @@ function ApprovalCard({
 				<div className="min-w-0 flex-1 space-y-2">
 					{/* Title row */}
 					<div className="flex flex-wrap items-center gap-2">
-						<span className="font-semibold">{request.name}</span>
+						<button
+							type="button"
+							className="font-semibold hover:underline cursor-pointer text-left"
+							onClick={() => onEdit(request)}
+						>
+							{request.name}
+						</button>
 						<Badge status={config.status}>{config.label}</Badge>
 						<span className="text-lg font-bold text-green-600">
 							${total.toFixed(2)}
