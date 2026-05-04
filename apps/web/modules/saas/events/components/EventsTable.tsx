@@ -22,7 +22,7 @@ import {
 } from "@repo/ui/components/table";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useDeleteEvent } from "@saas/events/hooks/use-events";
-import { AttendanceDialog } from "@saas/groups/components/AttendanceDialog";
+import { AttendanceDialog } from "@shared/components/AttendanceDialog";
 import { CalendarCheckIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";

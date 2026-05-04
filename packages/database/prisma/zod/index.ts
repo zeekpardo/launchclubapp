@@ -103,7 +103,7 @@ export type HouseholdScalarFieldEnum = z.infer<typeof HouseholdScalarFieldEnumSc
 
 // File: PersonScalarFieldEnum.schema.ts
 
-export const PersonScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'householdId', 'firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender', 'isChild', 'grade', 'notes', 'avatarUrl', 'createdAt', 'updatedAt'])
+export const PersonScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'householdId', 'firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender', 'isChild', 'isActive', 'grade', 'notes', 'avatarUrl', 'createdAt', 'updatedAt'])
 
 export type PersonScalarFieldEnum = z.infer<typeof PersonScalarFieldEnumSchema>;
 
@@ -526,6 +526,7 @@ export const PersonSchema = z.object({
   dateOfBirth: z.date().nullish(),
   gender: z.string().nullish(),
   isChild: z.boolean(),
+  isActive: z.boolean().default(true),
   grade: z.string().nullish(),
   notes: z.string().nullish(),
   avatarUrl: z.string().nullish(),

@@ -20,7 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { PrinterIcon } from "lucide-react";
 import { useState } from "react";
-import { AttendanceDialog } from "../AttendanceDialog";
+import { AttendanceDialog } from "@shared/components/AttendanceDialog";
 
 interface GroupAttendanceTabProps {
 	groupId: string;
