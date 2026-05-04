@@ -310,6 +310,7 @@ model Person {
   dateOfBirth    DateTime?
   gender         String?
   isChild        Boolean       @default(false)
+  isActive       Boolean       @default(true)
   grade          String?
   notes          String?       @db.Text
   avatarUrl      String?

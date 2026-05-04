@@ -55,6 +55,7 @@ const GRADES = [
 
 const personFormSchema = z.object({
 	isChild: z.boolean(),
+	isActive: z.boolean(),
 	firstName: z.string().min(1),
 	lastName: z.string().min(1),
 	email: z.string().email().optional().or(z.literal("")),
@@ -76,6 +77,7 @@ interface PersonData {
 	dateOfBirth?: Date | string | null;
 	gender?: string | null;
 	isChild?: boolean | null;
+	isActive?: boolean | null;
 	grade?: string | null;
 	householdId?: string | null;
 	notes?: string | null;
@@ -117,6 +119,7 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 		resolver: zodResolver(personFormSchema),
 		defaultValues: {
 			isChild: person?.isChild ?? false,
+			isActive: person?.isActive ?? true,
 			firstName: person?.firstName ?? "",
 			lastName: person?.lastName ?? "",
 			email: person?.email ?? "",
@@ -158,6 +161,7 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 
 			const payload = {
 				isChild: values.isChild,
+				isActive: values.isActive,
 				firstName: values.firstName,
 				lastName: values.lastName,
 				email: values.email || undefined,
@@ -307,7 +311,7 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 					)}
 				/>
 
-				{/* isChild toggle */}
+				{/* isChild + isActive toggles */}
 				<div className="grid gap-4 md:grid-cols-2">
 					<FormField
 						control={form.control}
@@ -316,6 +320,23 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 							<FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
 								<FormLabel className="text-base font-medium">
 									{t("launchclub.people.form.isChild")}
+								</FormLabel>
+								<FormControl>
+									<Switch
+										checked={field.value}
+										onCheckedChange={field.onChange}
+									/>
+								</FormControl>
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="isActive"
+						render={({ field }) => (
+							<FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+								<FormLabel className="text-base font-medium">
+									{t("launchclub.people.form.isActive")}
 								</FormLabel>
 								<FormControl>
 									<Switch

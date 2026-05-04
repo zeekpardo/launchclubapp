@@ -30,6 +30,7 @@ export const listPeople = protectedProcedure
 
     return getPeopleByOrganization(input.organizationId, {
       isChild: input.isChild,
+      isActive: input.isActive,
       query: input.query,
       areaId: input.areaId,
       siteId: input.siteId,

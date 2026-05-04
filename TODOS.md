@@ -23,8 +23,8 @@ Sourced from Kelvin/PCL review session (2026-05-01).
 
 ## People / Profiles
 
-- [ ] Add Active / Inactive status to person profiles
-- [ ] On the People list view, show only Active people by default with a toggle to include Inactive
+- [x] Add Active / Inactive status to person profiles — `isActive` field added to schema, PersonForm toggle, and wired through API/DB
+- [x] On the People list view, show only Active people by default with a toggle to include Inactive
 - [x] Fix "Show Removed Members" in group attendance — derive removed members from attendance records (people with attendance but no PersonGroup entry); render them dimmed with "Removed" label
 
 ---

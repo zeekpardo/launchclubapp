@@ -182,6 +182,7 @@ export function PeopleTable() {
 	const [tab, setTab] = useState<FilterTab>("all");
 	const [selectedAreaId, setSelectedAreaId] = useState<string>(ALL);
 	const [selectedSiteId, setSelectedSiteId] = useState<string>(ALL);
+	const [showInactive, setShowInactive] = useState(false);
 	const [deletePersonId, setDeletePersonId] = useState<string | null>(null);
 	const [guardianKidId, setGuardianKidId] = useState<string | null>(null);
 
@@ -224,9 +225,10 @@ export function PeopleTable() {
 		[sites, selectedAreaId],
 	);
 
-	const { data: allPeople, isLoading: allLoading } = usePeople({ query: search, areaId, siteId });
-	const { data: adults, isLoading: adultsLoading } = usePeople({ query: search, isChild: false, areaId, siteId });
-	const { data: kids, isLoading: kidsLoading } = usePeople({ query: search, isChild: true, areaId, siteId });
+	const activeFilter = showInactive ? undefined : true;
+	const { data: allPeople, isLoading: allLoading } = usePeople({ query: search, isActive: activeFilter, areaId, siteId });
+	const { data: adults, isLoading: adultsLoading } = usePeople({ query: search, isChild: false, isActive: activeFilter, areaId, siteId });
+	const { data: kids, isLoading: kidsLoading } = usePeople({ query: search, isChild: true, isActive: activeFilter, areaId, siteId });
 
 	const handleAreaChange = (value: string) => {
 		setSelectedAreaId(value);
@@ -319,22 +321,33 @@ export function PeopleTable() {
 					</Select>
 				</div>
 
-				{/* Row 3: Type tabs */}
-				<div className="inline-flex rounded-lg border bg-muted p-1 self-start">
-					{(["all", "adults", "kids"] as FilterTab[]).map((filterTab) => (
-						<button
-							key={filterTab}
-							type="button"
-							onClick={() => setTab(filterTab)}
-							className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
-								tab === filterTab
-									? "bg-background text-foreground shadow-sm"
-									: "text-muted-foreground hover:text-foreground"
-							}`}
-						>
-							{filterTab === "all" ? t("launchclub.people.tabs.all") : filterTab === "adults" ? t("launchclub.people.tabs.adults") : t("launchclub.people.tabs.kids")}
-						</button>
-					))}
+				{/* Row 3: Type tabs + inactive toggle */}
+				<div className="flex items-center gap-3">
+					<div className="inline-flex rounded-lg border bg-muted p-1 self-start">
+						{(["all", "adults", "kids"] as FilterTab[]).map((filterTab) => (
+							<button
+								key={filterTab}
+								type="button"
+								onClick={() => setTab(filterTab)}
+								className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+									tab === filterTab
+										? "bg-background text-foreground shadow-sm"
+										: "text-muted-foreground hover:text-foreground"
+								}`}
+							>
+								{filterTab === "all" ? t("launchclub.people.tabs.all") : filterTab === "adults" ? t("launchclub.people.tabs.adults") : t("launchclub.people.tabs.kids")}
+							</button>
+						))}
+					</div>
+					<label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground select-none">
+						<input
+							type="checkbox"
+							checked={showInactive}
+							onChange={(e) => setShowInactive(e.target.checked)}
+							className="rounded"
+						/>
+						{t("launchclub.people.showInactive")}
+					</label>
 				</div>
 			</div>
 
@@ -408,8 +421,8 @@ export function PeopleTable() {
 										/>
 									</TableCell>
 									<TableCell>
-										<span className="inline-flex items-center rounded-full bg-green-500 px-2.5 py-0.5 text-xs font-medium text-white">
-											{t("launchclub.people.statusActive")}
+										<span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white ${person.isActive ? "bg-green-500" : "bg-muted text-muted-foreground"}`}>
+											{person.isActive ? t("launchclub.people.statusActive") : t("launchclub.people.statusInactive")}
 										</span>
 									</TableCell>
 									<TableCell>

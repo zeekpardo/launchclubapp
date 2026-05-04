@@ -1101,6 +1101,7 @@
         "save": "Save",
         "cancel": "Cancel",
         "isChild": "Is this a child?",
+        "isActive": "Active",
         "grade": "Grade",
         "gradePlaceholder": "Select grade",
         "genderOptions": {
@@ -1128,6 +1129,8 @@
       "search": "Search people...",
       "noResults": "No people found.",
       "statusActive": "active",
+      "statusInactive": "inactive",
+      "showInactive": "Show inactive",
       "manageGuardians": "Manage guardians",
       "allAreas": "All Areas",
       "allSites": "All Sites",

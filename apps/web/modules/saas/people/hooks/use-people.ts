@@ -4,13 +4,14 @@ import { useActiveOrganization } from "@saas/organizations/hooks/use-active-orga
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export function usePeople(opts?: { isChild?: boolean; query?: string; areaId?: string; siteId?: string }) {
+export function usePeople(opts?: { isChild?: boolean; isActive?: boolean; query?: string; areaId?: string; siteId?: string }) {
 	const { activeOrganization } = useActiveOrganization();
 	return useQuery(
 		orpc.people.list.queryOptions({
 			input: {
 				organizationId: activeOrganization?.id ?? "",
 				isChild: opts?.isChild,
+				isActive: opts?.isActive,
 				query: opts?.query,
 				areaId: opts?.areaId,
 				siteId: opts?.siteId,

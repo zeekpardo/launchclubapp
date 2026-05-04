@@ -10,6 +10,7 @@ export const createPersonSchema = z.object({
   dateOfBirth: z.string().datetime().max(30).optional(),
   gender: z.string().max(50).optional(),
   isChild: z.boolean().default(false),
+  isActive: z.boolean().default(true),
   grade: z.string().max(20).optional(),
   notes: z.string().max(5000).optional(),
   avatarUrl: z.string().max(500).optional(),
@@ -20,6 +21,7 @@ export const updatePersonSchema = createPersonSchema.omit({ organizationId: true
 export const listPeopleSchema = z.object({
   organizationId: z.string().max(36),
   isChild: z.boolean().optional(),
+  isActive: z.boolean().optional(),
   query: z.string().max(200).optional(),
   areaId: z.string().max(36).optional(),
   siteId: z.string().max(36).optional(),

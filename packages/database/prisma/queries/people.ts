@@ -2,7 +2,7 @@ import { db } from "../client";
 
 export async function getPeopleByOrganization(
   organizationId: string,
-  opts?: { isChild?: boolean; query?: string; areaId?: string; siteId?: string; siteIds?: string[]; groupIds?: string[] },
+  opts?: { isChild?: boolean; isActive?: boolean; query?: string; areaId?: string; siteId?: string; siteIds?: string[]; groupIds?: string[] },
 ) {
   // Priority: groupIds scope > siteIds scope > siteId/areaId UI filter
   const personGroupsFilter = opts?.groupIds
@@ -19,6 +19,7 @@ export async function getPeopleByOrganization(
     where: {
       organizationId,
       ...(opts?.isChild !== undefined ? { isChild: opts.isChild } : {}),
+      ...(opts?.isActive !== undefined ? { isActive: opts.isActive } : {}),
       ...(personGroupsFilter ? { personGroups: personGroupsFilter } : {}),
       ...(opts?.query
         ? {
