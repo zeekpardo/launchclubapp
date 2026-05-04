@@ -23,6 +23,8 @@ COPY packages/utils/package.json ./packages/utils/
 COPY tooling/scripts/package.json ./tooling/scripts/
 COPY tooling/tailwind/package.json ./tooling/tailwind/
 COPY tooling/typescript/package.json ./tooling/typescript/
+# Strip postinstall from apps we don't build — their peer deps (e.g. vite) aren't installed
+RUN node -e "['apps/docs','apps/mail-preview'].forEach(d=>{const fs=require('fs'),f=d+'/package.json',p=JSON.parse(fs.readFileSync(f,'utf8'));if(p.scripts&&p.scripts.postinstall)delete p.scripts.postinstall;fs.writeFileSync(f,JSON.stringify(p))})"
 RUN pnpm install --frozen-lockfile
 
 # ---- builder: generate Prisma client and build Next.js ----
