@@ -27,6 +27,7 @@ export const updatePurchaseRequestProcedure = protectedProcedure
     return updatePurchaseRequest(id, {
       name: data.name,
       description: data.description,
+      dueDate: data.dueDate !== undefined ? (data.dueDate ? new Date(data.dueDate) : null) : undefined,
       items: data.items?.map((i) => ({ ...i, url: i.url || null })),
     });
   });

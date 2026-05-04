@@ -368,6 +368,12 @@ function ApprovalCard({
 							<span className="font-medium text-foreground">{t("card.requestedBy")} </span>
 							{request.requestedBy.name}
 						</span>
+						{request.dueDate && (
+							<span>
+								<span className="font-medium text-foreground">Needed by: </span>
+								{new Date(request.dueDate).toLocaleDateString()}
+							</span>
+						)}
 						<span>
 							<span className="font-medium text-foreground">{t("card.date")} </span>
 							{new Date(request.createdAt).toLocaleDateString()}

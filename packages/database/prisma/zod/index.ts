@@ -175,7 +175,7 @@ export type GroupResourceScalarFieldEnum = z.infer<typeof GroupResourceScalarFie
 
 // File: PurchaseRequestScalarFieldEnum.schema.ts
 
-export const PurchaseRequestScalarFieldEnumSchema = z.enum(['id', 'groupId', 'name', 'description', 'status', 'requestedById', 'reviewedById', 'reviewedAt', 'reviewNote', 'createdAt', 'updatedAt'])
+export const PurchaseRequestScalarFieldEnumSchema = z.enum(['id', 'groupId', 'name', 'description', 'dueDate', 'status', 'requestedById', 'reviewedById', 'reviewedAt', 'reviewNote', 'createdAt', 'updatedAt'])
 
 export type PurchaseRequestScalarFieldEnum = z.infer<typeof PurchaseRequestScalarFieldEnumSchema>;
 
@@ -733,6 +733,7 @@ export const PurchaseRequestSchema = z.object({
   groupId: z.string(),
   name: z.string(),
   description: z.string(),
+  dueDate: z.date().nullish(),
   status: z.string().default("PENDING"),
   requestedById: z.string(),
   reviewedById: z.string().nullish(),

@@ -25,6 +25,7 @@ export const createPurchaseRequestProcedure = protectedProcedure
       groupId: input.groupId,
       name: input.name,
       description: input.description,
+      dueDate: input.dueDate ? new Date(input.dueDate) : null,
       requestedById: context.user.id,
       items: input.items.map((i) => ({ ...i, url: i.url || undefined })),
     });

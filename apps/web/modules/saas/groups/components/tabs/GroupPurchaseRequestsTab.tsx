@@ -217,8 +217,14 @@ function PurchaseRequestCard({
 							<span className="font-medium text-foreground">By: </span>
 							{request.requestedBy.name}
 						</span>
+						{request.dueDate && (
+							<span>
+								<span className="font-medium text-foreground">Needed by: </span>
+								{new Date(request.dueDate).toLocaleDateString()}
+							</span>
+						)}
 						<span>
-							<span className="font-medium text-foreground">Date: </span>
+							<span className="font-medium text-foreground">Submitted: </span>
 							{new Date(request.createdAt).toLocaleDateString()}
 						</span>
 					</div>

@@ -24,6 +24,7 @@ export const createPurchaseRequestSchema = z.object({
   groupId: z.string(),
   name: z.string().min(1, "Name is required"),
   description: z.string().min(1, "Description is required"),
+  dueDate: z.string().datetime({ offset: true }).optional().or(z.literal("")),
   items: z.array(purchaseRequestItemSchema).min(1, "Add at least one item"),
 });
 
@@ -31,6 +32,7 @@ export const updatePurchaseRequestSchema = z.object({
   id: z.string(),
   name: z.string().min(1).optional(),
   description: z.string().min(1).optional(),
+  dueDate: z.string().datetime({ offset: true }).optional().or(z.literal("")),
   items: z.array(purchaseRequestItemSchema).min(1).optional(),
 });
 

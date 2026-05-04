@@ -44,6 +44,7 @@ export async function createPurchaseRequest(data: {
   groupId: string;
   name: string;
   description: string;
+  dueDate?: Date | null;
   requestedById: string;
   items: Array<{
     item: string;
@@ -65,6 +66,7 @@ export async function updatePurchaseRequest(
   data: {
     name?: string;
     description?: string;
+    dueDate?: Date | null;
     items?: Array<{
       item: string;
       url?: string | null;
@@ -83,6 +85,7 @@ export async function updatePurchaseRequest(
       data: {
         ...(data.name !== undefined ? { name: data.name } : {}),
         ...(data.description !== undefined ? { description: data.description } : {}),
+        ...(data.dueDate !== undefined ? { dueDate: data.dueDate } : {}),
         ...(data.items !== undefined ? { items: { create: data.items } } : {}),
       },
       include: purchaseRequestInclude,

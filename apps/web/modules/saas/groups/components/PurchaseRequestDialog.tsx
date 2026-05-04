@@ -62,6 +62,7 @@ const lineItemSchema = z.object({
 
 const formSchema = z.object({
 	name: z.string().min(1, "Name is required"),
+	dueDate: z.string().optional(),
 	description: z.string().min(1, "Description is required"),
 	items: z.array(lineItemSchema).min(1, "Add at least one item"),
 });
@@ -99,7 +100,7 @@ export function PurchaseRequestDialog({
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues: { name: "", description: "", items: [defaultItem] },
+		defaultValues: { name: "", dueDate: "", description: "", items: [defaultItem] },
 	});
 
 	const { fields, append, remove } = useFieldArray({
@@ -117,6 +118,9 @@ export function PurchaseRequestDialog({
 		if (editRequest) {
 			form.reset({
 				name: editRequest.name,
+				dueDate: editRequest.dueDate
+					? new Date(editRequest.dueDate).toISOString().slice(0, 10)
+					: "",
 				description: editRequest.description,
 				items: editRequest.items.map((i) => ({
 					item: i.item,
@@ -127,17 +131,21 @@ export function PurchaseRequestDialog({
 				})),
 			});
 		} else {
-			form.reset({ name: "", description: "", items: [defaultItem] });
+			form.reset({ name: "", dueDate: "", description: "", items: [defaultItem] });
 		}
 	}, [editRequest, form]);
 
 	const handleSubmit = form.handleSubmit(async (values) => {
 		try {
 			const items = values.items.map((i) => ({ ...i, url: i.url || undefined }));
+			const dueDate = values.dueDate
+				? new Date(values.dueDate).toISOString()
+				: undefined;
 			if (isEditing) {
 				await updateRequest.mutateAsync({
 					id: editRequest.id,
 					name: values.name,
+					dueDate,
 					description: values.description,
 					items,
 				});
@@ -146,12 +154,13 @@ export function PurchaseRequestDialog({
 				await createRequest.mutateAsync({
 					groupId,
 					name: values.name,
+					dueDate,
 					description: values.description,
 					items,
 				});
 				toastSuccess("Purchase request submitted.");
 			}
-			form.reset({ name: "", description: "", items: [defaultItem] });
+			form.reset({ name: "", dueDate: "", description: "", items: [defaultItem] });
 			onOpenChange(false);
 		} catch {
 			toastError("Failed to submit request. Please try again.");
@@ -169,20 +178,35 @@ export function PurchaseRequestDialog({
 
 				<Form {...form}>
 					<form onSubmit={handleSubmit} className="space-y-5">
-						{/* Name */}
-						<FormField
-							control={form.control}
-							name="name"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Name</FormLabel>
-									<FormControl>
-										<Input {...field} placeholder="e.g. Spring field trip supplies" />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+						{/* Name + Due Date */}
+						<div className="grid grid-cols-[1fr_10rem] gap-4">
+							<FormField
+								control={form.control}
+								name="name"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Name</FormLabel>
+										<FormControl>
+											<Input {...field} placeholder="e.g. Spring field trip supplies" />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="dueDate"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Due Date</FormLabel>
+										<FormControl>
+											<Input {...field} type="date" />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
 
 						{/* Description */}
 						<FormField
