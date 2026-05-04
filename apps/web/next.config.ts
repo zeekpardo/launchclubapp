@@ -43,6 +43,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+	output: "standalone",
 	transpilePackages: [
 		"@repo/api",
 		"@repo/auth",
