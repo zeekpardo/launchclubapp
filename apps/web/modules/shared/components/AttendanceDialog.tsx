@@ -21,7 +21,7 @@ import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type AttendanceStatus = "PRESENT" | "ABSENT" | "LATE" | "EXCUSED";
 
@@ -53,6 +53,25 @@ export function AttendanceDialog({
 			input: { id: groupId },
 		}),
 	);
+
+	const { data: existingAttendance } = useQuery(
+		orpc.attendance.list.queryOptions({
+			input: { eventId },
+		}),
+	);
+
+	useEffect(() => {
+		if (!open || !existingAttendance?.length) return;
+		const seeded: Record<string, AttendanceRecord> = {};
+		for (const a of existingAttendance) {
+			seeded[a.personId] = {
+				personId: a.personId,
+				status: a.status as AttendanceStatus,
+				notes: a.notes ?? "",
+			};
+		}
+		setRecords(seeded);
+	}, [open, existingAttendance]);
 
 	const recordAttendance = useMutation(
 		orpc.attendance.record.mutationOptions(),
@@ -88,6 +107,7 @@ export function AttendanceDialog({
 				queryKey: orpc.attendance.byGroup.key(),
 			});
 			toastSuccess(t("launchclub.attendance.notifications.saved"));
+			setRecords({});
 			onOpenChange(false);
 		} catch {
 			toastError(t("launchclub.attendance.notifications.error"));
