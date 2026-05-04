@@ -17,10 +17,11 @@ import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { type GroupDetail } from "@saas/groups/hooks/use-groups";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
+import { EventDialog } from "@saas/events/components/EventDialog";
 import { CalendarIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { EventDialog } from "../EventDialog";
 
 interface GroupEventsTabProps {
 	groupId: string;
@@ -30,8 +31,18 @@ interface GroupEventsTabProps {
 export function GroupEventsTab({ groupId, group }: GroupEventsTabProps) {
 	const t = useTranslations();
 	const queryClient = useQueryClient();
+	const { activeOrganization } = useActiveOrganization();
+	const organizationId = activeOrganization?.id ?? "";
 
 	const [eventDialogOpen, setEventDialogOpen] = useState(false);
+	const [editEvent, setEditEvent] = useState<{
+		id: string;
+		name: string;
+		groupId: string;
+		description?: string | null;
+		startsAt: string | Date;
+		endsAt?: string | Date | null;
+	} | null>(null);
 	const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
 
 	const { data: events, isLoading: eventsLoading } = useQuery(
@@ -100,7 +111,19 @@ export function GroupEventsTab({ groupId, group }: GroupEventsTabProps) {
 								</p>
 							</div>
 							<div className="flex items-center gap-1">
-								<Button variant="ghost" size="icon" className="h-8 w-8">
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-8 w-8"
+									onClick={() => setEditEvent({
+										id: event.id,
+										name: event.name,
+										groupId,
+										description: event.description,
+										startsAt: event.startsAt,
+										endsAt: event.endsAt,
+									})}
+								>
 									<PencilIcon className="h-4 w-4" />
 								</Button>
 								<Button
@@ -124,11 +147,17 @@ export function GroupEventsTab({ groupId, group }: GroupEventsTabProps) {
 			)}
 
 			<EventDialog
-				groupId={groupId}
 				open={eventDialogOpen}
 				onOpenChange={setEventDialogOpen}
-				defaultStartTime={group.meetingTime ?? ""}
-				defaultEndTime={group.meetingEndTime ?? ""}
+				organizationId={organizationId}
+				defaultGroupId={groupId}
+			/>
+
+			<EventDialog
+				open={!!editEvent}
+				onOpenChange={(open) => { if (!open) setEditEvent(null); }}
+				organizationId={organizationId}
+				event={editEvent ?? undefined}
 			/>
 
 			<AlertDialog

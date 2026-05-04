@@ -22,6 +22,7 @@ import {
 } from "@repo/ui/components/table";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useDeleteEvent } from "@saas/events/hooks/use-events";
+import { AttendanceDialog } from "@saas/groups/components/AttendanceDialog";
 import { CalendarCheckIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -51,6 +52,7 @@ function EventTableRow({
 	const deleteEvent = useDeleteEvent();
 	const [editOpen, setEditOpen] = useState(false);
 	const [deleteOpen, setDeleteOpen] = useState(false);
+	const [attendanceOpen, setAttendanceOpen] = useState(false);
 
 	const startsAt = new Date(event.startsAt);
 	const dateLabel = new Intl.DateTimeFormat(undefined, {
@@ -93,7 +95,8 @@ function EventTableRow({
 				<TableCell>
 					<Badge
 						status={attendanceCount > 0 ? "success" : "info"}
-						className="flex w-fit items-center gap-1 whitespace-nowrap"
+						className="flex w-fit cursor-pointer items-center gap-1 whitespace-nowrap"
+						onClick={() => setAttendanceOpen(true)}
 					>
 						<CalendarCheckIcon className="size-3" />
 						{t("launchclub.events.attendanceCount", {
@@ -140,6 +143,13 @@ function EventTableRow({
 					endsAt: event.endsAt,
 				}}
 				organizationId={organizationId}
+			/>
+
+			<AttendanceDialog
+				eventId={event.id}
+				groupId={event.groupId}
+				open={attendanceOpen}
+				onOpenChange={setAttendanceOpen}
 			/>
 
 			<AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>

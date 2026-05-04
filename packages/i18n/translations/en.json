@@ -75,7 +75,7 @@
       "admin": "Admin",
       "aiChatbot": "AI Chatbot",
       "organizationSettings": "Organization settings",
-      "start": "Start",
+      "start": "Dashboard",
       "areas": "Areas",
       "sites": "Sites",
       "groups": "Groups",
@@ -1009,7 +1009,7 @@
         "countLabel": "{count} Members",
         "role": {
           "MEMBER": "Member",
-          "LEADER": "Leader"
+          "LEADER": "Mentor"
         },
         "columns": {
           "firstName": "First Name",
