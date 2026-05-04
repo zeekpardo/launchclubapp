@@ -142,6 +142,7 @@ export function PurchaseRequestDialog({
 				? new Date(values.dueDate).toISOString()
 				: undefined;
 			if (isEditing) {
+				const wasReviewed = editRequest.status !== "PENDING";
 				await updateRequest.mutateAsync({
 					id: editRequest.id,
 					name: values.name,
@@ -149,7 +150,11 @@ export function PurchaseRequestDialog({
 					description: values.description,
 					items,
 				});
-				toastSuccess("Purchase request updated.");
+				toastSuccess(
+					wasReviewed
+						? "Request updated and resubmitted for review."
+						: "Purchase request updated.",
+				);
 			} else {
 				await createRequest.mutateAsync({
 					groupId,

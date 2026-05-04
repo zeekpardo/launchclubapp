@@ -87,6 +87,10 @@ export async function updatePurchaseRequest(
         ...(data.description !== undefined ? { description: data.description } : {}),
         ...(data.dueDate !== undefined ? { dueDate: data.dueDate } : {}),
         ...(data.items !== undefined ? { items: { create: data.items } } : {}),
+        status: "PENDING",
+        reviewedById: null,
+        reviewedAt: null,
+        reviewNote: null,
       },
       include: purchaseRequestInclude,
     });

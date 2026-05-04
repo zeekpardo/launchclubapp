@@ -12,7 +12,6 @@ export const updatePurchaseRequestProcedure = protectedProcedure
     const { id, ...data } = input;
     const existing = await getPurchaseRequestById(id);
     if (!existing) throw new ORPCError("NOT_FOUND");
-    if (existing.status !== "PENDING") throw new ORPCError("FORBIDDEN", { message: "Cannot edit a reviewed request." });
     const site = await getSiteById(existing.group.site.id);
     if (!site) throw new ORPCError("NOT_FOUND");
     const area = await getAreaById(site.areaId);

@@ -302,25 +302,23 @@ function PurchaseRequestCard({
 							</Button>
 						</>
 					)}
+					<Button
+						size="icon"
+						variant="ghost"
+						className="h-8 w-8"
+						onClick={() => onEdit(request)}
+					>
+						<PencilIcon className="h-4 w-4" />
+					</Button>
 					{isPending && (
-						<>
-							<Button
-								size="icon"
-								variant="ghost"
-								className="h-8 w-8"
-								onClick={() => onEdit(request)}
-							>
-								<PencilIcon className="h-4 w-4" />
-							</Button>
-							<Button
-								size="icon"
-								variant="ghost"
-								className="h-8 w-8 text-destructive hover:text-destructive"
-								onClick={() => onDelete(request.id)}
-							>
-								<Trash2Icon className="h-4 w-4" />
-							</Button>
-						</>
+						<Button
+							size="icon"
+							variant="ghost"
+							className="h-8 w-8 text-destructive hover:text-destructive"
+							onClick={() => onDelete(request.id)}
+						>
+							<Trash2Icon className="h-4 w-4" />
+						</Button>
 					)}
 				</div>
 			</div>
