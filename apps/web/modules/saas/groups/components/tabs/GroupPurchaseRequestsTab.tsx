@@ -23,6 +23,7 @@ import {
 	type PurchaseRequest,
 } from "../../hooks/use-purchase-requests";
 import { PurchaseRequestDialog } from "../PurchaseRequestDialog";
+import { ReviewDialog } from "@saas/purchase-requests/components/ReviewDialog";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -179,17 +180,20 @@ function PurchaseRequestCard({
 	const queryClient = useQueryClient();
 	const reviewMutation = useMutation(orpc.purchaseRequests.review.mutationOptions());
 
+	const [reviewDialog, setReviewDialog] = useState<"APPROVED" | "DECLINED" | null>(null);
+
 	const isPending = request.status === "PENDING";
 	const statusConfig = STATUS_CONFIG[request.status] ?? { label: request.status, status: "default" as const };
 	const total = requestTotal(request);
 
-	const handleReview = async (status: "APPROVED" | "DECLINED") => {
+	const handleReview = async (status: "APPROVED" | "DECLINED", note: string) => {
 		try {
-			await reviewMutation.mutateAsync({ id: request.id, status });
+			await reviewMutation.mutateAsync({ id: request.id, status, reviewNote: note || undefined });
 			queryClient.invalidateQueries(
 				orpc.purchaseRequests.list.queryOptions({ input: { groupId } }),
 			);
 			toastSuccess(status === "APPROVED" ? "Request approved." : "Request declined.");
+			setReviewDialog(null);
 		} catch {
 			toastError("Failed to review request. Please try again.");
 		}
@@ -286,8 +290,7 @@ function PurchaseRequestCard({
 								size="sm"
 								variant="outline"
 								className="h-8 border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700"
-								loading={reviewMutation.isPending && reviewMutation.variables?.status === "APPROVED"}
-								onClick={() => handleReview("APPROVED")}
+								onClick={() => setReviewDialog("APPROVED")}
 							>
 								Approve
 							</Button>
@@ -295,8 +298,7 @@ function PurchaseRequestCard({
 								size="sm"
 								variant="outline"
 								className="h-8 border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
-								loading={reviewMutation.isPending && reviewMutation.variables?.status === "DECLINED"}
-								onClick={() => handleReview("DECLINED")}
+								onClick={() => setReviewDialog("DECLINED")}
 							>
 								Decline
 							</Button>
@@ -322,6 +324,16 @@ function PurchaseRequestCard({
 					)}
 				</div>
 			</div>
+
+			{reviewDialog && (
+				<ReviewDialog
+					open={!!reviewDialog}
+					status={reviewDialog}
+					loading={reviewMutation.isPending}
+					onOpenChange={(open) => { if (!open) setReviewDialog(null); }}
+					onConfirm={(note) => handleReview(reviewDialog, note)}
+				/>
+			)}
 		</div>
 	);
 }

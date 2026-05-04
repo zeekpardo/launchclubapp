@@ -36,6 +36,7 @@ import {
 	ExternalLinkIcon,
 	XCircleIcon,
 } from "lucide-react";
+import { ReviewDialog } from "./ReviewDialog";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -313,6 +314,8 @@ function ApprovalCard({
 	const t = useTranslations("launchclub.purchaseRequests");
 	const reviewRequest = useReviewPurchaseRequest();
 
+	const [reviewDialog, setReviewDialog] = useState<"APPROVED" | "DECLINED" | null>(null);
+
 	const statusConfig: Record<string, { label: string; status: "info" | "success" | "error" }> = {
 		PENDING: { label: t("status.PENDING"), status: "info" },
 		APPROVED: { label: t("status.APPROVED"), status: "success" },
@@ -321,9 +324,9 @@ function ApprovalCard({
 
 	const config = statusConfig[request.status] ?? { label: request.status, status: "info" as const };
 
-	const handleReview = async (status: "APPROVED" | "DECLINED" | "PENDING") => {
+	const handleReview = async (status: "APPROVED" | "DECLINED" | "PENDING", note?: string) => {
 		try {
-			await reviewRequest.mutateAsync({ id: request.id, status });
+			await reviewRequest.mutateAsync({ id: request.id, status, reviewNote: note || undefined });
 			toastSuccess(
 				status === "APPROVED"
 					? t("notifications.approved")
@@ -331,6 +334,7 @@ function ApprovalCard({
 						? t("notifications.declined")
 						: t("notifications.resetPending"),
 			);
+			setReviewDialog(null);
 		} catch {
 			toastError(t("notifications.updateError"));
 		}
@@ -452,7 +456,7 @@ function ApprovalCard({
 						<DropdownMenuItem
 							className="gap-2"
 							disabled={request.status === "APPROVED"}
-							onClick={() => handleReview("APPROVED")}
+							onClick={() => setReviewDialog("APPROVED")}
 						>
 							<CheckCircle2Icon className="size-4 text-green-600" />
 							{t("dropdown.approve")}
@@ -463,7 +467,7 @@ function ApprovalCard({
 						<DropdownMenuItem
 							className="gap-2"
 							disabled={request.status === "DECLINED"}
-							onClick={() => handleReview("DECLINED")}
+							onClick={() => setReviewDialog("DECLINED")}
 						>
 							<XCircleIcon className="size-4 text-red-600" />
 							{t("dropdown.decline")}
@@ -486,6 +490,16 @@ function ApprovalCard({
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>
+
+			{reviewDialog && (
+				<ReviewDialog
+					open={!!reviewDialog}
+					status={reviewDialog}
+					loading={reviewRequest.isPending}
+					onOpenChange={(open) => { if (!open) setReviewDialog(null); }}
+					onConfirm={(note) => handleReview(reviewDialog, note)}
+				/>
+			)}
 		</div>
 	);
 }
