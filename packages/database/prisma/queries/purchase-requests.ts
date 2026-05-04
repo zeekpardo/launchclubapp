@@ -4,6 +4,17 @@ const purchaseRequestInclude = {
   requestedBy: { select: { id: true, name: true, email: true } },
   reviewedBy: { select: { id: true, name: true } },
   group: { select: { id: true, name: true, site: { include: { area: true } } } },
+  items: {
+    orderBy: { createdAt: "asc" as const },
+    select: {
+      id: true,
+      item: true,
+      url: true,
+      amount: true,
+      quantity: true,
+      category: true,
+    },
+  },
 } as const;
 
 export async function getPurchaseRequestsByGroup(groupId: string) {
@@ -31,32 +42,51 @@ export async function getPurchaseRequestById(id: string) {
 
 export async function createPurchaseRequest(data: {
   groupId: string;
-  item: string;
-  description?: string;
-  url?: string;
-  amount: number;
-  category: string;
-  justification: string;
+  name: string;
+  description: string;
   requestedById: string;
+  items: Array<{
+    item: string;
+    url?: string;
+    amount: number;
+    quantity: number;
+    category: string;
+  }>;
 }) {
-  return db.purchaseRequest.create({ data, include: purchaseRequestInclude });
+  const { items, ...header } = data;
+  return db.purchaseRequest.create({
+    data: { ...header, items: { create: items } },
+    include: purchaseRequestInclude,
+  });
 }
 
 export async function updatePurchaseRequest(
   id: string,
-  data: Partial<{
-    item: string;
-    description: string | null;
-    url: string | null;
-    amount: number;
-    category: string;
-    justification: string;
-  }>,
+  data: {
+    name?: string;
+    description?: string;
+    items?: Array<{
+      item: string;
+      url?: string | null;
+      amount: number;
+      quantity: number;
+      category: string;
+    }>;
+  },
 ) {
-  return db.purchaseRequest.update({
-    where: { id },
-    data,
-    include: purchaseRequestInclude,
+  return db.$transaction(async (tx) => {
+    if (data.items !== undefined) {
+      await tx.purchaseRequestItem.deleteMany({ where: { purchaseRequestId: id } });
+    }
+    return tx.purchaseRequest.update({
+      where: { id },
+      data: {
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.description !== undefined ? { description: data.description } : {}),
+        ...(data.items !== undefined ? { items: { create: data.items } } : {}),
+      },
+      include: purchaseRequestInclude,
+    });
   });
 }
 

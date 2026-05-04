@@ -12,24 +12,26 @@ export const PURCHASE_REQUEST_CATEGORIES = [
 
 export type PurchaseRequestCategory = (typeof PURCHASE_REQUEST_CATEGORIES)[number];
 
+export const purchaseRequestItemSchema = z.object({
+  item: z.string().min(1, "Item name is required"),
+  url: z.string().url("Enter a valid URL").optional().or(z.literal("")),
+  amount: z.number().positive("Amount must be positive"),
+  quantity: z.number().int().min(1, "Quantity must be at least 1"),
+  category: z.enum(PURCHASE_REQUEST_CATEGORIES),
+});
+
 export const createPurchaseRequestSchema = z.object({
   groupId: z.string(),
-  item: z.string().min(1),
-  description: z.string().optional(),
-  url: z.string().url().optional().or(z.literal("")),
-  amount: z.number().positive(),
-  category: z.enum(PURCHASE_REQUEST_CATEGORIES),
-  justification: z.string().min(1),
+  name: z.string().min(1, "Name is required"),
+  description: z.string().min(1, "Description is required"),
+  items: z.array(purchaseRequestItemSchema).min(1, "Add at least one item"),
 });
 
 export const updatePurchaseRequestSchema = z.object({
   id: z.string(),
-  item: z.string().min(1).optional(),
-  description: z.string().optional().nullable(),
-  url: z.string().url().optional().nullable().or(z.literal("")),
-  amount: z.number().positive().optional(),
-  category: z.enum(PURCHASE_REQUEST_CATEGORIES).optional(),
-  justification: z.string().min(1).optional(),
+  name: z.string().min(1).optional(),
+  description: z.string().min(1).optional(),
+  items: z.array(purchaseRequestItemSchema).min(1).optional(),
 });
 
 export const reviewPurchaseRequestSchema = z.object({
@@ -38,6 +40,7 @@ export const reviewPurchaseRequestSchema = z.object({
   reviewNote: z.string().optional(),
 });
 
+export type PurchaseRequestItemInput = z.infer<typeof purchaseRequestItemSchema>;
 export type CreatePurchaseRequestInput = z.infer<typeof createPurchaseRequestSchema>;
 export type UpdatePurchaseRequestInput = z.infer<typeof updatePurchaseRequestSchema>;
 export type ReviewPurchaseRequestInput = z.infer<typeof reviewPurchaseRequestSchema>;

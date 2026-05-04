@@ -175,9 +175,15 @@ export type GroupResourceScalarFieldEnum = z.infer<typeof GroupResourceScalarFie
 
 // File: PurchaseRequestScalarFieldEnum.schema.ts
 
-export const PurchaseRequestScalarFieldEnumSchema = z.enum(['id', 'groupId', 'item', 'description', 'url', 'amount', 'category', 'justification', 'status', 'requestedById', 'reviewedById', 'reviewedAt', 'reviewNote', 'createdAt', 'updatedAt'])
+export const PurchaseRequestScalarFieldEnumSchema = z.enum(['id', 'groupId', 'name', 'description', 'status', 'requestedById', 'reviewedById', 'reviewedAt', 'reviewNote', 'createdAt', 'updatedAt'])
 
 export type PurchaseRequestScalarFieldEnum = z.infer<typeof PurchaseRequestScalarFieldEnumSchema>;
+
+// File: PurchaseRequestItemScalarFieldEnum.schema.ts
+
+export const PurchaseRequestItemScalarFieldEnumSchema = z.enum(['id', 'purchaseRequestId', 'item', 'url', 'amount', 'quantity', 'category', 'createdAt', 'updatedAt'])
+
+export type PurchaseRequestItemScalarFieldEnum = z.infer<typeof PurchaseRequestItemScalarFieldEnumSchema>;
 
 // File: FormFieldScalarFieldEnum.schema.ts
 
@@ -725,14 +731,8 @@ export type GroupResourceType = z.infer<typeof GroupResourceSchema>;
 export const PurchaseRequestSchema = z.object({
   id: z.string(),
   groupId: z.string(),
-  item: z.string(),
-  description: z.string().nullish(),
-  url: z.string().nullish(),
-  amount: z.instanceof(Prisma.Decimal, {
-  message: "Field 'amount' must be a Decimal. Location: ['Models', 'PurchaseRequest']",
-}),
-  category: z.string(),
-  justification: z.string(),
+  name: z.string(),
+  description: z.string(),
   status: z.string().default("PENDING"),
   requestedById: z.string(),
   reviewedById: z.string().nullish(),
@@ -743,6 +743,25 @@ export const PurchaseRequestSchema = z.object({
 });
 
 export type PurchaseRequestType = z.infer<typeof PurchaseRequestSchema>;
+
+
+// File: PurchaseRequestItem.schema.ts
+
+export const PurchaseRequestItemSchema = z.object({
+  id: z.string(),
+  purchaseRequestId: z.string(),
+  item: z.string(),
+  url: z.string().nullish(),
+  amount: z.instanceof(Prisma.Decimal, {
+  message: "Field 'amount' must be a Decimal. Location: ['Models', 'PurchaseRequestItem']",
+}),
+  quantity: z.number().int().default(1),
+  category: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type PurchaseRequestItemType = z.infer<typeof PurchaseRequestItemSchema>;
 
 
 // File: FormField.schema.ts

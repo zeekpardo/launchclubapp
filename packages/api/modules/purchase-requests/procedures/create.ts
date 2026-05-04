@@ -21,5 +21,11 @@ export const createPurchaseRequestProcedure = protectedProcedure
     if (!isOwner) {
       if (!(await canManageGroup(context.user.id, input.groupId))) throw new ORPCError("FORBIDDEN");
     }
-    return createPurchaseRequest({ ...input, requestedById: context.user.id });
+    return createPurchaseRequest({
+      groupId: input.groupId,
+      name: input.name,
+      description: input.description,
+      requestedById: context.user.id,
+      items: input.items.map((i) => ({ ...i, url: i.url || undefined })),
+    });
   });

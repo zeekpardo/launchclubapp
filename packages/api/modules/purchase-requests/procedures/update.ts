@@ -24,5 +24,9 @@ export const updatePurchaseRequestProcedure = protectedProcedure
       if (existing.requestedById !== context.user.id) throw new ORPCError("FORBIDDEN");
       if (!(await canManageGroup(context.user.id, existing.groupId))) throw new ORPCError("FORBIDDEN");
     }
-    return updatePurchaseRequest(id, data);
+    return updatePurchaseRequest(id, {
+      name: data.name,
+      description: data.description,
+      items: data.items?.map((i) => ({ ...i, url: i.url || null })),
+    });
   });

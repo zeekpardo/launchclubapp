@@ -104,7 +104,7 @@ export function PurchaseRequestsApprovalPage() {
 		if (selectedAreaId !== ALL) list = list.filter((r) => r.group.site.area?.id === selectedAreaId);
 		if (selectedSiteId !== ALL) list = list.filter((r) => r.group.site.id === selectedSiteId);
 		if (selectedGroupId !== ALL) list = list.filter((r) => r.group.id === selectedGroupId);
-		if (selectedCategory !== ALL) list = list.filter((r) => r.category === selectedCategory);
+		if (selectedCategory !== ALL) list = list.filter((r) => r.items.some((i) => i.category === selectedCategory));
 		if (dateFrom) list = list.filter((r) => new Date(r.createdAt) >= new Date(dateFrom));
 		if (dateTo) {
 			const to = new Date(dateTo);
@@ -115,7 +115,9 @@ export function PurchaseRequestsApprovalPage() {
 			const q = search.toLowerCase();
 			list = list.filter(
 				(r) =>
-					r.item.toLowerCase().includes(q) ||
+					r.name.toLowerCase().includes(q) ||
+					r.description.toLowerCase().includes(q) ||
+					r.items.some((i) => i.item.toLowerCase().includes(q)) ||
 					r.group.name.toLowerCase().includes(q) ||
 					r.requestedBy.name.toLowerCase().includes(q),
 			);
@@ -126,7 +128,7 @@ export function PurchaseRequestsApprovalPage() {
 	const pendingCount = (requests ?? []).filter((r) => r.status === "PENDING").length;
 	const approvedAmount = (requests ?? [])
 		.filter((r) => r.status === "APPROVED")
-		.reduce((sum, r) => sum + Number(r.amount), 0);
+		.reduce((sum, r) => sum + r.items.reduce((s, i) => s + Number(i.amount) * i.quantity, 0), 0);
 
 	const handleAreaChange = (value: string) => {
 		setSelectedAreaId(value);
@@ -334,18 +336,25 @@ function ApprovalCard({
 		}
 	};
 
+	const total = request.items.reduce((s, i) => s + Number(i.amount) * i.quantity, 0);
+
 	return (
 		<div className="rounded-lg border bg-card p-4">
 			<div className="flex items-start justify-between gap-4">
 				<div className="min-w-0 flex-1 space-y-2">
+					{/* Title row */}
 					<div className="flex flex-wrap items-center gap-2">
-						<span className="font-semibold">{request.item}</span>
+						<span className="font-semibold">{request.name}</span>
 						<Badge status={config.status}>{config.label}</Badge>
 						<span className="text-lg font-bold text-green-600">
-							${Number(request.amount).toFixed(2)}
+							${total.toFixed(2)}
 						</span>
 					</div>
+					{request.description && (
+						<p className="text-sm text-muted-foreground">{request.description}</p>
+					)}
 
+					{/* Meta row */}
 					<div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
 						<span>
 							<span className="font-medium text-foreground">{t("card.group")} </span>
@@ -354,10 +363,6 @@ function ApprovalCard({
 						<span>
 							<span className="font-medium text-foreground">{t("card.site")} </span>
 							{request.group.site.name}
-						</span>
-						<span>
-							<span className="font-medium text-foreground">{t("card.category")} </span>
-							{categoryLabels[request.category] ?? request.category}
 						</span>
 						<span>
 							<span className="font-medium text-foreground">{t("card.requestedBy")} </span>
@@ -369,26 +374,37 @@ function ApprovalCard({
 						</span>
 					</div>
 
-					{request.description && (
-						<p className="text-sm text-muted-foreground">{request.description}</p>
+					{/* Line items */}
+					{request.items.length > 0 && (
+						<div className="rounded-md bg-muted/40 px-3 py-2 text-sm space-y-1">
+							{request.items.map((item) => (
+								<div key={item.id} className="flex items-center gap-2">
+									<span className="flex-1 font-medium">{item.item}</span>
+									<span className="text-muted-foreground text-xs">
+										{categoryLabels[item.category] ?? item.category}
+									</span>
+									<span className="text-muted-foreground">
+										{item.quantity} × ${Number(item.amount).toFixed(2)} ={" "}
+										<span className="font-medium text-foreground">
+											${(Number(item.amount) * item.quantity).toFixed(2)}
+										</span>
+									</span>
+									{item.url && (
+										<a
+											href={item.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-primary hover:text-primary/80"
+										>
+											<ExternalLinkIcon className="h-3.5 w-3.5" />
+										</a>
+									)}
+								</div>
+							))}
+						</div>
 					)}
 
-					<div className="text-sm">
-						<span className="font-medium">{t("card.justification")} </span>
-						<span className="text-muted-foreground">{request.justification}</span>
-					</div>
-
-					{request.url && (
-						<a
-							href={request.url}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-						>
-							{t("card.viewProduct")} <ExternalLinkIcon className="h-3 w-3" />
-						</a>
-					)}
-
+					{/* Review result */}
 					{request.reviewedBy && request.reviewedAt && (
 						<div className="flex items-center gap-1.5 border-t pt-2 text-sm text-muted-foreground">
 							{request.status === "APPROVED" ? (

@@ -42,6 +42,12 @@ const CATEGORY_LABELS: Record<string, string> = {
 	other: "Other",
 };
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function requestTotal(r: PurchaseRequest): number {
+	return r.items.reduce((sum, i) => sum + Number(i.amount) * i.quantity, 0);
+}
+
 // ─── Tab ─────────────────────────────────────────────────────────────────────
 
 interface GroupPurchaseRequestsTabProps {
@@ -82,10 +88,9 @@ export function GroupPurchaseRequestsTab({ groupId }: GroupPurchaseRequestsTabPr
 
 	const totalPending = requests?.filter((r: PurchaseRequest) => r.status === "PENDING").length ?? 0;
 	const totalApproved = requests?.filter((r: PurchaseRequest) => r.status === "APPROVED").length ?? 0;
-	const approvedAmount =
-		requests
-			?.filter((r: PurchaseRequest) => r.status === "APPROVED")
-			.reduce((sum: number, r: PurchaseRequest) => sum + Number(r.amount), 0) ?? 0;
+	const approvedAmount = requests
+		?.filter((r: PurchaseRequest) => r.status === "APPROVED")
+		.reduce((sum: number, r: PurchaseRequest) => sum + requestTotal(r), 0) ?? 0;
 
 	return (
 		<div className="space-y-4">
@@ -176,6 +181,7 @@ function PurchaseRequestCard({
 
 	const isPending = request.status === "PENDING";
 	const statusConfig = STATUS_CONFIG[request.status] ?? { label: request.status, status: "default" as const };
+	const total = requestTotal(request);
 
 	const handleReview = async (status: "APPROVED" | "DECLINED") => {
 		try {
@@ -195,19 +201,18 @@ function PurchaseRequestCard({
 				<div className="min-w-0 flex-1 space-y-2">
 					{/* Title row */}
 					<div className="flex flex-wrap items-center gap-2">
-						<span className="font-semibold">{request.item}</span>
+						<span className="font-semibold">{request.name}</span>
 						<Badge status={statusConfig.status}>{statusConfig.label}</Badge>
 						<span className="text-lg font-bold text-green-600">
-							${Number(request.amount).toFixed(2)}
+							${total.toFixed(2)}
 						</span>
 					</div>
+					{request.description && (
+						<p className="text-sm text-muted-foreground">{request.description}</p>
+					)}
 
 					{/* Meta row */}
 					<div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
-						<span>
-							<span className="font-medium text-foreground">Category: </span>
-							{CATEGORY_LABELS[request.category] ?? request.category}
-						</span>
 						<span>
 							<span className="font-medium text-foreground">By: </span>
 							{request.requestedBy.name}
@@ -218,24 +223,34 @@ function PurchaseRequestCard({
 						</span>
 					</div>
 
-					{request.description && (
-						<p className="text-sm text-muted-foreground">{request.description}</p>
-					)}
-
-					<div className="text-sm">
-						<span className="font-medium">Justification: </span>
-						<span className="text-muted-foreground">{request.justification}</span>
-					</div>
-
-					{request.url && (
-						<a
-							href={request.url}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-						>
-							View product <ExternalLinkIcon className="h-3 w-3" />
-						</a>
+					{/* Line items */}
+					{request.items.length > 0 && (
+						<div className="rounded-md bg-muted/40 px-3 py-2 text-sm space-y-1">
+							{request.items.map((item) => (
+								<div key={item.id} className="flex items-center gap-2">
+									<span className="flex-1 font-medium">{item.item}</span>
+									<span className="text-muted-foreground text-xs">
+										{CATEGORY_LABELS[item.category] ?? item.category}
+									</span>
+									<span className="text-muted-foreground">
+										{item.quantity} × ${Number(item.amount).toFixed(2)} ={" "}
+										<span className="font-medium text-foreground">
+											${(Number(item.amount) * item.quantity).toFixed(2)}
+										</span>
+									</span>
+									{item.url && (
+										<a
+											href={item.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-primary hover:text-primary/80"
+										>
+											<ExternalLinkIcon className="h-3.5 w-3.5" />
+										</a>
+									)}
+								</div>
+							))}
+						</div>
 					)}
 
 					{/* Review result */}

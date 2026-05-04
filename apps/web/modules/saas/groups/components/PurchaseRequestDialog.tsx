@@ -27,15 +27,18 @@ import {
 } from "@repo/ui/components/select";
 import { Textarea } from "@repo/ui/components/textarea";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { PURCHASE_REQUEST_CATEGORIES } from "@repo/api/modules/purchase-requests/types";
+import { PlusIcon, Trash2Icon } from "lucide-react";
+import { useEffect } from "react";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { z } from "zod";
 import {
 	useCreatePurchaseRequest,
 	useUpdatePurchaseRequest,
 	type PurchaseRequest,
 } from "../hooks/use-purchase-requests";
+
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const CATEGORY_LABELS: Record<string, string> = {
 	supplies: "Supplies",
@@ -47,16 +50,33 @@ const CATEGORY_LABELS: Record<string, string> = {
 	other: "Other",
 };
 
-const formSchema = z.object({
-	item: z.string().min(1, "Item name is required"),
-	description: z.string().optional(),
-	url: z.string().url("Enter a valid URL").optional().or(z.literal("")),
-	amount: z.number().positive("Amount must be positive"),
+// ─── Schema ───────────────────────────────────────────────────────────────────
+
+const lineItemSchema = z.object({
+	item: z.string().min(1, "Required"),
+	url: z.string().url("Invalid URL").optional().or(z.literal("")),
+	amount: z.number().positive("Must be > 0"),
+	quantity: z.number().int().min(1, "Min 1"),
 	category: z.enum(PURCHASE_REQUEST_CATEGORIES),
-	justification: z.string().min(1, "Justification is required"),
+});
+
+const formSchema = z.object({
+	name: z.string().min(1, "Name is required"),
+	description: z.string().min(1, "Description is required"),
+	items: z.array(lineItemSchema).min(1, "Add at least one item"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+const defaultItem: FormValues["items"][number] = {
+	item: "",
+	url: "",
+	amount: 0,
+	quantity: 1,
+	category: "supplies",
+};
+
+// ─── Props ────────────────────────────────────────────────────────────────────
 
 interface PurchaseRequestDialogProps {
 	groupId: string;
@@ -64,6 +84,8 @@ interface PurchaseRequestDialogProps {
 	onOpenChange: (open: boolean) => void;
 	editRequest?: PurchaseRequest | null;
 }
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export function PurchaseRequestDialog({
 	groupId,
@@ -77,49 +99,59 @@ export function PurchaseRequestDialog({
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues: {
-			item: "",
-			description: "",
-			url: "",
-			amount: 0,
-			category: "supplies",
-			justification: "",
-		},
+		defaultValues: { name: "", description: "", items: [defaultItem] },
 	});
+
+	const { fields, append, remove } = useFieldArray({
+		control: form.control,
+		name: "items",
+	});
+
+	const watchedItems = useWatch({ control: form.control, name: "items" });
+	const total = watchedItems.reduce(
+		(sum, i) => sum + (Number(i?.amount) || 0) * (Number(i?.quantity) || 0),
+		0,
+	);
 
 	useEffect(() => {
 		if (editRequest) {
 			form.reset({
-				item: editRequest.item,
-				description: editRequest.description ?? "",
-				url: editRequest.url ?? "",
-				amount: Number(editRequest.amount),
-				category: editRequest.category as (typeof PURCHASE_REQUEST_CATEGORIES)[number],
-				justification: editRequest.justification,
+				name: editRequest.name,
+				description: editRequest.description,
+				items: editRequest.items.map((i) => ({
+					item: i.item,
+					url: i.url ?? "",
+					amount: Number(i.amount),
+					quantity: i.quantity,
+					category: i.category as (typeof PURCHASE_REQUEST_CATEGORIES)[number],
+				})),
 			});
 		} else {
-			form.reset({
-				item: "",
-				description: "",
-				url: "",
-				amount: 0,
-				category: "supplies",
-				justification: "",
-			});
+			form.reset({ name: "", description: "", items: [defaultItem] });
 		}
 	}, [editRequest, form]);
 
 	const handleSubmit = form.handleSubmit(async (values) => {
 		try {
-			const normalized = { ...values, url: values.url || undefined };
-		if (isEditing) {
-				await updateRequest.mutateAsync({ id: editRequest.id, ...normalized });
+			const items = values.items.map((i) => ({ ...i, url: i.url || undefined }));
+			if (isEditing) {
+				await updateRequest.mutateAsync({
+					id: editRequest.id,
+					name: values.name,
+					description: values.description,
+					items,
+				});
 				toastSuccess("Purchase request updated.");
 			} else {
-				await createRequest.mutateAsync({ groupId, ...normalized });
+				await createRequest.mutateAsync({
+					groupId,
+					name: values.name,
+					description: values.description,
+					items,
+				});
 				toastSuccess("Purchase request submitted.");
 			}
-			form.reset();
+			form.reset({ name: "", description: "", items: [defaultItem] });
 			onOpenChange(false);
 		} catch {
 			toastError("Failed to submit request. Please try again.");
@@ -128,7 +160,7 @@ export function PurchaseRequestDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-lg">
+			<DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
 				<DialogHeader>
 					<DialogTitle>
 						{isEditing ? "Edit Purchase Request" : "New Purchase Request"}
@@ -136,21 +168,23 @@ export function PurchaseRequestDialog({
 				</DialogHeader>
 
 				<Form {...form}>
-					<form onSubmit={handleSubmit} className="space-y-4">
+					<form onSubmit={handleSubmit} className="space-y-5">
+						{/* Name */}
 						<FormField
 							control={form.control}
-							name="item"
+							name="name"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Item Name</FormLabel>
+									<FormLabel>Name</FormLabel>
 									<FormControl>
-										<Input {...field} placeholder="Enter item name" />
+										<Input {...field} placeholder="e.g. Spring field trip supplies" />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
 
+						{/* Description */}
 						<FormField
 							control={form.control}
 							name="description"
@@ -160,7 +194,7 @@ export function PurchaseRequestDialog({
 									<FormControl>
 										<Textarea
 											{...field}
-											placeholder="Optional description"
+											placeholder="Describe this request (e.g. event, activity, or purpose)"
 											rows={2}
 										/>
 									</FormControl>
@@ -169,91 +203,159 @@ export function PurchaseRequestDialog({
 							)}
 						/>
 
-						<FormField
-							control={form.control}
-							name="url"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Item URL (optional)</FormLabel>
-									<FormControl>
-										<Input
-											{...field}
-											type="url"
-											placeholder="https://..."
+						{/* Line Items */}
+						<div className="space-y-2">
+							<div className="flex items-center justify-between">
+								<p className="text-sm font-medium">Items</p>
+							</div>
+
+							{/* Column headers */}
+							<div className="grid grid-cols-[1fr_4rem_5rem_8rem_1fr_2rem] gap-2 px-1 text-xs font-medium text-muted-foreground">
+								<span>Item</span>
+								<span>Qty</span>
+								<span>Unit Price</span>
+								<span>Category</span>
+								<span>URL (optional)</span>
+								<span />
+							</div>
+
+							{/* Item rows */}
+							<div className="space-y-2">
+								{fields.map((field, index) => (
+									<div
+										key={field.id}
+										className="grid grid-cols-[1fr_4rem_5rem_8rem_1fr_2rem] items-start gap-2"
+									>
+										{/* Item name */}
+										<FormField
+											control={form.control}
+											name={`items.${index}.item`}
+											render={({ field: f }) => (
+												<FormItem className="space-y-0">
+													<FormControl>
+														<Input {...f} placeholder="Item name" />
+													</FormControl>
+													<FormMessage className="text-xs" />
+												</FormItem>
+											)}
 										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
 
-						<div className="grid grid-cols-2 gap-4">
-							<FormField
-								control={form.control}
-								name="amount"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Amount ($)</FormLabel>
-										<FormControl>
-											<Input
-												{...field}
-												type="number"
-												step="0.01"
-												min="0"
-												placeholder="0.00"
-												onChange={(e) =>
-													field.onChange(parseFloat(e.target.value) || 0)
-												}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+										{/* Quantity */}
+										<FormField
+											control={form.control}
+											name={`items.${index}.quantity`}
+											render={({ field: f }) => (
+												<FormItem className="space-y-0">
+													<FormControl>
+														<Input
+															{...f}
+															type="number"
+															min="1"
+															placeholder="1"
+															onChange={(e) =>
+																f.onChange(parseInt(e.target.value) || 1)
+															}
+														/>
+													</FormControl>
+													<FormMessage className="text-xs" />
+												</FormItem>
+											)}
+										/>
 
-							<FormField
-								control={form.control}
-								name="category"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Category</FormLabel>
-										<Select onValueChange={field.onChange} value={field.value}>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="Select category" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												{PURCHASE_REQUEST_CATEGORIES.map((cat) => (
-													<SelectItem key={cat} value={cat}>
-														{CATEGORY_LABELS[cat]}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+										{/* Amount */}
+										<FormField
+											control={form.control}
+											name={`items.${index}.amount`}
+											render={({ field: f }) => (
+												<FormItem className="space-y-0">
+													<FormControl>
+														<Input
+															{...f}
+															type="number"
+															step="0.01"
+															min="0"
+															placeholder="0.00"
+															onChange={(e) =>
+																f.onChange(parseFloat(e.target.value) || 0)
+															}
+														/>
+													</FormControl>
+													<FormMessage className="text-xs" />
+												</FormItem>
+											)}
+										/>
+
+										{/* Category */}
+										<FormField
+											control={form.control}
+											name={`items.${index}.category`}
+											render={({ field: f }) => (
+												<FormItem className="space-y-0">
+													<Select onValueChange={f.onChange} value={f.value}>
+														<FormControl>
+															<SelectTrigger>
+																<SelectValue />
+															</SelectTrigger>
+														</FormControl>
+														<SelectContent>
+															{PURCHASE_REQUEST_CATEGORIES.map((cat) => (
+																<SelectItem key={cat} value={cat}>
+																	{CATEGORY_LABELS[cat]}
+																</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+													<FormMessage className="text-xs" />
+												</FormItem>
+											)}
+										/>
+
+										{/* URL */}
+										<FormField
+											control={form.control}
+											name={`items.${index}.url`}
+											render={({ field: f }) => (
+												<FormItem className="space-y-0">
+													<FormControl>
+														<Input {...f} type="url" placeholder="https://..." />
+													</FormControl>
+													<FormMessage className="text-xs" />
+												</FormItem>
+											)}
+										/>
+
+										{/* Remove */}
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon"
+											className="h-9 w-9 text-muted-foreground hover:text-destructive"
+											disabled={fields.length === 1}
+											onClick={() => remove(index)}
+										>
+											<Trash2Icon className="h-4 w-4" />
+										</Button>
+									</div>
+								))}
+							</div>
+
+							{/* Add item + total */}
+							<div className="flex items-center justify-between pt-1">
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() => append(defaultItem)}
+								>
+									<PlusIcon className="mr-1.5 h-3.5 w-3.5" />
+									Add Item
+								</Button>
+								<p className="text-sm font-semibold">
+									Total:{" "}
+									<span className="text-green-600">${total.toFixed(2)}</span>
+								</p>
+							</div>
 						</div>
-
-						<FormField
-							control={form.control}
-							name="justification"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Justification</FormLabel>
-									<FormControl>
-										<Textarea
-											{...field}
-											placeholder="Explain why this purchase is needed"
-											rows={3}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
 
 						<DialogFooter>
 							<Button
