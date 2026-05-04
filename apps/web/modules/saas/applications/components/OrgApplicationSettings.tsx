@@ -55,14 +55,17 @@ export function OrgApplicationSettings() {
 				<Switch checked={autoMigrate} onCheckedChange={setAutoMigrate} />
 			</div>
 
-			<div className="flex items-center justify-between">
+			<div className="flex items-center justify-between opacity-50">
 				<div>
-					<p className="text-sm font-medium">{t("launchclub.applications.settings.emailNotifications")}</p>
+					<div className="flex items-center gap-2">
+						<p className="text-sm font-medium">{t("launchclub.applications.settings.emailNotifications")}</p>
+						<span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">Coming soon</span>
+					</div>
 					<p className="text-xs text-muted-foreground mt-0.5">{t("launchclub.applications.settings.emailNotificationsDesc")}</p>
 				</div>
 				<Switch
-					checked={emailNotifications}
-					onCheckedChange={setEmailNotifications}
+					checked={false}
+					disabled
 				/>
 			</div>
 

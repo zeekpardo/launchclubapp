@@ -15,6 +15,7 @@ export const attendanceByGroup = protectedProcedure
     z.object({
       groupId: z.string(),
       since: z.string().datetime().optional(),
+      until: z.string().datetime().optional(),
     }),
   )
   .handler(async ({ input, context }) => {
@@ -32,5 +33,6 @@ export const attendanceByGroup = protectedProcedure
     return getAttendanceByGroup(
       input.groupId,
       input.since ? new Date(input.since) : undefined,
+      input.until ? new Date(input.until) : undefined,
     );
   });

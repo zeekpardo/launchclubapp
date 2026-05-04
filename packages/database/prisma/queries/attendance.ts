@@ -1,11 +1,16 @@
 import { db } from "../client";
 
-export async function getAttendanceByGroup(groupId: string, since?: Date) {
+export async function getAttendanceByGroup(groupId: string, since?: Date, until?: Date) {
   return db.attendance.findMany({
     where: {
       event: {
         groupId,
-        ...(since ? { startsAt: { gte: since } } : {}),
+        ...(since || until ? {
+          startsAt: {
+            ...(since ? { gte: since } : {}),
+            ...(until ? { lte: until } : {}),
+          },
+        } : {}),
       },
     },
     include: { person: true, event: true },

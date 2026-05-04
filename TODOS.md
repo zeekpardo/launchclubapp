@@ -17,7 +17,7 @@ Sourced from Kelvin/PCL review session (2026-05-01).
 
 - [ ] Wire custom profile fields through to the public `/apply/[siteSlug]` form — fields are being created in org settings but not appearing on the public form
 - [ ] Build admin UI to edit the application form per-site (Area → Site → Form Fields — the route exists, custom fields just aren't surfacing yet)
-- [ ] Either build the parent confirmation email for application submission, or turn off the "email notifications to parents" toggle in org settings — no email is currently being sent
+- [x] Either build the parent confirmation email for application submission, or turn off the "email notifications to parents" toggle in org settings — disabled switch with "Coming soon" label until email is built
 
 ---
 
@@ -25,13 +25,13 @@ Sourced from Kelvin/PCL review session (2026-05-01).
 
 - [ ] Add Active / Inactive status to person profiles
 - [ ] On the People list view, show only Active people by default with a toggle to include Inactive
-- [ ] Fix "Show Removed Members" in group attendance — historical attendance for removed members is not populating
+- [x] Fix "Show Removed Members" in group attendance — derive removed members from attendance records (people with attendance but no PersonGroup entry); render them dimmed with "Removed" label
 
 ---
 
 ## Attendance
 
-- [ ] Add custom date range option to the attendance filter dropdown _(currently: All Time, 6 months, 30 days)_
+- [x] Add custom date range option to the attendance filter dropdown — added "Custom Range" option with start/end date pickers; wired `until` through API and DB query
 - [x] Wire up click on attendance badge in the Events page to open attendance dialog — the attendance component already exists, just needs to be linked
 
 ---
