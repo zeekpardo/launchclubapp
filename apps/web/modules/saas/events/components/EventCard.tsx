@@ -36,6 +36,7 @@ interface EventCardProps {
 		startsAt: Date | string;
 		endsAt?: Date | string | null;
 		_count?: { attendance: number };
+		group?: { _count?: { personGroups: number } };
 	};
 	groupName?: string;
 	organizationId: string;
@@ -60,7 +61,7 @@ export function EventCard({ event, groupName, organizationId }: EventCardProps) 
 		minute: "2-digit",
 	}).format(startsAt);
 
-	const attendanceCount = event._count?.attendance ?? 0;
+	const attendanceCount = event.group?._count?.personGroups ?? 0;
 
 	const handleDelete = async () => {
 		try {

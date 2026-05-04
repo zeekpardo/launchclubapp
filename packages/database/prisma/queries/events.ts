@@ -16,7 +16,10 @@ interface EventData {
 export async function getEventsByGroup(groupId: string) {
   return db.event.findMany({
     where: { groupId },
-    include: { _count: { select: { attendance: true } } },
+    include: {
+      _count: { select: { attendance: true } },
+      group: { select: { id: true, name: true, _count: { select: { personGroups: true } } } },
+    },
     orderBy: { startsAt: "desc" },
   });
 }
@@ -68,7 +71,7 @@ export async function getEventsByOrganization(
     },
     include: {
       _count: { select: { attendance: true } },
-      group: { select: { id: true, name: true } },
+      group: { select: { id: true, name: true, _count: { select: { personGroups: true } } } },
     },
     orderBy: { startsAt: "desc" },
   });

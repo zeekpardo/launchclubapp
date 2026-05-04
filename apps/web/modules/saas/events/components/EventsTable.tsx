@@ -36,7 +36,7 @@ interface EventRow {
 	startsAt: Date | string;
 	endsAt?: Date | string | null;
 	_count?: { attendance: number };
-	group: { name: string };
+	group: { name: string; _count?: { personGroups: number } };
 }
 
 interface EventsTableProps {
@@ -66,7 +66,7 @@ function EventTableRow({
 		minute: "2-digit",
 	}).format(startsAt);
 
-	const attendanceCount = event._count?.attendance ?? 0;
+	const attendanceCount = event.group._count?.personGroups ?? 0;
 
 	const handleDelete = async () => {
 		try {
