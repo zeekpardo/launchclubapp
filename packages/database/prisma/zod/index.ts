@@ -137,6 +137,12 @@ export const EventScalarFieldEnumSchema = z.enum(['id', 'groupId', 'name', 'desc
 
 export type EventScalarFieldEnum = z.infer<typeof EventScalarFieldEnumSchema>;
 
+// File: EventGroupScalarFieldEnum.schema.ts
+
+export const EventGroupScalarFieldEnumSchema = z.enum(['id', 'eventId', 'groupId'])
+
+export type EventGroupScalarFieldEnum = z.infer<typeof EventGroupScalarFieldEnumSchema>;
+
 // File: AttendanceScalarFieldEnum.schema.ts
 
 export const AttendanceScalarFieldEnumSchema = z.enum(['id', 'eventId', 'personId', 'status', 'notes', 'createdAt'])
@@ -597,7 +603,7 @@ export type PersonGroupType = z.infer<typeof PersonGroupSchema>;
 
 export const EventSchema = z.object({
   id: z.string(),
-  groupId: z.string(),
+  groupId: z.string().nullish(),
   name: z.string(),
   description: z.string().nullish(),
   eventType: EventTypeSchema.default("regular"),
@@ -611,6 +617,17 @@ export const EventSchema = z.object({
 });
 
 export type EventModel = z.infer<typeof EventSchema>;
+
+// File: EventGroup.schema.ts
+
+export const EventGroupSchema = z.object({
+  id: z.string(),
+  eventId: z.string(),
+  groupId: z.string(),
+});
+
+export type EventGroupType = z.infer<typeof EventGroupSchema>;
+
 
 // File: Attendance.schema.ts
 

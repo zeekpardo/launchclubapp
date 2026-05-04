@@ -11,7 +11,11 @@ export const deleteEventProcedure = protectedProcedure
   .handler(async ({ input, context }) => {
     const event = await getEventById(input.id);
     if (!event) throw new ORPCError("NOT_FOUND");
-    const site = await getSiteById(event.group.siteId);
+
+    const primaryGroup = event.eventGroups[0]?.group;
+    if (!primaryGroup) throw new ORPCError("NOT_FOUND");
+
+    const site = await getSiteById(primaryGroup.siteId);
     if (!site) throw new ORPCError("NOT_FOUND");
     const area = await getAreaById(site.areaId);
     if (!area) throw new ORPCError("NOT_FOUND");
@@ -21,9 +25,9 @@ export const deleteEventProcedure = protectedProcedure
     if (!isOwner) {
       const userSiteIds = await getUserSiteIds(context.user.id);
       if (userSiteIds.length > 0) {
-        if (!(await canAccessSite(context.user.id, event.group.siteId))) throw new ORPCError("FORBIDDEN");
+        if (!(await canAccessSite(context.user.id, primaryGroup.siteId))) throw new ORPCError("FORBIDDEN");
       } else {
-        if (!(await canManageGroup(context.user.id, event.groupId))) throw new ORPCError("FORBIDDEN");
+        if (!(await canManageGroup(context.user.id, primaryGroup.id))) throw new ORPCError("FORBIDDEN");
       }
     }
     await deleteEvent(input.id);

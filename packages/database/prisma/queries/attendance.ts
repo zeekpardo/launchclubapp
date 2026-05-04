@@ -47,8 +47,17 @@ export async function batchUpsertAttendance(
 
 export async function getAttendanceRateByGroup(groupId: string, since?: Date): Promise<number> { // returns 0–1 fraction
   const events = await db.event.findMany({
-    where: { groupId, ...(since ? { startsAt: { gte: since } } : {}) },
-    include: { attendance: true, group: { include: { personGroups: true } } },
+    where: {
+      eventGroups: { some: { groupId } },
+      ...(since ? { startsAt: { gte: since } } : {}),
+    },
+    include: {
+      attendance: true,
+      eventGroups: {
+        where: { groupId },
+        include: { group: { include: { personGroups: true } } },
+      },
+    },
   });
 
   if (!events.length) return 0;
@@ -57,7 +66,8 @@ export async function getAttendanceRateByGroup(groupId: string, since?: Date): P
   let totalPresent = 0;
 
   for (const event of events) {
-    const memberCount = event.group.personGroups.filter((pg) => pg.role === "MEMBER").length;
+    const group = event.eventGroups[0]?.group;
+    const memberCount = group?.personGroups.filter((pg) => pg.role === "MEMBER").length ?? 0;
     const presentCount = event.attendance.filter((a) => a.status === "PRESENT").length;
     totalExpected += memberCount;
     totalPresent += presentCount;

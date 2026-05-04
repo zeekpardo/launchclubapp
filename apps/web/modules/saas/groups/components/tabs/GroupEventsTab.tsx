@@ -38,10 +38,10 @@ export function GroupEventsTab({ groupId, group }: GroupEventsTabProps) {
 	const [editEvent, setEditEvent] = useState<{
 		id: string;
 		name: string;
-		groupId: string;
 		description?: string | null;
 		startsAt: string | Date;
 		endsAt?: string | Date | null;
+		eventGroups?: { group: { id: string; name: string } }[];
 	} | null>(null);
 	const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
 
@@ -118,10 +118,10 @@ export function GroupEventsTab({ groupId, group }: GroupEventsTabProps) {
 									onClick={() => setEditEvent({
 										id: event.id,
 										name: event.name,
-										groupId,
 										description: event.description,
 										startsAt: event.startsAt,
 										endsAt: event.endsAt,
+										eventGroups: event.eventGroups,
 									})}
 								>
 									<PencilIcon className="h-4 w-4" />

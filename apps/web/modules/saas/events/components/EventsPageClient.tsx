@@ -14,10 +14,11 @@ import { useActiveOrganization } from "@saas/organizations/hooks/use-active-orga
 import { useGroups } from "@saas/groups/hooks/use-groups";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarIcon, LayoutGridIcon, TableIcon } from "lucide-react";
+import { CalendarIcon, LayoutGridIcon, PlusCircleIcon, TableIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useMemo } from "react";
 import { EventCard } from "./EventCard";
+import { EventDialog } from "./EventDialog";
 import { EventsTable } from "./EventsTable";
 
 const ALL = "__all__";
@@ -35,6 +36,7 @@ export function EventsPageClient() {
 	const [selectedSiteId, setSelectedSiteId] = useState<string>(ALL);
 	const [search, setSearch] = useState("");
 	const [viewMode, setViewMode] = useState<ViewMode>("table");
+	const [createOpen, setCreateOpen] = useState(false);
 
 	// ── Filters data ──────────────────────────────────────────────────────────
 
@@ -162,6 +164,11 @@ export function EventsPageClient() {
 					className="w-64"
 				/>
 
+				<Button variant="primary" className="gap-2" onClick={() => setCreateOpen(true)}>
+					<PlusCircleIcon className="size-4" />
+					{t("launchclub.events.new")}
+				</Button>
+
 				{/* View toggle */}
 				<div className="ml-auto flex items-center gap-1 rounded-lg border p-1">
 					<Button
@@ -213,7 +220,6 @@ export function EventsPageClient() {
 						<EventCard
 							key={event.id}
 							event={event}
-							groupName={event.group.name}
 							organizationId={organizationId}
 						/>
 					))}
@@ -221,6 +227,11 @@ export function EventsPageClient() {
 			) : (
 				<EventsTable events={filteredEvents} organizationId={organizationId} />
 			)}
+			<EventDialog
+				open={createOpen}
+				onOpenChange={setCreateOpen}
+				organizationId={organizationId}
+			/>
 		</div>
 	);
 }

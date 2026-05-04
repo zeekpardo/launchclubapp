@@ -28,15 +28,22 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { EventDialog } from "./EventDialog";
 
+interface EventGroup {
+	group: { id: string; name: string; _count?: { personGroups: number } };
+}
+
 interface EventRow {
 	id: string;
 	name: string;
-	groupId: string;
 	description?: string | null;
+	eventType?: "regular" | "guest" | "family_site_visit" | null;
+	guestName?: string | null;
+	guestCompany?: string | null;
+	guestIndustry?: string | null;
 	startsAt: Date | string;
 	endsAt?: Date | string | null;
 	_count?: { attendance: number };
-	group: { name: string; _count?: { personGroups: number } };
+	eventGroups: EventGroup[];
 }
 
 interface EventsTableProps {
@@ -66,7 +73,13 @@ function EventTableRow({
 		minute: "2-digit",
 	}).format(startsAt);
 
-	const attendanceCount = event.group._count?.personGroups ?? 0;
+	const totalMembers = event.eventGroups.reduce(
+		(sum, eg) => sum + (eg.group._count?.personGroups ?? 0),
+		0,
+	);
+
+	const primaryGroup = event.eventGroups[0]?.group;
+	const extraGroups = event.eventGroups.length - 1;
 
 	const handleDelete = async () => {
 		try {
@@ -84,7 +97,14 @@ function EventTableRow({
 			<TableRow>
 				<TableCell className="font-medium">{event.name}</TableCell>
 				<TableCell className="text-muted-foreground">
-					{event.group.name}
+					{primaryGroup ? (
+						<span>
+							{primaryGroup.name}
+							{extraGroups > 0 && (
+								<span className="ml-1 text-xs">+{extraGroups}</span>
+							)}
+						</span>
+					) : "—"}
 				</TableCell>
 				<TableCell className="text-muted-foreground whitespace-nowrap">
 					{dateLabel}
@@ -94,13 +114,13 @@ function EventTableRow({
 				</TableCell>
 				<TableCell>
 					<Badge
-						status={attendanceCount > 0 ? "success" : "info"}
+						status={totalMembers > 0 ? "success" : "info"}
 						className="flex w-fit cursor-pointer items-center gap-1 whitespace-nowrap"
-						onClick={() => setAttendanceOpen(true)}
+						onClick={() => primaryGroup && setAttendanceOpen(true)}
 					>
 						<CalendarCheckIcon className="size-3" />
 						{t("launchclub.events.attendanceCount", {
-							count: attendanceCount,
+							count: totalMembers,
 						})}
 					</Badge>
 				</TableCell>
@@ -137,20 +157,26 @@ function EventTableRow({
 				event={{
 					id: event.id,
 					name: event.name,
-					groupId: event.groupId,
 					description: event.description,
+					eventType: event.eventType,
+					guestName: event.guestName,
+					guestCompany: event.guestCompany,
+					guestIndustry: event.guestIndustry,
 					startsAt: event.startsAt,
 					endsAt: event.endsAt,
+					eventGroups: event.eventGroups,
 				}}
 				organizationId={organizationId}
 			/>
 
-			<AttendanceDialog
-				eventId={event.id}
-				groupId={event.groupId}
-				open={attendanceOpen}
-				onOpenChange={setAttendanceOpen}
-			/>
+			{primaryGroup && (
+				<AttendanceDialog
+					eventId={event.id}
+					groupId={primaryGroup.id}
+					open={attendanceOpen}
+					onOpenChange={setAttendanceOpen}
+				/>
+			)}
 
 			<AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
 				<AlertDialogContent>

@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/client";
-import { getEventById, updateEvent, getSiteById, getAreaById, getUserSiteIds } from "@repo/database";
+import { getEventById, updateEvent, syncEventGroups, getSiteById, getAreaById, getUserSiteIds } from "@repo/database";
 import { verifyOrganizationMembership } from "../../organizations/lib/membership";
 import { canAccessSite, canManageGroup } from "../../organizations/lib/site-access";
 import { protectedProcedure } from "../../../orpc/procedures";
@@ -11,7 +11,11 @@ export const updateEventProcedure = protectedProcedure
   .handler(async ({ input, context }) => {
     const event = await getEventById(input.id);
     if (!event) throw new ORPCError("NOT_FOUND");
-    const site = await getSiteById(event.group.siteId);
+
+    const primaryGroup = event.eventGroups[0]?.group;
+    if (!primaryGroup) throw new ORPCError("NOT_FOUND");
+
+    const site = await getSiteById(primaryGroup.siteId);
     if (!site) throw new ORPCError("NOT_FOUND");
     const area = await getAreaById(site.areaId);
     if (!area) throw new ORPCError("NOT_FOUND");
@@ -21,15 +25,19 @@ export const updateEventProcedure = protectedProcedure
     if (!isOwner) {
       const userSiteIds = await getUserSiteIds(context.user.id);
       if (userSiteIds.length > 0) {
-        if (!(await canAccessSite(context.user.id, event.group.siteId))) throw new ORPCError("FORBIDDEN");
+        if (!(await canAccessSite(context.user.id, primaryGroup.siteId))) throw new ORPCError("FORBIDDEN");
       } else {
-        if (!(await canManageGroup(context.user.id, event.groupId))) throw new ORPCError("FORBIDDEN");
+        if (!(await canManageGroup(context.user.id, primaryGroup.id))) throw new ORPCError("FORBIDDEN");
       }
     }
-    const { id, startsAt, endsAt, ...rest } = input;
-    return updateEvent(id, {
-      ...rest,
-      startsAt: startsAt ? new Date(startsAt) : undefined,
-      endsAt: endsAt ? new Date(endsAt) : undefined,
-    });
+    const { id, groupIds, startsAt, endsAt, ...rest } = input;
+    const [updatedEvent] = await Promise.all([
+      updateEvent(id, {
+        ...rest,
+        startsAt: startsAt ? new Date(startsAt) : undefined,
+        endsAt: endsAt ? new Date(endsAt) : undefined,
+      }),
+      groupIds ? syncEventGroups(id, groupIds) : Promise.resolve(),
+    ]);
+    return updatedEvent;
   });

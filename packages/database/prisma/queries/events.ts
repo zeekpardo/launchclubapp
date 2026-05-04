@@ -2,7 +2,7 @@ import { type EventType } from "../generated/enums";
 import { db } from "../client";
 
 interface EventData {
-  groupId: string;
+  groupIds: string[];
   name: string;
   description?: string;
   eventType?: EventType;
@@ -13,13 +13,25 @@ interface EventData {
   endsAt?: Date;
 }
 
+const eventGroupInclude = {
+  _count: { select: { attendance: true } },
+  eventGroups: {
+    include: {
+      group: {
+        select: {
+          id: true,
+          name: true,
+          _count: { select: { personGroups: true } },
+        },
+      },
+    },
+  },
+} as const;
+
 export async function getEventsByGroup(groupId: string) {
   return db.event.findMany({
-    where: { groupId },
-    include: {
-      _count: { select: { attendance: true } },
-      group: { select: { id: true, name: true, _count: { select: { personGroups: true } } } },
-    },
+    where: { eventGroups: { some: { groupId } } },
+    include: eventGroupInclude,
     orderBy: { startsAt: "desc" },
   });
 }
@@ -27,17 +39,30 @@ export async function getEventsByGroup(groupId: string) {
 export async function getEventById(id: string) {
   return db.event.findUnique({
     where: { id },
-    include: { group: true, attendance: { include: { person: true } } },
+    include: {
+      eventGroups: { include: { group: true } },
+      attendance: { include: { person: true } },
+    },
   });
 }
 
 export async function createEvent(data: EventData) {
-  return db.event.create({ data });
+  const { groupIds, ...eventData } = data;
+  return db.$transaction(async (tx) => {
+    const event = await tx.event.create({ data: eventData });
+    if (groupIds.length > 0) {
+      await tx.eventGroup.createMany({
+        data: groupIds.map((groupId) => ({ eventId: event.id, groupId })),
+        skipDuplicates: true,
+      });
+    }
+    return event;
+  });
 }
 
 export async function updateEvent(
   id: string,
-  data: Partial<Omit<EventData, "groupId">>,
+  data: Partial<Omit<EventData, "groupIds">>,
 ) {
   return db.event.update({ where: { id }, data });
 }
@@ -50,7 +75,6 @@ export async function getEventsByOrganization(
   organizationId: string,
   filters?: { areaId?: string; siteId?: string; groupIds?: string[]; siteIds?: string[] },
 ) {
-  // Scope filter: groupIds > siteIds > siteId/areaId UI filter > org-wide
   const groupWhere = filters?.groupIds
     ? { id: { in: filters.groupIds } }
     : filters?.siteIds
@@ -65,18 +89,42 @@ export async function getEventsByOrganization(
 
   return db.event.findMany({
     where: {
-      group: groupWhere
-        ? { ...groupWhere }
-        : { site: siteWhere },
+      eventGroups: {
+        some: {
+          group: groupWhere
+            ? { ...groupWhere }
+            : { site: siteWhere },
+        },
+      },
     },
-    include: {
-      _count: { select: { attendance: true } },
-      group: { select: { id: true, name: true, _count: { select: { personGroups: true } } } },
-    },
+    include: eventGroupInclude,
     orderBy: { startsAt: "desc" },
   });
 }
 
+export async function syncEventGroups(eventId: string, groupIds: string[]) {
+  return db.$transaction([
+    db.eventGroup.deleteMany({ where: { eventId } }),
+    db.eventGroup.createMany({
+      data: groupIds.map((groupId) => ({ eventId, groupId })),
+      skipDuplicates: true,
+    }),
+  ]);
+}
+
 export async function batchCreateEvents(events: EventData[]) {
-  return db.event.createMany({ data: events });
+  return db.$transaction(async (tx) => {
+    let count = 0;
+    for (const { groupIds, ...eventData } of events) {
+      const event = await tx.event.create({ data: eventData });
+      if (groupIds.length > 0) {
+        await tx.eventGroup.createMany({
+          data: groupIds.map((groupId) => ({ eventId: event.id, groupId })),
+          skipDuplicates: true,
+        });
+      }
+      count++;
+    }
+    return { count };
+  });
 }

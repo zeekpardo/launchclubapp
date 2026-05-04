@@ -90,7 +90,7 @@ export const createEventSeriesProcedure = protectedProcedure
   .route({ method: "POST", path: "/events/series", tags: ["Events"] })
   .input(createEventSeriesSchema)
   .handler(async ({ input, context }) => {
-    const group = await getGroupById(input.groupId);
+    const group = await getGroupById(input.groupIds[0]);
     if (!group) throw new ORPCError("NOT_FOUND");
     const site = await getSiteById(group.siteId);
     if (!site) throw new ORPCError("NOT_FOUND");
@@ -110,7 +110,7 @@ export const createEventSeriesProcedure = protectedProcedure
         if (!(await canAccessSite(context.user.id, group.siteId)))
           throw new ORPCError("FORBIDDEN");
       } else {
-        if (!(await canManageGroup(context.user.id, input.groupId)))
+        if (!(await canManageGroup(context.user.id, input.groupIds[0])))
           throw new ORPCError("FORBIDDEN");
       }
     }
@@ -125,7 +125,7 @@ export const createEventSeriesProcedure = protectedProcedure
 
     const result = await batchCreateEvents(
       dates.map(({ startsAt, endsAt }) => ({
-        groupId: input.groupId,
+        groupIds: input.groupIds,
         name: input.name,
         description: input.description,
         eventType: input.eventType,

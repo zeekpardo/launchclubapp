@@ -42,7 +42,7 @@ const formSchema = z
 		startTime: z.string().min(1, "Start time is required"),
 		endTime: z.string().optional(),
 	})
-	.refine((d) => d.endDate >= d.startDate, {
+	.refine((d) => d.recurrence === "never" || d.endDate >= d.startDate, {
 		message: "End date must be on or after start date",
 		path: ["endDate"],
 	});
@@ -96,7 +96,7 @@ function countSeriesEvents(values: Partial<EventFormValues>): number {
 type Recurrence = EventFormValues["recurrence"];
 
 interface EventDialogProps {
-	groupId: string;
+	groupIds: string[];
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	defaultStartTime?: string;
@@ -105,7 +105,7 @@ interface EventDialogProps {
 }
 
 export function EventDialog({
-	groupId,
+	groupIds,
 	open,
 	onOpenChange,
 	defaultStartTime = "",
@@ -143,7 +143,7 @@ export function EventDialog({
 	const handleSubmit = form.handleSubmit(async (values) => {
 		try {
 			const result = await createSeries.mutateAsync({
-				groupId,
+				groupIds,
 				name: values.name,
 				description: values.description || undefined,
 				eventType: values.eventType,
@@ -156,9 +156,11 @@ export function EventDialog({
 				endTime: values.endTime || undefined,
 				recurrence: values.recurrence,
 			});
-			queryClient.invalidateQueries(
-				orpc.events.list.queryOptions({ input: { groupId } }),
-			);
+			for (const gId of groupIds) {
+				queryClient.invalidateQueries(
+					orpc.events.list.queryOptions({ input: { groupId: gId } }),
+				);
+			}
 			toastSuccess(
 				result.count === 1 ? "Event created." : `${result.count} events created.`,
 			);

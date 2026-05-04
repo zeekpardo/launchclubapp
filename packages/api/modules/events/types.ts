@@ -29,7 +29,7 @@ const guestFields = z.object({
 
 export const createEventSchema = z
   .object({
-    groupId: z.string(),
+    groupIds: z.array(z.string()).min(1),
     name: z.string().min(1),
     description: z.string().optional(),
     eventType: z.enum(EVENT_TYPE).default("regular"),
@@ -38,11 +38,21 @@ export const createEventSchema = z
   })
   .merge(guestFields);
 
-export const updateEventSchema = createEventSchema.partial().extend({ id: z.string() });
+export const updateEventSchema = z
+  .object({
+    id: z.string(),
+    groupIds: z.array(z.string()).min(1).optional(),
+    name: z.string().min(1).optional(),
+    description: z.string().optional(),
+    eventType: z.enum(EVENT_TYPE).optional(),
+    startsAt: z.string().datetime().optional(),
+    endsAt: z.string().datetime().optional(),
+  })
+  .merge(guestFields.partial());
 
 export const createEventSeriesSchema = z
   .object({
-    groupId: z.string(),
+    groupIds: z.array(z.string()).min(1),
     name: z.string().min(1),
     description: z.string().optional(),
     eventType: z.enum(EVENT_TYPE).default("regular"),

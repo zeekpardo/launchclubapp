@@ -10,7 +10,9 @@ export const listAttendance = protectedProcedure
   .handler(async ({ input, context }) => {
     const event = await getEventById(input.eventId);
     if (!event) throw new ORPCError("NOT_FOUND");
-    const site = await getSiteById(event.group.siteId);
+    const firstGroup = event.eventGroups[0]?.group;
+    if (!firstGroup) throw new ORPCError("NOT_FOUND");
+    const site = await getSiteById(firstGroup.siteId);
     if (!site) throw new ORPCError("NOT_FOUND");
     const area = await getAreaById(site.areaId);
     if (!area) throw new ORPCError("NOT_FOUND");

@@ -20,7 +20,9 @@ export const recordAttendance = protectedProcedure
     const eventId = input.records[0].eventId;
     const event = await getEventById(eventId);
     if (!event) throw new ORPCError("NOT_FOUND");
-    const site = await getSiteById(event.group.siteId);
+    const firstGroup = event.eventGroups[0]?.group;
+    if (!firstGroup) throw new ORPCError("NOT_FOUND");
+    const site = await getSiteById(firstGroup.siteId);
     if (!site) throw new ORPCError("NOT_FOUND");
     const area = await getAreaById(site.areaId);
     if (!area) throw new ORPCError("NOT_FOUND");
@@ -30,9 +32,9 @@ export const recordAttendance = protectedProcedure
     if (!isOwner) {
       const userSiteIds = await getUserSiteIds(context.user.id);
       if (userSiteIds.length > 0) {
-        if (!(await canAccessSite(context.user.id, event.group.siteId))) throw new ORPCError("FORBIDDEN");
+        if (!(await canAccessSite(context.user.id, firstGroup.siteId))) throw new ORPCError("FORBIDDEN");
       } else {
-        if (!(await canManageGroup(context.user.id, event.groupId))) throw new ORPCError("FORBIDDEN");
+        if (!(await canManageGroup(context.user.id, firstGroup.id))) throw new ORPCError("FORBIDDEN");
       }
     }
     return batchUpsertAttendance(input.records);

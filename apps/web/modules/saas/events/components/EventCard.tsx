@@ -27,22 +27,24 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { EventDialog } from "./EventDialog";
 
+interface EventGroup {
+	group: { id: string; name: string; _count?: { personGroups: number } };
+}
+
 interface EventCardProps {
 	event: {
 		id: string;
 		name: string;
-		groupId: string;
 		description?: string | null;
 		startsAt: Date | string;
 		endsAt?: Date | string | null;
 		_count?: { attendance: number };
-		group?: { _count?: { personGroups: number } };
+		eventGroups: EventGroup[];
 	};
-	groupName?: string;
 	organizationId: string;
 }
 
-export function EventCard({ event, groupName, organizationId }: EventCardProps) {
+export function EventCard({ event, organizationId }: EventCardProps) {
 	const t = useTranslations();
 	const deleteEvent = useDeleteEvent();
 	const [editOpen, setEditOpen] = useState(false);
@@ -61,7 +63,13 @@ export function EventCard({ event, groupName, organizationId }: EventCardProps) 
 		minute: "2-digit",
 	}).format(startsAt);
 
-	const attendanceCount = event.group?._count?.personGroups ?? 0;
+	const totalMembers = event.eventGroups.reduce(
+		(sum, eg) => sum + (eg.group._count?.personGroups ?? 0),
+		0,
+	);
+
+	const primaryGroup = event.eventGroups[0]?.group;
+	const extraGroups = event.eventGroups.length - 1;
 
 	const handleDelete = async () => {
 		try {
@@ -102,11 +110,14 @@ export function EventCard({ event, groupName, organizationId }: EventCardProps) 
 					</div>
 				</div>
 
-				{/* Group */}
-				{groupName && (
+				{/* Groups */}
+				{primaryGroup && (
 					<div className="flex items-center gap-1.5 text-sm text-muted-foreground">
 						<UsersIcon className="size-3.5 shrink-0" />
-						<span>{groupName}</span>
+						<span>{primaryGroup.name}</span>
+						{extraGroups > 0 && (
+							<span className="text-xs text-muted-foreground">+{extraGroups} more</span>
+						)}
 					</div>
 				)}
 
@@ -132,12 +143,12 @@ export function EventCard({ event, groupName, organizationId }: EventCardProps) 
 				{/* Footer: attendance */}
 				<div className="mt-auto pt-1">
 					<Badge
-						status={attendanceCount > 0 ? "success" : "info"}
+						status={totalMembers > 0 ? "success" : "info"}
 						className="flex w-fit items-center gap-1"
 					>
 						<CalendarCheckIcon className="size-3" />
 						{t("launchclub.events.attendanceCount", {
-							count: attendanceCount,
+							count: totalMembers,
 						})}
 					</Badge>
 				</div>
@@ -149,10 +160,10 @@ export function EventCard({ event, groupName, organizationId }: EventCardProps) 
 				event={{
 					id: event.id,
 					name: event.name,
-					groupId: event.groupId,
 					description: event.description,
 					startsAt: event.startsAt,
 					endsAt: event.endsAt,
+					eventGroups: event.eventGroups,
 				}}
 				organizationId={organizationId}
 			/>

@@ -3,8 +3,6 @@
 import { Button } from "@repo/ui/components/button";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
-import { orpc } from "@shared/lib/orpc-query-utils";
-import { useQuery } from "@tanstack/react-query";
 import { CalendarIcon, PlusCircleIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -23,29 +21,13 @@ export function EventList({ groupId }: EventListProps) {
 
 	const { data: events, isLoading } = useEvents(groupId);
 
-	const { data: groups } = useQuery(
-		orpc.groups.list.queryOptions({
-			input: { organizationId },
-			enabled: !!organizationId,
-		}),
-	);
-
-	const groupName = groups?.find((g) => g.id === groupId)?.name;
-
 	const [dialogOpen, setDialogOpen] = useState(false);
-
-	const handleNewEvent = () => {
-		setDialogOpen(true);
-	};
-
-	const handleDialogOpenChange = (open: boolean) => {
-		setDialogOpen(open);
-	};
 
 	if (isLoading) {
 		return (
 			<div className="space-y-3">
 				{Array.from({ length: 3 }).map((_, i) => (
+					// biome-ignore lint/suspicious/noArrayIndexKey: skeleton
 					<Skeleton key={i} className="h-24 w-full rounded-xl" />
 				))}
 			</div>
@@ -55,11 +37,7 @@ export function EventList({ groupId }: EventListProps) {
 	return (
 		<>
 			<div className="mb-4">
-				<Button
-					variant="primary"
-					onClick={handleNewEvent}
-					className="gap-2"
-				>
+				<Button variant="primary" onClick={() => setDialogOpen(true)} className="gap-2">
 					<PlusCircleIcon className="size-4" />
 					{t("launchclub.events.new")}
 				</Button>
@@ -76,7 +54,6 @@ export function EventList({ groupId }: EventListProps) {
 						<EventCard
 							key={event.id}
 							event={event}
-							groupName={groupName}
 							organizationId={organizationId}
 						/>
 					))}
@@ -85,7 +62,7 @@ export function EventList({ groupId }: EventListProps) {
 
 			<EventDialog
 				open={dialogOpen}
-				onOpenChange={handleDialogOpenChange}
+				onOpenChange={setDialogOpen}
 				organizationId={organizationId}
 				defaultGroupId={groupId}
 			/>

@@ -58,6 +58,7 @@ interface EventDialogFieldsProps {
 	isNever: boolean;
 	startDate: string;
 	today: string;
+	hideRecurrence?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -68,6 +69,7 @@ export function EventDialogFields({
 	isNever,
 	startDate,
 	today,
+	hideRecurrence = false,
 }: EventDialogFieldsProps) {
 	const isGuest = eventType === "guest";
 
@@ -246,30 +248,32 @@ export function EventDialogFields({
 			</div>
 
 			{/* Recurrence */}
-			<FormField
-				control={control}
-				name="recurrence"
-				render={({ field }) => (
-					<FormItem>
-						<FormLabel>Recurrence</FormLabel>
-						<Select value={field.value} onValueChange={field.onChange}>
-							<FormControl>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-							</FormControl>
-							<SelectContent>
-								{RECURRENCE_OPTIONS.map(({ value, label }) => (
-									<SelectItem key={value} value={value}>
-										{label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-						<FormMessage />
-					</FormItem>
-				)}
-			/>
+			{!hideRecurrence && (
+				<FormField
+					control={control}
+					name="recurrence"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Recurrence</FormLabel>
+							<Select value={field.value} onValueChange={field.onChange}>
+								<FormControl>
+									<SelectTrigger>
+										<SelectValue />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									{RECURRENCE_OPTIONS.map(({ value, label }) => (
+										<SelectItem key={value} value={value}>
+											{label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+			)}
 		</>
 	);
 }

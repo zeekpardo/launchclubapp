@@ -358,6 +358,7 @@ model Group {
   site             Site              @relation(fields: [siteId], references: [id], onDelete: Cascade)
   personGroups     PersonGroup[]
   events           Event[]
+  eventGroups      EventGroup[]
   userGroups       UserGroup[]
   resources        GroupResource[]
   purchaseRequests PurchaseRequest[]
@@ -397,7 +398,7 @@ enum EventType {
 
 model Event {
   id              String       @id @default(cuid())
-  groupId         String
+  groupId         String?
   name            String
   description     String?      @db.Text
   eventType       EventType    @default(regular)
@@ -408,12 +409,26 @@ model Event {
   endsAt          DateTime?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
-  group           Group           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  group           Group?          @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  eventGroups     EventGroup[]
   attendance      Attendance[]
   resources       GroupResource[]
 
   @@index([groupId])
   @@map("event")
+}
+
+model EventGroup {
+  id       String @id @default(cuid())
+  eventId  String
+  groupId  String
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  group    Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, groupId])
+  @@index([eventId])
+  @@index([groupId])
+  @@map("event_group")
 }
 
 model Attendance {

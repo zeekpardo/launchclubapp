@@ -9,7 +9,8 @@ export const createEventProcedure = protectedProcedure
   .route({ method: "POST", path: "/events", tags: ["Events"] })
   .input(createEventSchema)
   .handler(async ({ input, context }) => {
-    const group = await getGroupById(input.groupId);
+    // Verify access using the first group (all groups must be in the same org)
+    const group = await getGroupById(input.groupIds[0]);
     if (!group) throw new ORPCError("NOT_FOUND");
     const site = await getSiteById(group.siteId);
     if (!site) throw new ORPCError("NOT_FOUND");
@@ -23,11 +24,12 @@ export const createEventProcedure = protectedProcedure
       if (userSiteIds.length > 0) {
         if (!(await canAccessSite(context.user.id, group.siteId))) throw new ORPCError("FORBIDDEN");
       } else {
-        if (!(await canManageGroup(context.user.id, input.groupId))) throw new ORPCError("FORBIDDEN");
+        if (!(await canManageGroup(context.user.id, input.groupIds[0]))) throw new ORPCError("FORBIDDEN");
       }
     }
-    const { startsAt, endsAt, ...rest } = input;
+    const { groupIds, startsAt, endsAt, ...rest } = input;
     return createEvent({
+      groupIds,
       ...rest,
       startsAt: new Date(startsAt),
       endsAt: endsAt ? new Date(endsAt) : undefined,
