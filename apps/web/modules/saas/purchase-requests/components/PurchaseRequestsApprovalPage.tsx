@@ -59,7 +59,9 @@ export function PurchaseRequestsApprovalPage() {
 	const [dateFrom, setDateFrom] = useState(
 		`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-01`,
 	);
-	const [dateTo, setDateTo] = useState(today.toISOString().slice(0, 10));
+	const [dateTo, setDateTo] = useState(
+		new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().slice(0, 10),
+	);
 
 	const { data: requests, isLoading } = useAllPurchaseRequests();
 
@@ -259,7 +261,7 @@ export function PurchaseRequestsApprovalPage() {
 						setSelectedCategory(ALL);
 						const now = new Date();
 						setDateFrom(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`);
-						setDateTo(now.toISOString().slice(0, 10));
+						setDateTo(new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10));
 						setSearch("");
 					}}
 				>
