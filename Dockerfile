@@ -31,12 +31,14 @@ RUN pnpm install --frozen-lockfile
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+# pnpm scopes prisma to packages/database — its binary isn't in root node_modules/.bin
+COPY --from=deps /app/packages/database/node_modules ./packages/database/node_modules
 COPY . .
 
 # Run from workspace root so Prisma doesn't pick up packages/database/prisma.config.ts (which imports dotenv).
 # Use the installed binary instead of npx to avoid downloading a different version.
 RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" NODE_OPTIONS='--experimental-require-module' \
-    node_modules/.bin/prisma generate --schema=packages/database/prisma/schema.prisma --no-hints
+    packages/database/node_modules/.bin/prisma generate --schema=packages/database/prisma/schema.prisma --no-hints
 
 RUN node -e "\
 const fs=require('fs');\
