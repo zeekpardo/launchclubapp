@@ -15,7 +15,7 @@ export function FaqSection({ className }: { className?: string }) {
 	const items = [
 		{
 			question: "Who is this for?",
-			answer: "This platform is built for youth program operators — after-school programs, community clubs, sports leagues, and any organization that manages participants across multiple locations.",
+			answer: "This platform is built for youth program operators: after-school programs, community clubs, sports leagues, and any organization that manages participants across multiple locations.",
 		},
 		{
 			question: "Can multiple staff members use the same account?",

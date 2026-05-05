@@ -34,6 +34,6 @@ export const config = {
 	// the marketing part of the application
 	marketing: {
 		// whether the marketing features should be enabled (otherwise all routes will be redirect to the saas part)
-		enabled: false,
+		enabled: true,
 	},
 } as const;

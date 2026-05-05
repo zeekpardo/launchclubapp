@@ -1144,7 +1144,7 @@
         "adult": "Adult"
       },
       "guardianSheet": {
-        "title": "{name} — Guardians",
+        "title": "{name}: Guardians",
         "fallback": "Guardians"
       },
       "columns": {
@@ -1206,7 +1206,7 @@
         "removeError": "Failed to remove from household.",
         "personAdded": "Person added to household.",
         "personAddError": "Failed to add person.",
-        "autoAssignError": "Household created but could not auto-assign — select it manually."
+        "autoAssignError": "Household created but could not auto-assign. Select it manually."
       },
       "form": {
         "name": "Household Name",

@@ -40,7 +40,7 @@ export const featureTabs: Array<{
 		icon: UsersIcon,
 		subtitle: "Keep every group organized and every session accounted for.",
 		description:
-			"Create and manage groups across multiple sites and areas. Assign staff, track members, and record attendance for every event — all in one place.",
+			"Create and manage groups across multiple sites and areas. Assign staff, track members, and record attendance for every event, all in one place.",
 		stack: [],
 		image: heroImage,
 		imageBorder: false,
@@ -48,7 +48,7 @@ export const featureTabs: Array<{
 			{
 				title: "Flexible hierarchy",
 				description:
-					"Organize programs across organizations, areas, sites, and groups — mirroring how your programs actually run.",
+					"Organize programs across organizations, areas, sites, and groups, mirroring how your programs actually run.",
 				icon: MapPinIcon,
 			},
 			{
@@ -71,7 +71,7 @@ export const featureTabs: Array<{
 		icon: ClipboardListIcon,
 		subtitle: "Streamline the admin work so your team can focus on the kids.",
 		description:
-			"From purchase requests to new participant applications, keep your approval workflows moving — with full visibility for everyone involved.",
+			"From purchase requests to new participant applications, keep your approval workflows moving with full visibility for everyone involved.",
 		stack: [],
 		image: heroImage,
 		imageBorder: false,
@@ -85,13 +85,13 @@ export const featureTabs: Array<{
 			{
 				title: "Application flow",
 				description:
-					"Share a public apply link and let families sign up directly. Review, approve, and assign applicants to groups — no paperwork.",
+					"Share a public apply link and let families sign up directly. Review, approve, and assign applicants to groups. No paperwork.",
 				icon: ClipboardListIcon,
 			},
 			{
 				title: "Role-based access",
 				description:
-					"Admins, site managers, and group leaders each see exactly what they need — no more, no less.",
+					"Admins, site managers, and group leaders each see exactly what they need. No more, no less.",
 				icon: ShieldCheckIcon,
 			},
 		],
@@ -111,7 +111,7 @@ export function Features() {
 					</h2>
 					<p className="mt-2 text-base lg:text-lg text-foreground/60">
 						Everything your team needs to manage participants,
-						track attendance, and run operations — in one place.
+						track attendance, and run operations, all in one place.
 					</p>
 				</div>
 			</div>
