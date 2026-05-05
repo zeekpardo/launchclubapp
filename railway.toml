@@ -1,5 +1,5 @@
 [build]
-buildCommand = "pnpm turbo build"
+buildCommand = "docker build"
 
 [deploy]
-startCommand = "cd packages/database && (node_modules/.bin/prisma migrate resolve --applied 20260505000000_init 2>&1 || true) && node_modules/.bin/prisma migrate deploy && cd ../.. && pnpm --filter web start"
+startCommand = "node apps/web/server.js"
