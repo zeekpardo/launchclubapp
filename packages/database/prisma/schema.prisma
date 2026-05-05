@@ -316,6 +316,9 @@ model Person {
   grade          String?
   notes          String?       @db.Text
   avatarUrl      String?
+  observationConsent  Boolean  @default(false)
+  termsConsent        Boolean  @default(false)
+  photoVideoConsent   Boolean  @default(false)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   organization       Organization       @relation("OrganizationPeople", fields: [organizationId], references: [id], onDelete: Cascade)

@@ -52,10 +52,15 @@ export function useUpdatePerson() {
 	const { activeOrganization } = useActiveOrganization();
 	return useMutation(
 		orpc.people.update.mutationOptions({
-			onSuccess: () => {
+			onSuccess: (_data, variables) => {
 				queryClient.invalidateQueries(
 					orpc.people.list.queryOptions({
 						input: { organizationId: activeOrganization?.id ?? "" },
+					}),
+				);
+				queryClient.invalidateQueries(
+					orpc.people.get.queryOptions({
+						input: { id: variables.id, organizationId: activeOrganization?.id ?? "" },
 					}),
 				);
 			},

@@ -173,6 +173,9 @@ export async function migrateApplicationToPeople(
           dateOfBirth: child.birthday ?? undefined,
           grade: child.grade ?? undefined,
           isChild: true,
+          observationConsent: child.observationConsent ?? false,
+          termsConsent: child.termsConsent ?? false,
+          photoVideoConsent: child.photoVideoConsent ?? false,
         },
       });
 

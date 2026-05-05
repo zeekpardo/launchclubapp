@@ -9,7 +9,7 @@ import {
 	CardTitle,
 } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, CheckCircle2Icon, XCircleIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -123,8 +123,33 @@ export function PersonProfile({ personId }: PersonProfileProps) {
 						personId={personId}
 						householdId={person.householdId}
 					/>
+
+					{/* Consents — children only */}
+					{person.isChild && (
+						<Card>
+							<CardHeader className="pb-3">
+								<CardTitle className="text-base">Consents</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-2">
+								<ConsentRow label="Observation" granted={person.observationConsent} />
+								<ConsentRow label="Terms & Conditions" granted={person.termsConsent} />
+								<ConsentRow label="Photo / Video" granted={person.photoVideoConsent} />
+							</CardContent>
+						</Card>
+					)}
 				</div>
 			</div>
+		</div>
+	);
+}
+
+function ConsentRow({ label, granted }: { label: string; granted: boolean }) {
+	return (
+		<div className={`flex items-center gap-2 text-sm font-medium ${granted ? "text-green-600" : "text-muted-foreground"}`}>
+			{granted
+				? <CheckCircle2Icon className="size-4 shrink-0" />
+				: <XCircleIcon className="size-4 shrink-0" />}
+			{label}
 		</div>
 	);
 }
