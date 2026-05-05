@@ -19,8 +19,10 @@ import {
 	SelectValue,
 } from "@repo/ui/components/select";
 import { Textarea } from "@repo/ui/components/textarea";
+import { CustomFieldInput } from "@saas/custom-fields/components/CustomFieldInput";
+import type { CustomFieldType } from "@repo/api/modules/custom-fields/types";
 import { orpcClient } from "@shared/lib/orpc-client";
-import { ImageIcon, TrashIcon, XIcon } from "lucide-react";
+import { ImageIcon, PaperclipIcon, TrashIcon, XIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import type { Control, UseFormSetValue } from "react-hook-form";
@@ -35,6 +37,102 @@ interface ChildCardProps {
 	profileFields?: ProfileField[];
 	formFields?: BasicFormField[];
 	siteSlug: string;
+}
+
+const FILE_FIELD_ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "application/pdf"] as const;
+const FILE_FIELD_MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+
+interface FileFieldUploadProps {
+	fieldId: string;
+	siteSlug: string;
+	value: string;
+	onChange: (url: string) => void;
+}
+
+function FileFieldUpload({ fieldId, siteSlug, value, onChange }: FileFieldUploadProps) {
+	const t = useTranslations("application.children");
+	const [uploading, setUploading] = useState(false);
+	const [fileName, setFileName] = useState<string | null>(null);
+	const [error, setError] = useState<string | null>(null);
+	const ref = useRef<HTMLInputElement>(null);
+
+	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		if (!(FILE_FIELD_ALLOWED_TYPES as readonly string[]).includes(file.type)) {
+			setError(t("photo.error"));
+			return;
+		}
+		if (file.size > FILE_FIELD_MAX_BYTES) {
+			setError(t("photo.error"));
+			return;
+		}
+		setUploading(true);
+		setError(null);
+		try {
+			const contentType = file.type as (typeof FILE_FIELD_ALLOWED_TYPES)[number];
+			const { signedUploadUrl, path } = await orpcClient.applications.formFieldFileUploadUrl({ contentType, siteSlug });
+			const res = await fetch(signedUploadUrl, {
+				method: "PUT",
+				body: file,
+				headers: { "Content-Type": contentType },
+			});
+			if (!res.ok) throw new Error("Upload failed");
+			onChange(path);
+			setFileName(file.name);
+		} catch {
+			setError(t("photo.error"));
+		} finally {
+			setUploading(false);
+		}
+	};
+
+	const handleRemove = () => {
+		onChange("");
+		setFileName(null);
+		setError(null);
+		if (ref.current) ref.current.value = "";
+	};
+
+	return (
+		<div className="space-y-2">
+			<input
+				ref={ref}
+				type="file"
+				accept="image/png,image/jpeg,image/jpg,application/pdf"
+				className="hidden"
+				onChange={handleChange}
+			/>
+			<div className="flex items-center gap-2">
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					disabled={uploading}
+					onClick={() => ref.current?.click()}
+				>
+					<PaperclipIcon className="size-4 mr-1.5" />
+					{uploading ? t("photo.uploading") : value ? t("photo.change") : t("fileField.upload")}
+				</Button>
+				{value && (
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						className="size-8"
+						onClick={handleRemove}
+					>
+						<XIcon className="size-4" />
+					</Button>
+				)}
+			</div>
+			{fileName && !error && (
+				<p className="text-xs text-muted-foreground">{fileName}</p>
+			)}
+			{error && <p className="text-xs text-destructive">{error}</p>}
+			<p className="text-xs text-muted-foreground">{t("fileField.hint")}</p>
+		</div>
+	);
 }
 
 export function ChildCard({ index, canRemove, onRemove, control, setValue, profileFields = [], formFields = [] as BasicFormField[], siteSlug }: ChildCardProps) {
@@ -310,59 +408,68 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 											{ff.helpText && (
 												<p className="text-xs text-muted-foreground">{ff.helpText}</p>
 											)}
-											<FormControl>
-												{ff.type === "TEXTAREA" ? (
-													<Textarea
-														rows={3}
-														placeholder={ff.placeholder ?? undefined}
-														{...field}
-														value={field.value ?? ""}
-													/>
-												) : ff.type === "SELECT" && Array.isArray(ff.options) && ff.options.length > 0 ? (
-													<Select
-														value={field.value ?? ""}
-														onValueChange={field.onChange}
-													>
-														<SelectTrigger>
-															<SelectValue placeholder={ff.placeholder ?? "Select an option"} />
-														</SelectTrigger>
-														<SelectContent>
-															{ff.options.map((opt: { label: string; value: string }) => (
-																<SelectItem key={opt.value} value={opt.value}>
-																	{opt.label}
-																</SelectItem>
-															))}
-														</SelectContent>
-													</Select>
-												) : ff.type === "CHECKBOX" ? (
-													<Checkbox
-														checked={field.value === "true"}
-														onCheckedChange={(v) =>
-															field.onChange(v ? "true" : "false")
-														}
-													/>
-												) : ff.type === "DATE" ? (
-													<Input
-														type="date"
-														placeholder={ff.placeholder ?? undefined}
-														{...field}
-														value={field.value ?? ""}
-													/>
-												) : ff.type === "NUMBER" ? (
-													<Input
-														type="number"
-														placeholder={ff.placeholder ?? undefined}
-														{...field}
-														value={field.value ?? ""}
-													/>
-												) : (
-													<Input
-														placeholder={ff.placeholder ?? undefined}
-														{...field}
-														value={field.value ?? ""}
-													/>
-												)}
-											</FormControl>
+											{ff.type === "FILE" ? (
+												<FileFieldUpload
+													fieldId={ff.id}
+													siteSlug={siteSlug}
+													value={field.value ?? ""}
+													onChange={field.onChange}
+												/>
+											) : (
+												<FormControl>
+													{ff.type === "TEXTAREA" ? (
+														<Textarea
+															rows={3}
+															placeholder={ff.placeholder ?? undefined}
+															{...field}
+															value={field.value ?? ""}
+														/>
+													) : ff.type === "SELECT" && Array.isArray(ff.options) && ff.options.length > 0 ? (
+														<Select
+															value={field.value ?? ""}
+															onValueChange={field.onChange}
+														>
+															<SelectTrigger>
+																<SelectValue placeholder={ff.placeholder ?? "Select an option"} />
+															</SelectTrigger>
+															<SelectContent>
+																{ff.options.map((opt: { label: string; value: string }) => (
+																	<SelectItem key={opt.value} value={opt.value}>
+																		{opt.label}
+																	</SelectItem>
+																))}
+															</SelectContent>
+														</Select>
+													) : ff.type === "CHECKBOX" ? (
+														<Checkbox
+															checked={field.value === "true"}
+															onCheckedChange={(v) =>
+																field.onChange(v ? "true" : "false")
+															}
+														/>
+													) : ff.type === "DATE" ? (
+														<Input
+															type="date"
+															placeholder={ff.placeholder ?? undefined}
+															{...field}
+															value={field.value ?? ""}
+														/>
+													) : ff.type === "NUMBER" ? (
+														<Input
+															type="number"
+															placeholder={ff.placeholder ?? undefined}
+															{...field}
+															value={field.value ?? ""}
+														/>
+													) : (
+														<Input
+															placeholder={ff.placeholder ?? undefined}
+															{...field}
+															value={field.value ?? ""}
+														/>
+													)}
+												</FormControl>
+											)}
 											<FormMessage />
 										</FormItem>
 									)}
@@ -388,49 +495,20 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 											{pf.required && " *"}
 										</FormLabel>
 										<FormControl>
-											{pf.type === "TEXTAREA" ? (
-												<Textarea
-													rows={3}
-													{...field}
+											{pf.type === "FILE" ? (
+												<FileFieldUpload
+													fieldId={pf.id}
+													siteSlug={siteSlug}
 													value={field.value ?? ""}
-												/>
-											) : pf.type === "SELECT" && pf.options?.length > 0 ? (
-												<Select
-													value={field.value ?? ""}
-													onValueChange={field.onChange}
-												>
-													<SelectTrigger>
-														<SelectValue placeholder="Select an option" />
-													</SelectTrigger>
-													<SelectContent>
-														{pf.options.map((opt) => (
-															<SelectItem key={opt} value={opt}>
-																{opt}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
-											) : pf.type === "CHECKBOX" ? (
-												<Checkbox
-													checked={field.value === "true"}
-													onCheckedChange={(v) =>
-														field.onChange(v ? "true" : "false")
-													}
-												/>
-											) : pf.type === "DATE" ? (
-												<Input
-													type="date"
-													{...field}
-													value={field.value ?? ""}
-												/>
-											) : pf.type === "NUMBER" ? (
-												<Input
-													type="number"
-													{...field}
-													value={field.value ?? ""}
+													onChange={(val) => field.onChange(val)}
 												/>
 											) : (
-												<Input {...field} value={field.value ?? ""} />
+												<CustomFieldInput
+													type={pf.type as CustomFieldType}
+													value={field.value ?? null}
+													options={pf.options}
+													onChange={(val) => field.onChange(val ?? "")}
+												/>
 											)}
 										</FormControl>
 										<FormMessage />

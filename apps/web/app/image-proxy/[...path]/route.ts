@@ -36,6 +36,31 @@ export const GET = async (
 		});
 	}
 
+	if (bucket === "customFields") {
+		const signedUrl = await getSignedUrl(filePath, {
+			bucket,
+			expiresIn: 60 * 60,
+		});
+
+		const s3Response = await fetch(signedUrl, { cache: "no-store" });
+
+		if (!s3Response.ok) {
+			return new Response("Not found", { status: 404 });
+		}
+
+		const contentType =
+			s3Response.headers.get("Content-Type") ?? "application/octet-stream";
+		const fileName = filePath.split("/").pop() ?? "file";
+
+		return new Response(s3Response.body, {
+			headers: {
+				"Content-Type": contentType,
+				"Content-Disposition": `inline; filename="${fileName}"`,
+				"Cache-Control": "max-age=3600",
+			},
+		});
+	}
+
 	return new Response("Not found", {
 		status: 404,
 	});

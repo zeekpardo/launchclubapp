@@ -24,7 +24,6 @@ export const createCustomFieldSchema = z.object({
 export const updateCustomFieldSchema = z.object({
   id: z.string().max(36),
   name: z.string().min(1).max(100).optional(),
-  type: z.enum(CUSTOM_FIELD_TYPES).optional(),
   required: z.boolean().optional(),
   options: z.array(z.string().max(200)).max(100).optional(),
   order: z.number().int().optional(),

@@ -1625,7 +1625,11 @@
         "terms": "Acepto los términos de Launch Club *",
         "photoVideo": "Doy permiso para fotos/videos *"
       },
-      "additionalInfo": "Información adicional"
+      "additionalInfo": "Información adicional",
+      "fileField": {
+        "upload": "Subir archivo",
+        "hint": "JPG, PNG o PDF, máx. 10 MB"
+      }
     }
   }
 }

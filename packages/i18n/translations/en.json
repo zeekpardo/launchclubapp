@@ -1582,6 +1582,7 @@
       "form": {
         "name": "Field Name",
         "type": "Field Type",
+        "typeLockedHint": "Field type cannot be changed after creation.",
         "required": "Required",
         "options": "Options (one per line)",
         "save": "Save",
@@ -1673,7 +1674,11 @@
         "terms": "I agree to the Launch Club terms *",
         "photoVideo": "I give permission for photos/videos *"
       },
-      "additionalInfo": "Additional Information"
+      "additionalInfo": "Additional Information",
+      "fileField": {
+        "upload": "Upload File",
+        "hint": "JPG, PNG, or PDF, max 10 MB"
+      }
     }
   }
 }

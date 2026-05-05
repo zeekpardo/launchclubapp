@@ -416,6 +416,8 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 											[field.id]: val ?? "",
 										}))
 									}
+									customFieldId={field.id}
+									personId={person?.id}
 								/>
 							</div>
 						))}

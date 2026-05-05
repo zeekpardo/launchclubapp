@@ -88,9 +88,11 @@ export function CustomFieldsPersonPanel({ personId }: CustomFieldsPersonPanelPro
                   value={localValues[field.id]}
                   options={field.options}
                   onChange={(val) => handleChange(field.id, val)}
+                  customFieldId={field.id}
+                  personId={personId}
                 />
               </div>
-              {dirty[field.id] && (
+              {dirty[field.id] && field.type !== "FILE" && (
                 <Button
                   size="sm"
                   onClick={() => handleSave(field.id)}

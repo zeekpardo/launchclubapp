@@ -108,7 +108,6 @@ export function CustomFieldDialog({
         await updateField.mutateAsync({
           id: field.id,
           name: values.name,
-          type: values.type,
           required: values.required,
           options,
         });
@@ -163,7 +162,7 @@ export function CustomFieldDialog({
               render={({ field: f }) => (
                 <FormItem>
                   <FormLabel>{t("launchclub.customFields.form.type")}</FormLabel>
-                  <Select onValueChange={f.onChange} value={f.value}>
+                  <Select onValueChange={f.onChange} value={f.value} disabled={isEditing}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue />
@@ -177,6 +176,11 @@ export function CustomFieldDialog({
                       ))}
                     </SelectContent>
                   </Select>
+                  {isEditing && (
+                    <p className="text-xs text-muted-foreground">
+                      {t("launchclub.customFields.form.typeLockedHint")}
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}

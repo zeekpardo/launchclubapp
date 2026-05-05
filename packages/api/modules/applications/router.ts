@@ -1,4 +1,5 @@
 import { createChildPhotoUploadUrl } from "./procedures/create-child-photo-upload-url";
+import { createFormFieldFileUploadUrl } from "./procedures/create-form-field-file-upload-url";
 import { submitApplication } from "./procedures/submit";
 import { listApplications } from "./procedures/list";
 import { getApplication } from "./procedures/get";
@@ -14,4 +15,5 @@ export const applicationsRouter = {
   getOrgSettings: getOrgApplicationSettingsProcedure,
   updateOrgSettings: updateOrgApplicationSettingsProcedure,
   childPhotoUploadUrl: createChildPhotoUploadUrl,
+  formFieldFileUploadUrl: createFormFieldFileUploadUrl,
 };
