@@ -83,11 +83,15 @@ export function DashboardStats({ areaId, siteId }: DashboardStatsProps) {
 		}
 		if (areaId) {
 			const areaSiteIds = new Set(
-				(sites ?? []).filter((s) => s.areaId === areaId).map((s) => s.id),
+				(sites ?? [])
+					.filter((s) => s.areaId === areaId)
+					.map((s) => s.id),
 			);
 			return members.filter((m) =>
 				m.personGroups.some(
-					(pg) => pg.role === "LEADER" && areaSiteIds.has(pg.group.siteId),
+					(pg) =>
+						pg.role === "LEADER" &&
+						areaSiteIds.has(pg.group.siteId),
 				),
 			).length;
 		}
@@ -142,8 +146,11 @@ export function DashboardStats({ areaId, siteId }: DashboardStatsProps) {
 			<div className="grid grid-cols-2 gap-4 @lg:grid-cols-3 @2xl:grid-cols-6">
 				{isLoading
 					? Array.from({ length: 6 }).map((_, i) => (
-							// biome-ignore lint/suspicious/noArrayIndexKey: skeleton list
-							<Skeleton key={i} className="h-[116px] w-full rounded-xl" />
+							// biome-ignore lint/suspicious/noArrayIndexKey: <Skeleton>
+							<Skeleton
+								key={i}
+								className="h-[116px] w-full rounded-xl"
+							/>
 						))
 					: stats.map((stat) => (
 							<StatCard

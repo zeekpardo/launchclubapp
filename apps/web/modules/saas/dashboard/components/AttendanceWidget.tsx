@@ -20,22 +20,25 @@ import { orpc } from "@shared/lib/orpc-query-utils";
 import { skipToken, useQueries, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-
-type DateRange = "7" | "30" | "90" | "180" | "all";
+import type { DateRange } from "./DashboardClient";
 
 const ALL_GROUPS = "__ALL__";
 
 interface AttendanceWidgetProps {
 	areaId?: string;
 	siteId?: string;
+	dateRange: DateRange;
 }
 
-export function AttendanceWidget({ areaId, siteId }: AttendanceWidgetProps) {
+export function AttendanceWidget({
+	areaId,
+	siteId,
+	dateRange,
+}: AttendanceWidgetProps) {
 	const t = useTranslations();
 	const { activeOrganization } = useActiveOrganization();
 
 	const [selectedGroupId, setSelectedGroupId] = useState<string>(ALL_GROUPS);
-	const [dateRange, setDateRange] = useState<DateRange>("30");
 
 	const { data: groups, isLoading: groupsLoading } = useQuery(
 		orpc.groups.list.queryOptions({
@@ -61,19 +64,20 @@ export function AttendanceWidget({ areaId, siteId }: AttendanceWidgetProps) {
 			: ALL_GROUPS;
 	}, [selectedGroupId, filteredGroups]);
 
-	const activeGroupId = effectiveGroupId === ALL_GROUPS ? null : effectiveGroupId;
+	const activeGroupId =
+		effectiveGroupId === ALL_GROUPS ? null : effectiveGroupId;
 
 	const since = useMemo(() => {
 		if (dateRange === "all") return undefined;
 		return new Date(
-			Date.now() - Number.parseInt(dateRange) * 24 * 60 * 60 * 1000,
+			Date.now() - Number.parseInt(dateRange, 10) * 24 * 60 * 60 * 1000,
 		).toISOString();
 	}, [dateRange]);
 
 	const sinceDate = useMemo(() => {
 		if (dateRange === "all") return null;
 		return new Date(
-			Date.now() - Number.parseInt(dateRange) * 24 * 60 * 60 * 1000,
+			Date.now() - Number.parseInt(dateRange, 10) * 24 * 60 * 60 * 1000,
 		);
 	}, [dateRange]);
 
@@ -108,7 +112,10 @@ export function AttendanceWidget({ areaId, siteId }: AttendanceWidgetProps) {
 
 		const attendanceMap = new Map<string, string>();
 		for (const record of attendanceRecords ?? []) {
-			attendanceMap.set(`${record.eventId}:${record.personId}`, record.status);
+			attendanceMap.set(
+				`${record.eventId}:${record.personId}`,
+				record.status,
+			);
 		}
 
 		const totalPossible = filteredEvents.length * groupMembers.length;
@@ -148,7 +155,7 @@ export function AttendanceWidget({ areaId, siteId }: AttendanceWidgetProps) {
 		if (effectiveGroupId !== ALL_GROUPS) return null;
 		const rates = reportQueries
 			.filter((q) => q.data !== undefined)
-			.map((q) => q.data!.rate);
+			.map((q) => (q.data as { rate: number }).rate);
 		if (rates.length === 0) return 0;
 		return Math.round(
 			(rates.reduce((a, b) => a + b, 0) / rates.length) * 100,
@@ -158,18 +165,11 @@ export function AttendanceWidget({ areaId, siteId }: AttendanceWidgetProps) {
 	const dataLoading =
 		effectiveGroupId === ALL_GROUPS
 			? reportQueries.some((q) => q.isLoading && !q.data)
-			: !!activeGroupId && (eventsLoading || attendanceLoading || groupDetailLoading);
+			: !!activeGroupId &&
+				(eventsLoading || attendanceLoading || groupDetailLoading);
 
 	const displayRate =
 		effectiveGroupId === ALL_GROUPS ? (aggregateRate ?? 0) : ratePercent;
-
-	const dateRangeOptions: { value: DateRange; label: string }[] = [
-		{ value: "7", label: "Last 7 days" },
-		{ value: "30", label: "Last 30 days" },
-		{ value: "90", label: "Last 3 months" },
-		{ value: "180", label: "Last 6 months" },
-		{ value: "all", label: "All time" },
-	];
 
 	return (
 		<Card>
@@ -181,10 +181,7 @@ export function AttendanceWidget({ areaId, siteId }: AttendanceWidgetProps) {
 			<CardContent className="space-y-4">
 				{groupsLoading ? (
 					<>
-						<div className="flex gap-2">
-							<Skeleton className="h-9 flex-1" />
-							<Skeleton className="h-9 w-36" />
-						</div>
+						<Skeleton className="h-9 w-full" />
 						<Skeleton className="h-12 w-24" />
 						<Skeleton className="h-3 w-full" />
 					</>
@@ -194,41 +191,24 @@ export function AttendanceWidget({ areaId, siteId }: AttendanceWidgetProps) {
 					</p>
 				) : (
 					<>
-						<div className="flex gap-2">
-							<Select
-								value={effectiveGroupId}
-								onValueChange={setSelectedGroupId}
-							>
-								<SelectTrigger className="flex-1">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value={ALL_GROUPS}>
-										{t("launchclub.dashboard.allGroups")}
+						<Select
+							value={effectiveGroupId}
+							onValueChange={setSelectedGroupId}
+						>
+							<SelectTrigger className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value={ALL_GROUPS}>
+									{t("launchclub.dashboard.allGroups")}
+								</SelectItem>
+								{filteredGroups.map((g) => (
+									<SelectItem key={g.id} value={g.id}>
+										{g.name}
 									</SelectItem>
-									{filteredGroups.map((g) => (
-										<SelectItem key={g.id} value={g.id}>
-											{g.name}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							<Select
-								value={dateRange}
-								onValueChange={(v) => setDateRange(v as DateRange)}
-							>
-								<SelectTrigger className="w-36">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									{dateRangeOptions.map((opt) => (
-										<SelectItem key={opt.value} value={opt.value}>
-											{opt.label}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
+								))}
+							</SelectContent>
+						</Select>
 
 						{dataLoading ? (
 							<>
@@ -238,7 +218,9 @@ export function AttendanceWidget({ areaId, siteId }: AttendanceWidgetProps) {
 						) : (
 							<div className="space-y-2">
 								<div className="flex items-end justify-between">
-									<span className="text-4xl font-bold">{displayRate}%</span>
+									<span className="text-4xl font-bold">
+										{displayRate}%
+									</span>
 									<span className="text-sm text-muted-foreground">
 										{effectiveGroupId === ALL_GROUPS
 											? `${filteredGroups.length} ${filteredGroups.length === 1 ? "group" : "groups"}`

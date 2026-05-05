@@ -35,7 +35,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
-import { ArrowLeftIcon, CheckIcon, ChevronDownIcon, ClockIcon, XIcon } from "lucide-react";
+import { ArrowLeftIcon, CheckCircle2Icon, CheckIcon, ChevronDownIcon, ClockIcon, XCircleIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -263,33 +263,99 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 					</div>
 
 					{application.children && application.children.length > 0 && (
-						<div className="pt-2 border-t">
-							<p className="text-sm font-medium text-muted-foreground mb-2">
+						<div className="pt-2 border-t space-y-3">
+							<p className="text-sm font-medium text-muted-foreground">
 								Children
 							</p>
-							{application.children.map((child, i) => (
-								<p key={child.id} className="text-sm">
-									{i + 1}. {child.firstName} {child.lastName}
-									{child.grade ? ` — ${child.grade}` : ""}
-								</p>
-							))}
-						</div>
-					)}
+							{application.children.map((child) => (
+								<div key={child.id} className="rounded-lg border bg-muted/30 p-3 space-y-3">
+									{/* Name + grade */}
+									<div className="flex items-center justify-between gap-2">
+										<p className="text-sm font-medium">
+											{child.firstName} {child.lastName}
+										</p>
+										{child.grade && (
+											<Badge className="text-xs">{child.grade}</Badge>
+										)}
+									</div>
 
-					{application.profileFieldValues && application.profileFieldValues.length > 0 && (
-						<div className="pt-2 border-t">
-							<p className="text-sm font-medium text-muted-foreground mb-2">
-								Child Profile Fields
-							</p>
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								{application.profileFieldValues.map((pfv) => (
-									<DetailRow
-										key={pfv.id}
-										label={pfv.customField.name}
-										value={pfv.value ?? "—"}
-									/>
-								))}
-							</div>
+									{/* Core fields */}
+									<div className="grid grid-cols-2 gap-x-4 gap-y-2">
+										{child.birthday && (
+											<DetailRow
+												label="Date of Birth"
+												value={new Date(child.birthday).toLocaleDateString()}
+											/>
+										)}
+										<DetailRow
+											label="Part of Church"
+											value={child.isPartOfChurch ? "Yes" : "No"}
+										/>
+									</div>
+
+									{/* Emergency contact */}
+									{(child.emergencyContactName || child.emergencyContactPhone) && (
+										<div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-2 border-t">
+											<p className="col-span-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+												Emergency Contact
+											</p>
+											{child.emergencyContactName && (
+												<DetailRow label="Name" value={child.emergencyContactName} />
+											)}
+											{child.emergencyContactPhone && (
+												<DetailRow label="Phone" value={child.emergencyContactPhone} />
+											)}
+											{child.emergencyContactEmail && (
+												<DetailRow label="Email" value={child.emergencyContactEmail} />
+											)}
+										</div>
+									)}
+
+									{/* Consents */}
+									<div className="pt-2 border-t">
+										<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">
+											Consents
+										</p>
+										<div className="flex flex-wrap gap-3">
+											<ConsentBadge label="Observation" granted={child.observationConsent} />
+											<ConsentBadge label="Terms & Conditions" granted={child.termsConsent} />
+											<ConsentBadge label="Photo / Video" granted={child.photoVideoConsent} />
+										</div>
+									</div>
+
+									{/* Profile field values */}
+									{child.profileFieldValues && child.profileFieldValues.length > 0 && (
+										<div className="pt-2 border-t grid grid-cols-2 gap-x-4 gap-y-2">
+											<p className="col-span-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+												Profile Fields
+											</p>
+											{child.profileFieldValues.map((pfv) => (
+												<DetailRow
+													key={pfv.id}
+													label={pfv.customField.name}
+													value={pfv.value ?? "—"}
+												/>
+											))}
+										</div>
+									)}
+
+									{/* Custom form field values */}
+									{child.formFieldValues && child.formFieldValues.length > 0 && (
+										<div className="pt-2 border-t grid grid-cols-2 gap-x-4 gap-y-2">
+											<p className="col-span-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+												Form Responses
+											</p>
+											{child.formFieldValues.filter((ffv) => ffv.formField.type !== "HEADER").map((ffv) => (
+												<DetailRow
+													key={ffv.id}
+													label={ffv.formField.label}
+													value={ffv.value}
+												/>
+											))}
+										</div>
+									)}
+								</div>
+							))}
 						</div>
 					)}
 
@@ -364,6 +430,17 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 					onClose={() => setApproveDialogOpen(false)}
 				/>
 			)}
+		</div>
+	);
+}
+
+function ConsentBadge({ label, granted }: { label: string; granted: boolean }) {
+	return (
+		<div className={`flex items-center gap-1.5 text-xs font-medium ${granted ? "text-green-600" : "text-destructive"}`}>
+			{granted
+				? <CheckCircle2Icon className="size-3.5 shrink-0" />
+				: <XCircleIcon className="size-3.5 shrink-0" />}
+			{label}
 		</div>
 	);
 }
