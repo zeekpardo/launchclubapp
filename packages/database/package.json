@@ -24,8 +24,8 @@
 	"scripts": {
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
 		"generate": "dotenv -c -e ../../.env -- prisma generate --no-hints && node -e \"const fs=require('fs'),f='./prisma/zod/index.ts',c=fs.readFileSync(f,'utf8');if(!c.includes(\\\"import { Prisma }\\\")){fs.writeFileSync(f,c.replace(\\\"import * as z from 'zod';\\\",\\\"import * as z from 'zod';\\\\nimport { Prisma } from '../generated/client';\\\"))}else{fs.writeFileSync(f,c.replace(\\\"import { Prisma } from '@prisma/client';\\\",\\\"import { Prisma } from '../generated/client';\\\"))}\"",
-		"push": "dotenv -c -e ../../.env -- prisma db push",
 		"migrate": "dotenv -c -e ../../.env -- prisma migrate dev",
+		"migrate:deploy": "dotenv -c -e ../../.env -- prisma migrate deploy",
 		"seed": "dotenv -c -e ../../.env -- tsx prisma/seed.ts",
 		"studio": "dotenv -c -e ../../.env -- prisma studio",
 		"type-check": "tsc --noEmit"

@@ -96,6 +96,7 @@
 	"private": true,
 	"scripts": {
 		"build": "next build",
+		"vercel-build": "prisma generate && prisma migrate deploy && next build",
 		"clean": "git clean -xdf .cache .turbo dist node_modules .next .content-collections",
 		"dev": "next dev --port 3100",
 		"e2e": "pnpm exec playwright test --ui",
