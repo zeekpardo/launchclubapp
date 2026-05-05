@@ -249,10 +249,11 @@ model Site {
   areaId              String
   name                String
   slug                String        @unique
-  address             String?
+  addressLine1        String?
   city                String?
-  state               String?
-  zipCode             String?
+  stateProvince       String?
+  postalCode          String?
+  country             String?
   phone               String?
   email               String?
   acceptApplications  Boolean       @default(true)
@@ -284,10 +285,11 @@ model Household {
   id             String       @id @default(cuid())
   organizationId String
   name           String
-  address        String?
+  addressLine1   String?
   city           String?
-  state          String?
-  zipCode        String?
+  stateProvince  String?
+  postalCode     String?
+  country        String?
   phone          String?
   email          String?
   createdAt      DateTime     @default(now())
@@ -452,10 +454,14 @@ model Application {
   siteId          String
   parentFirstName String
   parentLastName  String
-  parentEmail     String?
-  parentPhone     String?
-  parentAddress   String?
-  spouseFirstName String?
+  parentEmail          String?
+  parentPhone          String?
+  parentAddressLine1   String?
+  parentCity           String?
+  parentStateProvince  String?
+  parentPostalCode     String?
+  parentCountry        String?
+  spouseFirstName      String?
   spouseLastName  String?
   spouseEmail     String?
   spousePhone     String?
@@ -492,6 +498,7 @@ model ApplicationChild {
   createdAt             DateTime    @default(now())
   application           Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   profileFieldValues    ApplicationChildCustomFieldValue[]
+  formFieldValues       ApplicationChildFormFieldValue[]
 
   @@index([applicationId])
   @@map("application_child")
@@ -509,6 +516,20 @@ model ApplicationChildCustomFieldValue {
 
   @@unique([applicationChildId, customFieldId])
   @@map("application_child_custom_field_value")
+}
+
+model ApplicationChildFormFieldValue {
+  id                 String           @id @default(cuid())
+  applicationChildId String
+  formFieldId        String
+  value              String           @db.Text
+  createdAt          DateTime         @default(now())
+  applicationChild   ApplicationChild @relation(fields: [applicationChildId], references: [id], onDelete: Cascade)
+  formField          FormField        @relation(fields: [formFieldId], references: [id], onDelete: Cascade)
+
+  @@unique([applicationChildId, formFieldId])
+  @@index([applicationChildId])
+  @@map("application_child_form_field_value")
 }
 
 model GroupResource {
@@ -575,6 +596,7 @@ enum FormFieldType {
   CHECKBOX
   RADIO
   FILE
+  HEADER
 }
 
 model FormField {
@@ -592,9 +614,10 @@ model FormField {
   siteId      String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
-  area        Area?         @relation(fields: [areaId], references: [id], onDelete: Cascade)
-  site        Site?         @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  fieldValues ApplicationFieldValue[]
+  area              Area?         @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  site              Site?         @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  fieldValues       ApplicationFieldValue[]
+  childFieldValues  ApplicationChildFormFieldValue[]
 
   @@index([areaId])
   @@index([siteId])

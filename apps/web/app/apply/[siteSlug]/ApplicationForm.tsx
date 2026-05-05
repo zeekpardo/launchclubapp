@@ -13,7 +13,6 @@ import {
 	FormMessage,
 } from "@repo/ui/components/form";
 import { Input } from "@repo/ui/components/input";
-import { Textarea } from "@repo/ui/components/textarea";
 import { orpcClient } from "@shared/lib/orpc-client";
 import { CheckCircleIcon, LoaderIcon, PlusIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -33,6 +32,7 @@ const childSchema = z.object({
 	photoVideoConsent: z.literal(true),
 	photoUrl: z.string().optional(),
 	profileFields: z.record(z.string(), z.string()).optional(),
+	formFields: z.record(z.string(), z.string()).optional(),
 });
 
 export const applicationFormSchema = z.object({
@@ -40,7 +40,11 @@ export const applicationFormSchema = z.object({
 	parentLastName: z.string().min(1, "Last name is required"),
 	parentEmail: z.string().email().optional().or(z.literal("")),
 	parentPhone: z.string().optional(),
-	parentAddress: z.string().optional(),
+	parentAddressLine1: z.string().optional(),
+	parentCity: z.string().optional(),
+	parentStateProvince: z.string().optional(),
+	parentPostalCode: z.string().optional(),
+	parentCountry: z.string().optional(),
 	emergencyContactName: z.string().optional(),
 	emergencyContactPhone: z.string().optional(),
 	emergencyContactEmail: z.string().email().optional().or(z.literal("")),
@@ -71,13 +75,25 @@ export interface ProfileField {
 	options: string[];
 }
 
+export interface BasicFormField {
+	id: string;
+	label: string;
+	fieldKey: string;
+	type: string;
+	placeholder?: string | null;
+	helpText?: string | null;
+	required: boolean;
+	options?: { label: string; value: string }[] | null;
+}
+
 interface ApplicationFormProps {
 	siteSlug: string;
 	siteName?: string;
 	profileFields?: ProfileField[];
+	formFields?: BasicFormField[];
 }
 
-export function ApplicationForm({ siteSlug, profileFields = [] }: ApplicationFormProps) {
+export function ApplicationForm({ siteSlug, profileFields = [], formFields = [] }: ApplicationFormProps) {
 	const t = useTranslations("application");
 	const [submitted, setSubmitted] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
@@ -90,7 +106,11 @@ export function ApplicationForm({ siteSlug, profileFields = [] }: ApplicationFor
 			parentLastName: "",
 			parentEmail: "",
 			parentPhone: "",
-			parentAddress: "",
+			parentAddressLine1: "",
+			parentCity: "",
+			parentStateProvince: "",
+			parentPostalCode: "",
+			parentCountry: "",
 			emergencyContactName: "",
 			emergencyContactPhone: "",
 			emergencyContactEmail: "",
@@ -116,7 +136,11 @@ export function ApplicationForm({ siteSlug, profileFields = [] }: ApplicationFor
 				parentLastName: values.parentLastName,
 				parentEmail: values.parentEmail || undefined,
 				parentPhone: values.parentPhone || undefined,
-				parentAddress: values.parentAddress || undefined,
+				parentAddressLine1: values.parentAddressLine1 || undefined,
+				parentCity: values.parentCity || undefined,
+				parentStateProvince: values.parentStateProvince || undefined,
+				parentPostalCode: values.parentPostalCode || undefined,
+				parentCountry: values.parentCountry || undefined,
 				spouseFirstName: values.hasSpouse ? values.spouseFirstName || undefined : undefined,
 				spouseLastName: values.hasSpouse ? values.spouseLastName || undefined : undefined,
 				spouseEmail: values.hasSpouse ? values.spouseEmail || undefined : undefined,
@@ -124,6 +148,9 @@ export function ApplicationForm({ siteSlug, profileFields = [] }: ApplicationFor
 				children: values.children.map((child) => {
 					const childProfileFieldValues = profileFields
 						.map((f) => ({ customFieldId: f.id, value: child.profileFields?.[f.id] ?? "" }))
+						.filter((v) => v.value !== "");
+					const childFormFieldValues = formFields
+						.map((f) => ({ formFieldId: f.id, value: child.formFields?.[f.id] ?? "" }))
 						.filter((v) => v.value !== "");
 					return {
 						firstName: child.firstName,
@@ -139,6 +166,7 @@ export function ApplicationForm({ siteSlug, profileFields = [] }: ApplicationFor
 						photoVideoConsent: child.photoVideoConsent,
 						photoUrl: child.photoUrl || undefined,
 						profileFieldValues: childProfileFieldValues.length ? childProfileFieldValues : undefined,
+						formFieldValues: childFormFieldValues.length ? childFormFieldValues : undefined,
 					};
 				}),
 			});
@@ -238,17 +266,73 @@ export function ApplicationForm({ siteSlug, profileFields = [] }: ApplicationFor
 						</div>
 						<FormField
 							control={form.control}
-							name="parentAddress"
+							name="parentAddressLine1"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>{t("parent.address")}</FormLabel>
 									<FormControl>
-										<Textarea rows={2} {...field} />
+										<Input {...field} placeholder="Street address" />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<FormField
+								control={form.control}
+								name="parentCity"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>City</FormLabel>
+										<FormControl>
+											<Input {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="parentStateProvince"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>State / Province</FormLabel>
+										<FormControl>
+											<Input {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<FormField
+								control={form.control}
+								name="parentPostalCode"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Postal Code</FormLabel>
+										<FormControl>
+											<Input {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="parentCountry"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Country</FormLabel>
+										<FormControl>
+											<Input {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
 
 						{/* Emergency Contact */}
 						<div className="space-y-4 border-t pt-4">
@@ -406,6 +490,7 @@ export function ApplicationForm({ siteSlug, profileFields = [] }: ApplicationFor
 							control={form.control}
 							setValue={form.setValue}
 							profileFields={profileFields}
+							formFields={formFields}
 							siteSlug={siteSlug}
 						/>
 					))}

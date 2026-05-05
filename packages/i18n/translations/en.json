@@ -1432,13 +1432,17 @@
       "title": "Dashboard",
       "stats": {
         "groups": "Total Groups",
-        "members": "Total Members",
+        "leaders": "Leaders",
+        "members": "Total Adults",
         "kids": "Total Kids",
         "events": "Total Events",
         "pendingApplications": "Pending Applications"
       },
       "recentApplications": "Recent Applications",
       "attendanceRate": "Attendance Rate",
+      "allGroups": "All Groups",
+      "allAreas": "All Areas",
+      "allSites": "All Sites",
       "attendance": {
         "last30days": "Last 30 days",
         "last90days": "Last 90 days",

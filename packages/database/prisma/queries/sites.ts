@@ -39,10 +39,11 @@ export async function createSite(data: {
   areaId: string;
   name: string;
   slug: string;
-  address?: string;
+  addressLine1?: string;
   city?: string;
-  state?: string;
-  zipCode?: string;
+  stateProvince?: string;
+  postalCode?: string;
+  country?: string;
   phone?: string;
   email?: string;
   acceptApplications?: boolean;

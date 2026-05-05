@@ -94,23 +94,26 @@ export function AreaDetailClient({ areaId }: AreaDetailClientProps) {
 				</div>
 
 				{/* Content panel */}
-				<div className="min-w-0 flex-1 rounded-lg border bg-card p-6">
-					{activeSection === "sites" && (
-						<AreaSitesTab areaId={areaId} organizationId={organizationId} />
-					)}
-					{activeSection === "form-fields" && (
+				{activeSection === "form-fields" ? (
+					<div className="min-w-0 flex-1">
 						<AreaFormBuilder areaId={areaId} areaName={area.name} />
-					)}
-					{activeSection === "submissions" && (
-						<AreaSubmissionsTab areaId={areaId} />
-					)}
-				{activeSection === "share" && (
-						<AreaShareTab sites={area.sites} />
-					)}
-					{activeSection === "settings" && (
-						<AreaSettingsTab area={area} organizationId={organizationId} />
-					)}
-				</div>
+					</div>
+				) : (
+					<div className="min-w-0 flex-1 rounded-lg border bg-card p-6">
+						{activeSection === "sites" && (
+							<AreaSitesTab areaId={areaId} organizationId={organizationId} />
+						)}
+						{activeSection === "submissions" && (
+							<AreaSubmissionsTab areaId={areaId} />
+						)}
+						{activeSection === "share" && (
+							<AreaShareTab sites={area.sites} />
+						)}
+						{activeSection === "settings" && (
+							<AreaSettingsTab area={area} organizationId={organizationId} />
+						)}
+					</div>
+				)}
 			</div>
 
 			<AreaDialog

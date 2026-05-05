@@ -34,6 +34,15 @@ export async function getFormFieldsForApplication(siteId: string) {
   return getSiteFormFields(siteId);
 }
 
+export async function getFormFieldsBySiteSlug(siteSlug: string) {
+  const site = await db.site.findUnique({
+    where: { slug: siteSlug },
+    select: { id: true, areaId: true },
+  });
+  if (!site) return { areaFields: [], siteFields: [] };
+  return getSiteFormFields(site.id);
+}
+
 export async function createFormField(data: {
   label: string;
   fieldKey: string;

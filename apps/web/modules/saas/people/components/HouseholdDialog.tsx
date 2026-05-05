@@ -27,10 +27,11 @@ import { z } from "zod";
 
 const householdFormSchema = z.object({
 	name: z.string().min(1),
-	address: z.string().optional(),
+	addressLine1: z.string().optional(),
 	city: z.string().optional(),
-	state: z.string().optional(),
-	zipCode: z.string().optional(),
+	stateProvince: z.string().optional(),
+	postalCode: z.string().optional(),
+	country: z.string().optional(),
 	phone: z.string().optional(),
 	email: z.string().email().optional().or(z.literal("")),
 });
@@ -40,10 +41,11 @@ type HouseholdFormValues = z.infer<typeof householdFormSchema>;
 interface HouseholdData {
 	id: string;
 	name: string;
-	address?: string | null;
+	addressLine1?: string | null;
 	city?: string | null;
-	state?: string | null;
-	zipCode?: string | null;
+	stateProvince?: string | null;
+	postalCode?: string | null;
+	country?: string | null;
 	phone?: string | null;
 	email?: string | null;
 }
@@ -88,10 +90,11 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 		resolver: zodResolver(householdFormSchema),
 		defaultValues: {
 			name: household?.name ?? "",
-			address: household?.address ?? "",
+			addressLine1: household?.addressLine1 ?? "",
 			city: household?.city ?? "",
-			state: household?.state ?? "",
-			zipCode: household?.zipCode ?? "",
+			stateProvince: household?.stateProvince ?? "",
+			postalCode: household?.postalCode ?? "",
+			country: household?.country ?? "",
 			phone: household?.phone ?? "",
 			email: household?.email ?? "",
 		},
@@ -101,10 +104,11 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 		try {
 			const payload = {
 				name: values.name,
-				address: values.address || undefined,
+				addressLine1: values.addressLine1 || undefined,
 				city: values.city || undefined,
-				state: values.state || undefined,
-				zipCode: values.zipCode || undefined,
+				stateProvince: values.stateProvince || undefined,
+				postalCode: values.postalCode || undefined,
+				country: values.country || undefined,
 				phone: values.phone || undefined,
 				email: values.email || undefined,
 			};
@@ -160,7 +164,7 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 
 						<FormField
 							control={form.control}
-							name="address"
+							name="addressLine1"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>{t("launchclub.households.form.address")}</FormLabel>
@@ -188,7 +192,7 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 							/>
 							<FormField
 								control={form.control}
-								name="state"
+								name="stateProvince"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>{t("launchclub.households.form.state")}</FormLabel>
@@ -201,19 +205,34 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 							/>
 						</div>
 
-						<FormField
-							control={form.control}
-							name="zipCode"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>{t("launchclub.households.form.zipCode")}</FormLabel>
-									<FormControl>
-										<Input {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+						<div className="grid grid-cols-2 gap-4">
+							<FormField
+								control={form.control}
+								name="postalCode"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>{t("launchclub.households.form.zipCode")}</FormLabel>
+										<FormControl>
+											<Input {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="country"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Country</FormLabel>
+										<FormControl>
+											<Input {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
 
 						<FormField
 							control={form.control}

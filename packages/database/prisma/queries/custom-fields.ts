@@ -41,6 +41,14 @@ export async function deleteCustomField(id: string) {
   return db.customField.delete({ where: { id } });
 }
 
+export async function reorderCustomFields(ids: string[]) {
+  return db.$transaction(
+    ids.map((id, index) =>
+      db.customField.update({ where: { id }, data: { order: index + 1 } }),
+    ),
+  );
+}
+
 export async function getCollectInApplicationFieldsBySite(siteSlug: string) {
   return db.customField.findMany({
     where: {

@@ -60,6 +60,19 @@ export function useDeleteCustomField(organizationId: string) {
   );
 }
 
+export function useReorderCustomFields(organizationId: string) {
+  const queryClient = useQueryClient();
+  return useMutation(
+    orpc.customFields.reorder.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries(
+          orpc.customFields.list.queryOptions({ input: { organizationId } }),
+        );
+      },
+    }),
+  );
+}
+
 export function useSetCustomFieldValue(organizationId: string, personId: string) {
   const queryClient = useQueryClient();
   return useMutation(

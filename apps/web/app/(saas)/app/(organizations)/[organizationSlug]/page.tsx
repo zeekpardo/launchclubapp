@@ -1,7 +1,5 @@
 import { getActiveOrganization, getSession } from "@saas/auth/lib/server";
-import { ApplicationsWidget } from "@saas/dashboard/components/ApplicationsWidget";
-import { AttendanceWidget } from "@saas/dashboard/components/AttendanceWidget";
-import { DashboardStats } from "@saas/dashboard/components/DashboardStats";
+import { DashboardClient } from "@saas/dashboard/components/DashboardClient";
 import { PageHeader } from "@saas/shared/components/PageHeader";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -51,11 +49,7 @@ export default async function OrganizationPage({
 				title={activeOrganization.name}
 				subtitle={t("organizations.start.subtitle")}
 			/>
-			<DashboardStats />
-			<div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-				<AttendanceWidget />
-				<ApplicationsWidget />
-			</div>
+			<DashboardClient />
 		</div>
 	);
 }

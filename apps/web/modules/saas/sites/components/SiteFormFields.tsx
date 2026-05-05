@@ -27,10 +27,11 @@ interface SiteFormValues {
 	name: string;
 	slug: string;
 	areaId: string;
-	address?: string;
+	addressLine1?: string;
 	city?: string;
-	state?: string;
-	zipCode?: string;
+	stateProvince?: string;
+	postalCode?: string;
+	country?: string;
 	phone?: string;
 	email?: string;
 }
@@ -100,7 +101,7 @@ export function SiteFormFields({ control, areas }: SiteFormFieldsProps) {
 
 			<FormField
 				control={control}
-				name="address"
+				name="addressLine1"
 				render={({ field }) => (
 					<FormItem>
 						<FormLabel>{t("launchclub.sites.form.address")}</FormLabel>
@@ -129,7 +130,7 @@ export function SiteFormFields({ control, areas }: SiteFormFieldsProps) {
 
 				<FormField
 					control={control}
-					name="state"
+					name="stateProvince"
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>{t("launchclub.sites.form.state")}</FormLabel>
@@ -142,19 +143,35 @@ export function SiteFormFields({ control, areas }: SiteFormFieldsProps) {
 				/>
 			</div>
 
-			<FormField
-				control={control}
-				name="zipCode"
-				render={({ field }) => (
-					<FormItem>
-						<FormLabel>{t("launchclub.sites.form.zipCode")}</FormLabel>
-						<FormControl>
-							<Input {...field} />
-						</FormControl>
-						<FormMessage />
-					</FormItem>
-				)}
-			/>
+			<div className="grid grid-cols-2 gap-4">
+				<FormField
+					control={control}
+					name="postalCode"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>{t("launchclub.sites.form.zipCode")}</FormLabel>
+							<FormControl>
+								<Input {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={control}
+					name="country"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Country</FormLabel>
+							<FormControl>
+								<Input {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+			</div>
 
 			<FormField
 				control={control}

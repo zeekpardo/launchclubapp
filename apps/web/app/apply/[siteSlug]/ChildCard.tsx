@@ -24,7 +24,7 @@ import { ImageIcon, TrashIcon, XIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import type { Control, UseFormSetValue } from "react-hook-form";
-import type { ApplicationFormValues, ProfileField } from "./ApplicationForm";
+import type { ApplicationFormValues, BasicFormField, ProfileField } from "./ApplicationForm";
 
 interface ChildCardProps {
 	index: number;
@@ -33,10 +33,11 @@ interface ChildCardProps {
 	control: Control<ApplicationFormValues>;
 	setValue: UseFormSetValue<ApplicationFormValues>;
 	profileFields?: ProfileField[];
+	formFields?: BasicFormField[];
 	siteSlug: string;
 }
 
-export function ChildCard({ index, canRemove, onRemove, control, setValue, profileFields = [], siteSlug }: ChildCardProps) {
+export function ChildCard({ index, canRemove, onRemove, control, setValue, profileFields = [], formFields = [] as BasicFormField[], siteSlug }: ChildCardProps) {
 	const t = useTranslations("application.children");
 	const [uploading, setUploading] = useState(false);
 	const [preview, setPreview] = useState<string | null>(null);
@@ -282,6 +283,94 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 						/>
 					))}
 				</div>
+
+				{/* Per-child basic form fields */}
+				{formFields.length > 0 && (
+					<div className="space-y-4 border-t pt-4">
+						<h4 className="font-semibold">{t("additionalInfo")}</h4>
+						{formFields.map((ff) =>
+							ff.type === "HEADER" ? (
+								<div key={ff.id} className="pt-2">
+									<h4 className="font-semibold text-base">{ff.label}</h4>
+									{ff.helpText && (
+										<p className="text-sm text-muted-foreground mt-0.5">{ff.helpText}</p>
+									)}
+								</div>
+							) : (
+								<FormField
+									key={ff.id}
+									control={control}
+									name={`children.${index}.formFields.${ff.id}`}
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>
+												{ff.label}
+												{ff.required && " *"}
+											</FormLabel>
+											{ff.helpText && (
+												<p className="text-xs text-muted-foreground">{ff.helpText}</p>
+											)}
+											<FormControl>
+												{ff.type === "TEXTAREA" ? (
+													<Textarea
+														rows={3}
+														placeholder={ff.placeholder ?? undefined}
+														{...field}
+														value={field.value ?? ""}
+													/>
+												) : ff.type === "SELECT" && Array.isArray(ff.options) && ff.options.length > 0 ? (
+													<Select
+														value={field.value ?? ""}
+														onValueChange={field.onChange}
+													>
+														<SelectTrigger>
+															<SelectValue placeholder={ff.placeholder ?? "Select an option"} />
+														</SelectTrigger>
+														<SelectContent>
+															{ff.options.map((opt: { label: string; value: string }) => (
+																<SelectItem key={opt.value} value={opt.value}>
+																	{opt.label}
+																</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+												) : ff.type === "CHECKBOX" ? (
+													<Checkbox
+														checked={field.value === "true"}
+														onCheckedChange={(v) =>
+															field.onChange(v ? "true" : "false")
+														}
+													/>
+												) : ff.type === "DATE" ? (
+													<Input
+														type="date"
+														placeholder={ff.placeholder ?? undefined}
+														{...field}
+														value={field.value ?? ""}
+													/>
+												) : ff.type === "NUMBER" ? (
+													<Input
+														type="number"
+														placeholder={ff.placeholder ?? undefined}
+														{...field}
+														value={field.value ?? ""}
+													/>
+												) : (
+													<Input
+														placeholder={ff.placeholder ?? undefined}
+														{...field}
+														value={field.value ?? ""}
+													/>
+												)}
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)
+						)}
+					</div>
+				)}
 
 				{/* Per-child profile fields */}
 				{profileFields.length > 0 && (

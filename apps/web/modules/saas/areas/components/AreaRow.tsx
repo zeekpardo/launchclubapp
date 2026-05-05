@@ -18,10 +18,11 @@ interface Site {
 	name: string;
 	slug: string;
 	areaId: string;
-	address: string | null;
+	addressLine1: string | null;
 	city: string | null;
-	state: string | null;
-	zipCode: string | null;
+	stateProvince: string | null;
+	postalCode: string | null;
+	country: string | null;
 	phone: string | null;
 	email: string | null;
 	acceptApplications: boolean | null;

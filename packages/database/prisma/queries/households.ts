@@ -18,10 +18,11 @@ export async function getHouseholdById(id: string) {
 export async function createHousehold(data: {
   organizationId: string;
   name: string;
-  address?: string;
+  addressLine1?: string;
   city?: string;
-  state?: string;
-  zipCode?: string;
+  stateProvince?: string;
+  postalCode?: string;
+  country?: string;
   phone?: string;
   email?: string;
 }) {

@@ -17,6 +17,10 @@ const childSchema = z.object({
     .array(z.object({ customFieldId: z.string().max(36).uuid(), value: z.string().max(1000) }))
     .max(50)
     .optional(),
+  formFieldValues: z
+    .array(z.object({ formFieldId: z.string().max(36).uuid(), value: z.string().max(1000) }))
+    .max(50)
+    .optional(),
 });
 
 export const submitApplicationSchema = z.object({
@@ -25,7 +29,11 @@ export const submitApplicationSchema = z.object({
   parentLastName: z.string().min(1, "Last name is required").max(100),
   parentEmail: z.string().email().max(254).optional().or(z.literal("")),
   parentPhone: z.string().max(30).optional(),
-  parentAddress: z.string().max(500).optional(),
+  parentAddressLine1: z.string().max(500).optional(),
+  parentCity: z.string().max(200).optional(),
+  parentStateProvince: z.string().max(200).optional(),
+  parentPostalCode: z.string().max(20).optional(),
+  parentCountry: z.string().max(100).optional(),
   spouseFirstName: z.string().max(100).optional(),
   spouseLastName: z.string().max(100).optional(),
   spouseEmail: z.string().email().max(254).optional().or(z.literal("")),

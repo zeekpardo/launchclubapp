@@ -1389,12 +1389,17 @@
       "title": "Panel",
       "stats": {
         "groups": "Total de Grupos",
-        "members": "Total de Miembros",
+        "leaders": "Líderes",
+        "members": "Total de Adultos",
         "kids": "Total de Niños",
+        "events": "Total de Eventos",
         "pendingApplications": "Solicitudes Pendientes"
       },
       "recentApplications": "Solicitudes Recientes",
       "attendanceRate": "Tasa de Asistencia",
+      "allGroups": "Todos los Grupos",
+      "allAreas": "Todas las Áreas",
+      "allSites": "Todos los Sitios",
       "noData": "Aún no hay datos disponibles."
     },
     "resources": {

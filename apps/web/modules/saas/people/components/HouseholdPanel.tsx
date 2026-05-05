@@ -30,7 +30,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	HomeIcon,
 	LogOutIcon,
+	MailIcon,
+	MapPinIcon,
 	PencilIcon,
+	PhoneIcon,
 	PlusIcon,
 	UserPlusIcon,
 	XIcon,
@@ -222,22 +225,38 @@ export function HouseholdPanel({ personId, householdId }: HouseholdPanelProps) {
 					) : (
 						<div className="space-y-4">
 							{/* Household info */}
-							<div>
+							<div className="space-y-1.5">
 								<p className="font-medium text-sm">{household.name}</p>
-								{household.address && (
-									<p className="text-xs text-muted-foreground mt-0.5">
-										{household.address}
-									</p>
+
+								{(household.addressLine1 || household.city || household.stateProvince) && (
+									<div className="flex items-start gap-1.5 text-xs text-muted-foreground">
+										<MapPinIcon className="size-3.5 mt-0.5 shrink-0" />
+										<div>
+											{household.addressLine1 && <p>{household.addressLine1}</p>}
+											{(household.city || household.stateProvince || household.postalCode) && (
+												<p>
+													{[household.city, household.stateProvince, household.postalCode]
+														.filter(Boolean)
+														.join(", ")}
+												</p>
+											)}
+											{household.country && <p>{household.country}</p>}
+										</div>
+									</div>
 								)}
-								{(household.city || household.state) && (
-									<p className="text-xs text-muted-foreground">
-										{[household.city, household.state, household.zipCode]
-											.filter(Boolean)
-											.join(", ")}
-									</p>
-								)}
+
 								{household.phone && (
-									<p className="text-xs text-muted-foreground">{household.phone}</p>
+									<div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+										<PhoneIcon className="size-3.5 shrink-0" />
+										<span>{household.phone}</span>
+									</div>
+								)}
+
+								{household.email && (
+									<div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+										<MailIcon className="size-3.5 shrink-0" />
+										<span className="truncate">{household.email}</span>
+									</div>
 								)}
 							</div>
 

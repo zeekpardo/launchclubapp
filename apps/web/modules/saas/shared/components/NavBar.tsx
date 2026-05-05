@@ -144,7 +144,9 @@ export function NavBar() {
 											logoUrl={activeOrganization.logo}
 											className="size-10 rounded-md shrink-0"
 										/>
-										<span className="font-semibold text-sm truncate">{activeOrganization.name}</span>
+										{(!isCollapsed || !useSidebarLayout) && (
+											<span className="font-semibold text-sm truncate">{activeOrganization.name}</span>
+										)}
 									</>
 								) : (
 									<Logo withLabel={false} />

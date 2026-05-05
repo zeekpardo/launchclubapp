@@ -85,7 +85,7 @@ export type AreaScalarFieldEnum = z.infer<typeof AreaScalarFieldEnumSchema>;
 
 // File: SiteScalarFieldEnum.schema.ts
 
-export const SiteScalarFieldEnumSchema = z.enum(['id', 'areaId', 'name', 'slug', 'address', 'city', 'state', 'zipCode', 'phone', 'email', 'acceptApplications', 'applicationDeadline', 'createdAt', 'updatedAt'])
+export const SiteScalarFieldEnumSchema = z.enum(['id', 'areaId', 'name', 'slug', 'addressLine1', 'city', 'stateProvince', 'postalCode', 'country', 'phone', 'email', 'acceptApplications', 'applicationDeadline', 'createdAt', 'updatedAt'])
 
 export type SiteScalarFieldEnum = z.infer<typeof SiteScalarFieldEnumSchema>;
 
@@ -97,7 +97,7 @@ export type UserSiteScalarFieldEnum = z.infer<typeof UserSiteScalarFieldEnumSche
 
 // File: HouseholdScalarFieldEnum.schema.ts
 
-export const HouseholdScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'name', 'address', 'city', 'state', 'zipCode', 'phone', 'email', 'createdAt', 'updatedAt'])
+export const HouseholdScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'name', 'addressLine1', 'city', 'stateProvince', 'postalCode', 'country', 'phone', 'email', 'createdAt', 'updatedAt'])
 
 export type HouseholdScalarFieldEnum = z.infer<typeof HouseholdScalarFieldEnumSchema>;
 
@@ -151,7 +151,7 @@ export type AttendanceScalarFieldEnum = z.infer<typeof AttendanceScalarFieldEnum
 
 // File: ApplicationScalarFieldEnum.schema.ts
 
-export const ApplicationScalarFieldEnumSchema = z.enum(['id', 'siteId', 'parentFirstName', 'parentLastName', 'parentEmail', 'parentPhone', 'parentAddress', 'spouseFirstName', 'spouseLastName', 'spouseEmail', 'spousePhone', 'status', 'reviewedAt', 'reviewedBy', 'createdAt', 'updatedAt'])
+export const ApplicationScalarFieldEnumSchema = z.enum(['id', 'siteId', 'parentFirstName', 'parentLastName', 'parentEmail', 'parentPhone', 'parentAddressLine1', 'parentCity', 'parentStateProvince', 'parentPostalCode', 'parentCountry', 'spouseFirstName', 'spouseLastName', 'spouseEmail', 'spousePhone', 'status', 'reviewedAt', 'reviewedBy', 'createdAt', 'updatedAt'])
 
 export type ApplicationScalarFieldEnum = z.infer<typeof ApplicationScalarFieldEnumSchema>;
 
@@ -166,6 +166,12 @@ export type ApplicationChildScalarFieldEnum = z.infer<typeof ApplicationChildSca
 export const ApplicationChildCustomFieldValueScalarFieldEnumSchema = z.enum(['id', 'applicationChildId', 'customFieldId', 'value', 'createdAt', 'updatedAt'])
 
 export type ApplicationChildCustomFieldValueScalarFieldEnum = z.infer<typeof ApplicationChildCustomFieldValueScalarFieldEnumSchema>;
+
+// File: ApplicationChildFormFieldValueScalarFieldEnum.schema.ts
+
+export const ApplicationChildFormFieldValueScalarFieldEnumSchema = z.enum(['id', 'applicationChildId', 'formFieldId', 'value', 'createdAt'])
+
+export type ApplicationChildFormFieldValueScalarFieldEnum = z.infer<typeof ApplicationChildFormFieldValueScalarFieldEnumSchema>;
 
 // File: GroupResourceScalarFieldEnum.schema.ts
 
@@ -265,7 +271,7 @@ export type EventType = z.infer<typeof EventTypeSchema>;
 
 // File: FormFieldType.schema.ts
 
-export const FormFieldTypeSchema = z.enum(['TEXT', 'TEXTAREA', 'NUMBER', 'DATE', 'SELECT', 'CHECKBOX', 'RADIO', 'FILE'])
+export const FormFieldTypeSchema = z.enum(['TEXT', 'TEXTAREA', 'NUMBER', 'DATE', 'SELECT', 'CHECKBOX', 'RADIO', 'FILE', 'HEADER'])
 
 export type FormFieldType = z.infer<typeof FormFieldTypeSchema>;
 
@@ -480,10 +486,11 @@ export const SiteSchema = z.object({
   areaId: z.string(),
   name: z.string(),
   slug: z.string(),
-  address: z.string().nullish(),
+  addressLine1: z.string().nullish(),
   city: z.string().nullish(),
-  state: z.string().nullish(),
-  zipCode: z.string().nullish(),
+  stateProvince: z.string().nullish(),
+  postalCode: z.string().nullish(),
+  country: z.string().nullish(),
   phone: z.string().nullish(),
   email: z.string().nullish(),
   acceptApplications: z.boolean().default(true),
@@ -512,10 +519,11 @@ export const HouseholdSchema = z.object({
   id: z.string(),
   organizationId: z.string(),
   name: z.string(),
-  address: z.string().nullish(),
+  addressLine1: z.string().nullish(),
   city: z.string().nullish(),
-  state: z.string().nullish(),
-  zipCode: z.string().nullish(),
+  stateProvince: z.string().nullish(),
+  postalCode: z.string().nullish(),
+  country: z.string().nullish(),
   phone: z.string().nullish(),
   email: z.string().nullish(),
   createdAt: z.date(),
@@ -658,7 +666,11 @@ export const ApplicationSchema = z.object({
   parentLastName: z.string(),
   parentEmail: z.string().nullish(),
   parentPhone: z.string().nullish(),
-  parentAddress: z.string().nullish(),
+  parentAddressLine1: z.string().nullish(),
+  parentCity: z.string().nullish(),
+  parentStateProvince: z.string().nullish(),
+  parentPostalCode: z.string().nullish(),
+  parentCountry: z.string().nullish(),
   spouseFirstName: z.string().nullish(),
   spouseLastName: z.string().nullish(),
   spouseEmail: z.string().nullish(),
@@ -708,6 +720,19 @@ export const ApplicationChildCustomFieldValueSchema = z.object({
 });
 
 export type ApplicationChildCustomFieldValueType = z.infer<typeof ApplicationChildCustomFieldValueSchema>;
+
+
+// File: ApplicationChildFormFieldValue.schema.ts
+
+export const ApplicationChildFormFieldValueSchema = z.object({
+  id: z.string(),
+  applicationChildId: z.string(),
+  formFieldId: z.string(),
+  value: z.string(),
+  createdAt: z.date(),
+});
+
+export type ApplicationChildFormFieldValueType = z.infer<typeof ApplicationChildFormFieldValueSchema>;
 
 
 // File: GroupResource.schema.ts

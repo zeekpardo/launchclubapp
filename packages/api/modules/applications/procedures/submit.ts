@@ -70,12 +70,14 @@ export const submitApplication = publicProcedure
     return createApplication({
       siteId: site.id,
       ...parentData,
-      children: children.map(({ profileFieldValues: childPfv, ...child }) => {
+      children: children.map(({ profileFieldValues: childPfv, formFieldValues: childFfv, ...child }) => {
         const safeChildPfv = childPfv?.filter((v) => validCustomFieldIds.has(v.customFieldId));
+        const safeChildFfv = childFfv?.filter((v) => validFormFieldIds.has(v.formFieldId));
         return {
           ...child,
           birthday: child.birthday ? new Date(child.birthday) : undefined,
           profileFieldValues: safeChildPfv?.length ? safeChildPfv : undefined,
+          formFieldValues: safeChildFfv?.length ? safeChildFfv : undefined,
         };
       }),
       customFieldValues: safeCustomFieldValues?.length ? safeCustomFieldValues : undefined,

@@ -26,10 +26,11 @@ interface EditingSite {
 	name: string;
 	slug: string;
 	areaId: string;
-	address?: string | null;
+	addressLine1?: string | null;
 	city?: string | null;
-	state?: string | null;
-	zipCode?: string | null;
+	stateProvince?: string | null;
+	postalCode?: string | null;
+	country?: string | null;
 	phone?: string | null;
 	email?: string | null;
 }
@@ -107,10 +108,11 @@ export function AreaSitesTab({ areaId, organizationId }: AreaSitesTabProps) {
 											name: site.name,
 											slug: site.slug,
 											areaId: site.areaId,
-											address: site.address,
+											addressLine1: site.addressLine1,
 											city: site.city,
-											state: site.state,
-											zipCode: site.zipCode,
+											stateProvince: site.stateProvince,
+											postalCode: site.postalCode,
+											country: site.country,
 											phone: site.phone,
 											email: site.email,
 										});

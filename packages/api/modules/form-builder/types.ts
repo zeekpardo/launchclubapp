@@ -9,6 +9,7 @@ export const formFieldTypeEnum = z.enum([
   "CHECKBOX",
   "RADIO",
   "FILE",
+  "HEADER",
 ]);
 
 const fieldOptionSchema = z.object({

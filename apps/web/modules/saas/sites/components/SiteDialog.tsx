@@ -24,10 +24,11 @@ const formSchema = z.object({
 	name: z.string().min(1),
 	slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
 	areaId: z.string().min(1),
-	address: z.string().optional(),
+	addressLine1: z.string().optional(),
 	city: z.string().optional(),
-	state: z.string().optional(),
-	zipCode: z.string().optional(),
+	stateProvince: z.string().optional(),
+	postalCode: z.string().optional(),
+	country: z.string().optional(),
 	phone: z.string().optional(),
 	email: z.string().email().optional().or(z.literal("")),
 });
@@ -48,10 +49,11 @@ interface EditingSite {
 	name: string;
 	slug: string;
 	areaId: string;
-	address?: string | null;
+	addressLine1?: string | null;
 	city?: string | null;
-	state?: string | null;
-	zipCode?: string | null;
+	stateProvince?: string | null;
+	postalCode?: string | null;
+	country?: string | null;
 	phone?: string | null;
 	email?: string | null;
 }
@@ -85,10 +87,11 @@ export function SiteDialog({
 			name: site?.name ?? "",
 			slug: site?.slug ?? "",
 			areaId: site?.areaId ?? defaultAreaId ?? "",
-			address: site?.address ?? "",
+			addressLine1: site?.addressLine1 ?? "",
 			city: site?.city ?? "",
-			state: site?.state ?? "",
-			zipCode: site?.zipCode ?? "",
+			stateProvince: site?.stateProvince ?? "",
+			postalCode: site?.postalCode ?? "",
+			country: site?.country ?? "",
 			phone: site?.phone ?? "",
 			email: site?.email ?? "",
 		},
@@ -99,10 +102,11 @@ export function SiteDialog({
 			name: site?.name ?? "",
 			slug: site?.slug ?? "",
 			areaId: site?.areaId ?? defaultAreaId ?? "",
-			address: site?.address ?? "",
+			addressLine1: site?.addressLine1 ?? "",
 			city: site?.city ?? "",
-			state: site?.state ?? "",
-			zipCode: site?.zipCode ?? "",
+			stateProvince: site?.stateProvince ?? "",
+			postalCode: site?.postalCode ?? "",
+			country: site?.country ?? "",
 			phone: site?.phone ?? "",
 			email: site?.email ?? "",
 		});
@@ -122,10 +126,11 @@ export function SiteDialog({
 				name: values.name,
 				slug: values.slug,
 				areaId: values.areaId,
-				address: values.address || undefined,
+				addressLine1: values.addressLine1 || undefined,
 				city: values.city || undefined,
-				state: values.state || undefined,
-				zipCode: values.zipCode || undefined,
+				stateProvince: values.stateProvince || undefined,
+				postalCode: values.postalCode || undefined,
+				country: values.country || undefined,
 				phone: values.phone || undefined,
 				email: values.email || undefined,
 			};

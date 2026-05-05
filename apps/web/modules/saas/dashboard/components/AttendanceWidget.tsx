@@ -17,19 +17,24 @@ import {
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { orpc } from "@shared/lib/orpc-query-utils";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { skipToken, useQueries, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 type DateRange = "7" | "30" | "90" | "180" | "all";
 
-export function AttendanceWidget() {
+const ALL_GROUPS = "__ALL__";
+
+interface AttendanceWidgetProps {
+	areaId?: string;
+	siteId?: string;
+}
+
+export function AttendanceWidget({ areaId, siteId }: AttendanceWidgetProps) {
 	const t = useTranslations();
 	const { activeOrganization } = useActiveOrganization();
 
-	const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(
-		undefined,
-	);
+	const [selectedGroupId, setSelectedGroupId] = useState<string>(ALL_GROUPS);
 	const [dateRange, setDateRange] = useState<DateRange>("30");
 
 	const { data: groups, isLoading: groupsLoading } = useQuery(
@@ -40,9 +45,24 @@ export function AttendanceWidget() {
 		}),
 	);
 
-	const activeGroupId = selectedGroupId ?? groups?.[0]?.id;
+	// Filter groups by area/site
+	const filteredGroups = useMemo(() => {
+		if (!groups) return [];
+		if (siteId) return groups.filter((g) => g.siteId === siteId);
+		if (areaId) return groups.filter((g) => g.site.areaId === areaId);
+		return groups;
+	}, [groups, areaId, siteId]);
 
-	// Compute since values the same way GroupAttendanceTab does
+	// If current selection is not in filtered list, fall back to ALL_GROUPS
+	const effectiveGroupId = useMemo(() => {
+		if (selectedGroupId === ALL_GROUPS) return ALL_GROUPS;
+		return filteredGroups.some((g) => g.id === selectedGroupId)
+			? selectedGroupId
+			: ALL_GROUPS;
+	}, [selectedGroupId, filteredGroups]);
+
+	const activeGroupId = effectiveGroupId === ALL_GROUPS ? null : effectiveGroupId;
+
 	const since = useMemo(() => {
 		if (dateRange === "all") return undefined;
 		return new Date(
@@ -57,6 +77,7 @@ export function AttendanceWidget() {
 		);
 	}, [dateRange]);
 
+	// Single-group queries
 	const { data: events, isLoading: eventsLoading } = useQuery(
 		orpc.events.list.queryOptions({
 			input: activeGroupId ? { groupId: activeGroupId } : skipToken,
@@ -77,28 +98,29 @@ export function AttendanceWidget() {
 		}),
 	);
 
-	// Compute rate client-side — same logic as GroupAttendanceTab
 	const { ratePercent, filteredEventCount, memberCount } = useMemo(() => {
+		if (!activeGroupId)
+			return { ratePercent: 0, filteredEventCount: 0, memberCount: 0 };
 		const filteredEvents = (events ?? []).filter((e) =>
 			sinceDate ? new Date(e.startsAt) >= sinceDate : true,
 		);
-		const members = groupDetail?.personGroups ?? [];
+		const groupMembers = groupDetail?.personGroups ?? [];
 
 		const attendanceMap = new Map<string, string>();
 		for (const record of attendanceRecords ?? []) {
 			attendanceMap.set(`${record.eventId}:${record.personId}`, record.status);
 		}
 
-		const totalPossible = filteredEvents.length * members.length;
+		const totalPossible = filteredEvents.length * groupMembers.length;
 		if (totalPossible === 0) {
 			return {
 				ratePercent: 0,
 				filteredEventCount: filteredEvents.length,
-				memberCount: members.length,
+				memberCount: groupMembers.length,
 			};
 		}
 
-		const totalPresent = members.reduce((sum, { person }) => {
+		const totalPresent = groupMembers.reduce((sum, { person }) => {
 			const present = filteredEvents.filter(
 				(e) => attendanceMap.get(`${e.id}:${person.id}`) === "PRESENT",
 			).length;
@@ -108,13 +130,38 @@ export function AttendanceWidget() {
 		return {
 			ratePercent: Math.round((totalPresent / totalPossible) * 100),
 			filteredEventCount: filteredEvents.length,
-			memberCount: members.length,
+			memberCount: groupMembers.length,
 		};
-	}, [events, attendanceRecords, groupDetail, sinceDate]);
+	}, [events, attendanceRecords, groupDetail, sinceDate, activeGroupId]);
+
+	// All-groups aggregate: one attendance report per filtered group
+	const reportQueries = useQueries({
+		queries: filteredGroups.map((g) => ({
+			...orpc.attendance.report.queryOptions({
+				input: { groupId: g.id, ...(since ? { since } : {}) },
+			}),
+			enabled: effectiveGroupId === ALL_GROUPS,
+		})),
+	});
+
+	const aggregateRate = useMemo(() => {
+		if (effectiveGroupId !== ALL_GROUPS) return null;
+		const rates = reportQueries
+			.filter((q) => q.data !== undefined)
+			.map((q) => q.data!.rate);
+		if (rates.length === 0) return 0;
+		return Math.round(
+			(rates.reduce((a, b) => a + b, 0) / rates.length) * 100,
+		);
+	}, [reportQueries, effectiveGroupId]);
 
 	const dataLoading =
-		!!activeGroupId &&
-		(eventsLoading || attendanceLoading || groupDetailLoading);
+		effectiveGroupId === ALL_GROUPS
+			? reportQueries.some((q) => q.isLoading && !q.data)
+			: !!activeGroupId && (eventsLoading || attendanceLoading || groupDetailLoading);
+
+	const displayRate =
+		effectiveGroupId === ALL_GROUPS ? (aggregateRate ?? 0) : ratePercent;
 
 	const dateRangeOptions: { value: DateRange; label: string }[] = [
 		{ value: "7", label: "Last 7 days" },
@@ -141,34 +188,31 @@ export function AttendanceWidget() {
 						<Skeleton className="h-12 w-24" />
 						<Skeleton className="h-3 w-full" />
 					</>
-				) : !groups || groups.length === 0 ? (
+				) : !filteredGroups || filteredGroups.length === 0 ? (
 					<p className="text-sm text-muted-foreground">
 						{t("launchclub.dashboard.noData")}
 					</p>
 				) : (
 					<>
 						<div className="flex gap-2">
-							{groups.length > 1 ? (
-								<Select
-									value={activeGroupId}
-									onValueChange={setSelectedGroupId}
-								>
-									<SelectTrigger className="flex-1">
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										{groups.map((g) => (
-											<SelectItem key={g.id} value={g.id}>
-												{g.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							) : (
-								<p className="flex-1 text-sm font-medium leading-9">
-									{groups[0].name}
-								</p>
-							)}
+							<Select
+								value={effectiveGroupId}
+								onValueChange={setSelectedGroupId}
+							>
+								<SelectTrigger className="flex-1">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value={ALL_GROUPS}>
+										{t("launchclub.dashboard.allGroups")}
+									</SelectItem>
+									{filteredGroups.map((g) => (
+										<SelectItem key={g.id} value={g.id}>
+											{g.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 							<Select
 								value={dateRange}
 								onValueChange={(v) => setDateRange(v as DateRange)}
@@ -194,12 +238,14 @@ export function AttendanceWidget() {
 						) : (
 							<div className="space-y-2">
 								<div className="flex items-end justify-between">
-									<span className="text-4xl font-bold">{ratePercent}%</span>
+									<span className="text-4xl font-bold">{displayRate}%</span>
 									<span className="text-sm text-muted-foreground">
-										{filteredEventCount} events · {memberCount} members
+										{effectiveGroupId === ALL_GROUPS
+											? `${filteredGroups.length} ${filteredGroups.length === 1 ? "group" : "groups"}`
+											: `${filteredEventCount} events · ${memberCount} members`}
 									</span>
 								</div>
-								<Progress value={ratePercent} className="h-3" />
+								<Progress value={displayRate} className="h-3" />
 							</div>
 						)}
 					</>

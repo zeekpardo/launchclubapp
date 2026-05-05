@@ -1,6 +1,7 @@
-import { getCollectInApplicationFieldsBySite, getSiteBySlug } from "@repo/database";
+import { getCollectInApplicationFieldsBySite, getFormFieldsBySiteSlug, getSiteBySlug } from "@repo/database";
 import { getTranslations } from "next-intl/server";
 import { LanguageSwitcher } from "../LanguageSwitcher";
+import type { BasicFormField } from "./ApplicationForm";
 import { ApplicationForm } from "./ApplicationForm";
 
 export default async function ApplyPage({
@@ -9,11 +10,24 @@ export default async function ApplyPage({
 	params: Promise<{ siteSlug: string }>;
 }) {
 	const { siteSlug } = await params;
-	const [site, profileFields, t] = await Promise.all([
+	const [site, profileFields, { areaFields, siteFields }, t] = await Promise.all([
 		getSiteBySlug(siteSlug),
 		getCollectInApplicationFieldsBySite(siteSlug),
+		getFormFieldsBySiteSlug(siteSlug),
 		getTranslations("application"),
 	]);
+	const formFields: BasicFormField[] = [...areaFields, ...siteFields].map((f) => ({
+		id: f.id,
+		label: f.label,
+		fieldKey: f.fieldKey,
+		type: f.type,
+		placeholder: f.placeholder,
+		helpText: f.helpText,
+		required: f.required,
+		options: Array.isArray(f.options)
+			? (f.options as { label: string; value: string }[])
+			: null,
+	}));
 
 	return (
 		<div className="min-h-screen bg-background py-12 px-4">
@@ -39,7 +53,7 @@ export default async function ApplyPage({
 						</p>
 					</div>
 				) : (
-					<ApplicationForm siteSlug={siteSlug} siteName={site?.name} profileFields={profileFields} />
+					<ApplicationForm siteSlug={siteSlug} siteName={site?.name} profileFields={profileFields} formFields={formFields} />
 				)}
 			</div>
 		</div>

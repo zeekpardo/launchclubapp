@@ -24,9 +24,10 @@ interface FormBuilderCanvasProps {
 	fields: FormFieldItem[];
 	areaId: string;
 	locked?: boolean;
-	selectedId?: string;
-	onSelect?: (field: FormFieldItem) => void;
+	expandedId?: string;
+	onToggle?: (field: FormFieldItem) => void;
 	onDelete?: (id: string) => void;
+	onSave?: (id: string, data: Partial<FormFieldItem>) => Promise<void>;
 	onReorder?: (ids: string[]) => void;
 }
 
@@ -34,9 +35,10 @@ export function FormBuilderCanvas({
 	fields,
 	areaId,
 	locked,
-	selectedId,
-	onSelect,
+	expandedId,
+	onToggle,
 	onDelete,
+	onSave,
 	onReorder,
 }: FormBuilderCanvasProps) {
 	const reorder = useReorderFormFields(areaId);
@@ -67,7 +69,7 @@ export function FormBuilderCanvas({
 	if (fields.length === 0) {
 		return (
 			<div className="rounded-lg border-2 border-dashed border-muted-foreground/20 py-10 text-center text-sm text-muted-foreground">
-				{locked ? "No fields inherited from area." : "No fields yet. Add one above."}
+				{locked ? "No fields inherited from area." : "No fields yet. Add one from the panel."}
 			</div>
 		);
 	}
@@ -90,9 +92,10 @@ export function FormBuilderCanvas({
 						<FieldCard
 							key={field.id}
 							field={field}
-							selected={selectedId === field.id}
-							onSelect={onSelect}
+							expanded={expandedId === field.id}
+							onToggle={onToggle}
 							onDelete={onDelete}
+							onSave={onSave}
 						/>
 					))}
 				</div>

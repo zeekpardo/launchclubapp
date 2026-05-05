@@ -21,7 +21,12 @@ export async function getApplicationById(id: string) {
     where: { id },
     include: {
       site: { include: { area: true } },
-      children: { include: { profileFieldValues: { include: { customField: true }, orderBy: { customField: { order: "asc" } } } } },
+      children: {
+        include: {
+          profileFieldValues: { include: { customField: true }, orderBy: { customField: { order: "asc" } } },
+          formFieldValues: { include: { formField: true }, orderBy: { formField: { order: "asc" } } },
+        },
+      },
       customFieldValues: { include: { formField: true }, orderBy: { formField: { order: "asc" } } },
       profileFieldValues: { include: { customField: true }, orderBy: { customField: { order: "asc" } } },
     },
@@ -34,7 +39,11 @@ export async function createApplication(data: {
   parentLastName: string;
   parentEmail?: string;
   parentPhone?: string;
-  parentAddress?: string;
+  parentAddressLine1?: string;
+  parentCity?: string;
+  parentStateProvince?: string;
+  parentPostalCode?: string;
+  parentCountry?: string;
   spouseFirstName?: string;
   spouseLastName?: string;
   spouseEmail?: string;
@@ -53,6 +62,7 @@ export async function createApplication(data: {
     photoVideoConsent?: boolean;
     photoUrl?: string;
     profileFieldValues?: { customFieldId: string; value: string }[];
+    formFieldValues?: { formFieldId: string; value: string }[];
   }[];
   customFieldValues?: { formFieldId: string; value: string }[];
   profileFieldValues?: { customFieldId: string; value: string }[];
@@ -63,9 +73,10 @@ export async function createApplication(data: {
       ...applicationData,
       children: children?.length
         ? {
-            create: children.map(({ profileFieldValues: childPfv, ...child }) => ({
+            create: children.map(({ profileFieldValues: childPfv, formFieldValues: childFfv, ...child }) => ({
               ...child,
               ...(childPfv?.length ? { profileFieldValues: { create: childPfv } } : {}),
+              ...(childFfv?.length ? { formFieldValues: { create: childFfv } } : {}),
             })),
           }
         : undefined,
@@ -112,7 +123,11 @@ export async function migrateApplicationToPeople(
       data: {
         organizationId,
         name: `${application.parentLastName} Family`,
-        address: application.parentAddress ?? undefined,
+        addressLine1: application.parentAddressLine1 ?? undefined,
+        city: application.parentCity ?? undefined,
+        stateProvince: application.parentStateProvince ?? undefined,
+        postalCode: application.parentPostalCode ?? undefined,
+        country: application.parentCountry ?? undefined,
         phone: application.parentPhone ?? undefined,
         email: application.parentEmail ?? undefined,
       },

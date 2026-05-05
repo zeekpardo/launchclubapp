@@ -1104,13 +1104,17 @@
       "title": "Dashboard",
       "stats": {
         "groups": "Gruppen gesamt",
-        "members": "Mitglieder gesamt",
+        "leaders": "Leiter",
+        "members": "Erwachsene gesamt",
         "kids": "Kinder gesamt",
         "events": "Veranstaltungen gesamt",
         "pendingApplications": "Ausstehende Bewerbungen"
       },
       "recentApplications": "Aktuelle Bewerbungen",
       "attendanceRate": "Anwesenheitsquote",
+      "allGroups": "Alle Gruppen",
+      "allAreas": "Alle Bereiche",
+      "allSites": "Alle Standorte",
       "attendance": {
         "last30days": "Letzte 30 Tage",
         "last90days": "Letzte 90 Tage",

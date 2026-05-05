@@ -38,6 +38,11 @@ export const setCustomFieldValueSchema = z.object({
   value: z.string().max(1000).nullable().optional(),
 });
 
+export const reorderCustomFieldsSchema = z.object({
+  organizationId: z.string().max(36),
+  ids: z.array(z.string().max(36)).max(100),
+});
+
 export type CreateCustomFieldInput = z.infer<typeof createCustomFieldSchema>;
 export type UpdateCustomFieldInput = z.infer<typeof updateCustomFieldSchema>;
 export type SetCustomFieldValueInput = z.infer<typeof setCustomFieldValueSchema>;
