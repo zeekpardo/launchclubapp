@@ -1,5 +1,5 @@
 [build]
-buildCommand = "pnpm turbo build && cd packages/database && (npx prisma migrate resolve --applied 20260505000000_init 2>&1 || true) && npx prisma migrate deploy"
+buildCommand = "pnpm turbo build"
 
 [deploy]
-startCommand = "pnpm --filter web start"
+startCommand = "cd packages/database && (node_modules/.bin/prisma migrate resolve --applied 20260505000000_init 2>&1 || true) && node_modules/.bin/prisma migrate deploy && cd ../.. && pnpm --filter web start"
