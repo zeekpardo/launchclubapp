@@ -1,5 +1,0 @@
-[build]
-buildCommand = "docker build"
-
-[deploy]
-startCommand = "node apps/web/server.js"
