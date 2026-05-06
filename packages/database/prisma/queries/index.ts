@@ -18,3 +18,4 @@ export * from "./custom-fields";
 export * from "./form-fields";
 export * from "./academic-records";
 export * from "./academic-years";
+export * from "./person-notes";

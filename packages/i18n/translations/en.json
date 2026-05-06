@@ -1098,6 +1098,8 @@
         "gender": "Gender",
         "household": "Household",
         "notes": "Notes",
+        "allergies": "Allergies",
+        "medicalNotes": "Medical Notes",
         "save": "Save",
         "cancel": "Cancel",
         "isChild": "Is this a child?",

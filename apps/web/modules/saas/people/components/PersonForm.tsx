@@ -65,6 +65,8 @@ const personFormSchema = z.object({
 	grade: z.string().optional(),
 	studentId: z.string().max(100).optional(),
 	notes: z.string().optional(),
+	allergies: z.string().optional(),
+	medicalNotes: z.string().optional(),
 });
 
 type PersonFormValues = z.infer<typeof personFormSchema>;
@@ -83,6 +85,8 @@ interface PersonData {
 	studentId?: string | null;
 	householdId?: string | null;
 	notes?: string | null;
+	allergies?: string | null;
+	medicalNotes?: string | null;
 	avatarUrl?: string | null;
 }
 
@@ -140,6 +144,8 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 			grade: person?.grade ?? "",
 			studentId: person?.studentId ?? "",
 			notes: person?.notes ?? "",
+			allergies: person?.allergies ?? "",
+			medicalNotes: person?.medicalNotes ?? "",
 		},
 	});
 
@@ -184,6 +190,8 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 				studentId: isChild ? values.studentId || undefined : undefined,
 				householdId: resolvedHouseholdId || undefined,
 				notes: values.notes || undefined,
+				allergies: values.allergies || undefined,
+				medicalNotes: values.medicalNotes || undefined,
 			};
 
 			if (person) {
@@ -429,6 +437,38 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 						</FormItem>
 					)}
 				/>
+
+				{/* Allergies & Medical Notes — child only */}
+				{isChild && (
+					<>
+						<FormField
+							control={form.control}
+							name="allergies"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>{t("launchclub.people.form.allergies")}</FormLabel>
+									<FormControl>
+										<Textarea rows={3} {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="medicalNotes"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>{t("launchclub.people.form.medicalNotes")}</FormLabel>
+									<FormControl>
+										<Textarea rows={3} {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</>
+				)}
 
 				{/* Custom fields */}
 				{customFields.length > 0 && (

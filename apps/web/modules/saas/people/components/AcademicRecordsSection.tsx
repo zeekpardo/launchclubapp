@@ -28,7 +28,7 @@ import { Textarea } from "@repo/ui/components/textarea";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useSession } from "@saas/auth/hooks/use-session";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
-import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { ChevronDownIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -89,6 +89,7 @@ export function AcademicRecordsSection({
 	const upsertAcademicRecord = useUpsertAcademicRecord();
 	const deleteAcademicRecord = useDeleteAcademicRecord();
 
+	const [collapsed, setCollapsed] = useState(true);
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [editingRecord, setEditingRecord] = useState<AcademicRecord | null>(
 		null,
@@ -183,20 +184,25 @@ export function AcademicRecordsSection({
 				<CardHeader className="pb-3">
 					<div className="flex items-center justify-between">
 						<CardTitle className="text-base">Academic Records</CardTitle>
-						{isAdmin && (
-							<Button
-								size="sm"
-								variant="ghost"
-								onClick={openAdd}
-								className="h-7 gap-1 text-xs"
-							>
-								<PlusIcon className="size-3" />
-								Add
+						<div className="flex items-center gap-1">
+							{isAdmin && !collapsed && (
+								<Button
+									size="sm"
+									variant="ghost"
+									onClick={openAdd}
+									className="h-7 gap-1 text-xs"
+								>
+									<PlusIcon className="size-3" />
+									Add
+								</Button>
+							)}
+							<Button size="icon" variant="ghost" className="size-7" onClick={() => setCollapsed((c) => !c)}>
+								<ChevronDownIcon className={`size-4 transition-transform ${collapsed ? "" : "rotate-180"}`} />
 							</Button>
-						)}
+						</div>
 					</div>
 				</CardHeader>
-				<CardContent>
+				{!collapsed && <CardContent>
 					{latestCumulative != null && (
 						<p className="text-sm text-muted-foreground mb-3">
 							Latest:{" "}
@@ -266,7 +272,7 @@ export function AcademicRecordsSection({
 							))}
 						</div>
 					)}
-				</CardContent>
+				</CardContent>}
 			</Card>
 
 			<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

@@ -45,6 +45,8 @@ model User {
   submittedPurchaseRequests PurchaseRequest[] @relation("PurchaseRequestedBy")
   reviewedPurchaseRequests  PurchaseRequest[] @relation("PurchaseReviewedBy")
   academicRecordsRecorded  AcademicRecord[]  @relation("AcademicRecordRecordedBy")
+  personNotesAuthored      PersonNote[]      @relation("PersonNoteAuthor")
+  personNoteMentions       PersonNoteMention[] @relation("PersonNoteMentions")
 
   @@unique([email])
   @@unique([username])
@@ -156,6 +158,7 @@ model Organization {
   applicationSettings OrganizationApplicationSettings? @relation("OrganizationApplicationSettings")
   customFields        CustomField[]
   academicYears       AcademicYear[]                  @relation("OrganizationAcademicYears")
+  personNotes         PersonNote[]                    @relation("OrgPersonNotes")
 
   @@unique([slug])
   @@map("organization")
@@ -318,6 +321,8 @@ model Person {
   grade          String?
   studentId      String?
   notes          String?       @db.Text
+  allergies      String?       @db.Text
+  medicalNotes   String?       @db.Text
   avatarUrl      String?
   observationConsent  Boolean  @default(false)
   termsConsent        Boolean  @default(false)
@@ -332,6 +337,7 @@ model Person {
   guardians          Guardian[]         @relation("GuardianKid")
   customFieldValues  CustomFieldValue[]
   academicRecords    AcademicRecord[]
+  personNotes        PersonNote[]
 
   @@index([organizationId])
   @@index([householdId])
@@ -347,6 +353,37 @@ model Guardian {
 
   @@id([personId, kidId])
   @@map("guardian")
+}
+
+model PersonNote {
+  id             String   @id @default(cuid())
+  organizationId String
+  personId       String
+  authorId       String
+  body           String   @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization        @relation("OrgPersonNotes", fields: [organizationId], references: [id], onDelete: Cascade)
+  person       Person              @relation(fields: [personId], references: [id], onDelete: Cascade)
+  author       User                @relation("PersonNoteAuthor", fields: [authorId], references: [id])
+  mentions     PersonNoteMention[]
+
+  @@index([personId])
+  @@index([organizationId])
+  @@map("person_note")
+}
+
+model PersonNoteMention {
+  id     String @id @default(cuid())
+  noteId String
+  userId String
+
+  note PersonNote @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  user User       @relation("PersonNoteMentions", fields: [userId], references: [id])
+
+  @@unique([noteId, userId])
+  @@map("person_note_mention")
 }
 
 model Group {

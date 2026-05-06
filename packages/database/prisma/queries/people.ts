@@ -93,6 +93,8 @@ export async function createPerson(data: {
   grade?: string;
   studentId?: string;
   notes?: string;
+  allergies?: string;
+  medicalNotes?: string;
   avatarUrl?: string;
 }) {
   return db.person.create({ data });

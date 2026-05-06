@@ -28,6 +28,7 @@ import { useActiveOrganization } from "@saas/organizations/hooks/use-active-orga
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+	ChevronDownIcon,
 	HomeIcon,
 	LogOutIcon,
 	MailIcon,
@@ -58,6 +59,7 @@ export function HouseholdPanel({ personId, householdId }: HouseholdPanelProps) {
 	const queryClient = useQueryClient();
 	const updatePerson = useUpdatePerson();
 
+	const [collapsed, setCollapsed] = useState(false);
 	const [householdDialogOpen, setHouseholdDialogOpen] = useState(false);
 	const [isCreating, setIsCreating] = useState(false);
 	const [assignDialogOpen, setAssignDialogOpen] = useState(false);
@@ -173,22 +175,27 @@ export function HouseholdPanel({ personId, householdId }: HouseholdPanelProps) {
 						<HomeIcon className="size-4" />
 						{t("launchclub.households.cardTitle")}
 					</CardTitle>
-					{household && (
-						<Button
-							size="icon"
-							variant="ghost"
-							className="size-7"
-							onClick={() => {
-								setIsCreating(false);
-								setHouseholdDialogOpen(true);
-							}}
-						>
-							<PencilIcon className="size-3.5" />
+					<div className="flex items-center gap-1">
+						{household && !collapsed && (
+							<Button
+								size="icon"
+								variant="ghost"
+								className="size-7"
+								onClick={() => {
+									setIsCreating(false);
+									setHouseholdDialogOpen(true);
+								}}
+							>
+								<PencilIcon className="size-3.5" />
+							</Button>
+						)}
+						<Button size="icon" variant="ghost" className="size-7" onClick={() => setCollapsed((c) => !c)}>
+							<ChevronDownIcon className={`size-4 transition-transform ${collapsed ? "" : "rotate-180"}`} />
 						</Button>
-					)}
+					</div>
 				</CardHeader>
 
-				<CardContent className="space-y-4">
+				{!collapsed && <CardContent className="space-y-4">
 					{isLoading ? (
 						<div className="space-y-2">
 							<Skeleton className="h-4 w-32" />
@@ -321,7 +328,7 @@ export function HouseholdPanel({ personId, householdId }: HouseholdPanelProps) {
 							</Button>
 						</div>
 					)}
-				</CardContent>
+				</CardContent>}
 			</Card>
 
 			{/* Create / Edit household */}

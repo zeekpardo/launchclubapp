@@ -103,7 +103,7 @@ export type HouseholdScalarFieldEnum = z.infer<typeof HouseholdScalarFieldEnumSc
 
 // File: PersonScalarFieldEnum.schema.ts
 
-export const PersonScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'householdId', 'firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender', 'isChild', 'isActive', 'grade', 'studentId', 'notes', 'avatarUrl', 'observationConsent', 'termsConsent', 'photoVideoConsent', 'createdAt', 'updatedAt'])
+export const PersonScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'householdId', 'firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender', 'isChild', 'isActive', 'grade', 'studentId', 'notes', 'allergies', 'medicalNotes', 'avatarUrl', 'observationConsent', 'termsConsent', 'photoVideoConsent', 'createdAt', 'updatedAt'])
 
 export type PersonScalarFieldEnum = z.infer<typeof PersonScalarFieldEnumSchema>;
 
@@ -112,6 +112,18 @@ export type PersonScalarFieldEnum = z.infer<typeof PersonScalarFieldEnumSchema>;
 export const GuardianScalarFieldEnumSchema = z.enum(['personId', 'kidId', 'relation'])
 
 export type GuardianScalarFieldEnum = z.infer<typeof GuardianScalarFieldEnumSchema>;
+
+// File: PersonNoteScalarFieldEnum.schema.ts
+
+export const PersonNoteScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'personId', 'authorId', 'body', 'createdAt', 'updatedAt'])
+
+export type PersonNoteScalarFieldEnum = z.infer<typeof PersonNoteScalarFieldEnumSchema>;
+
+// File: PersonNoteMentionScalarFieldEnum.schema.ts
+
+export const PersonNoteMentionScalarFieldEnumSchema = z.enum(['id', 'noteId', 'userId'])
+
+export type PersonNoteMentionScalarFieldEnum = z.infer<typeof PersonNoteMentionScalarFieldEnumSchema>;
 
 // File: GroupScalarFieldEnum.schema.ts
 
@@ -568,6 +580,8 @@ export const PersonSchema = z.object({
   grade: z.string().nullish(),
   studentId: z.string().nullish(),
   notes: z.string().nullish(),
+  allergies: z.string().nullish(),
+  medicalNotes: z.string().nullish(),
   avatarUrl: z.string().nullish(),
   observationConsent: z.boolean(),
   termsConsent: z.boolean(),
@@ -588,6 +602,32 @@ export const GuardianSchema = z.object({
 });
 
 export type GuardianType = z.infer<typeof GuardianSchema>;
+
+
+// File: PersonNote.schema.ts
+
+export const PersonNoteSchema = z.object({
+  id: z.string(),
+  organizationId: z.string(),
+  personId: z.string(),
+  authorId: z.string(),
+  body: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type PersonNoteType = z.infer<typeof PersonNoteSchema>;
+
+
+// File: PersonNoteMention.schema.ts
+
+export const PersonNoteMentionSchema = z.object({
+  id: z.string(),
+  noteId: z.string(),
+  userId: z.string(),
+});
+
+export type PersonNoteMentionType = z.infer<typeof PersonNoteMentionSchema>;
 
 
 // File: Group.schema.ts
