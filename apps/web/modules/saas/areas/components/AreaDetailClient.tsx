@@ -64,17 +64,18 @@ export function AreaDetailClient({ areaId }: AreaDetailClientProps) {
 				</Button>
 			</div>
 
-			{/* Body: sidebar + content */}
-			<div className="flex gap-6">
-				{/* Sidebar */}
-				<div className="w-44 shrink-0 space-y-1">
+			{/* Body: tab bar (mobile) / sidebar + content (desktop) */}
+			<div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
+				{/* Nav */}
+				<div className="flex overflow-x-auto gap-1 sm:flex-col sm:w-44 sm:shrink-0 sm:overflow-visible sm:space-y-1">
 					{navItems.map(({ key, label, icon: Icon, count }) => (
 						<button
 							key={key}
 							type="button"
 							onClick={() => setActiveSection(key)}
 							className={cn(
-								"flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors",
+								"flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+								"sm:w-full sm:justify-between",
 								activeSection === key
 									? "bg-primary/10 text-primary"
 									: "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
@@ -82,7 +83,7 @@ export function AreaDetailClient({ areaId }: AreaDetailClientProps) {
 						>
 							<div className="flex items-center gap-2">
 								<Icon className="h-4 w-4" />
-								<span>{label}</span>
+								<span className="whitespace-nowrap">{label}</span>
 							</div>
 							{count !== undefined && (
 								<span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-secondary text-secondary-foreground text-xs font-semibold px-1">

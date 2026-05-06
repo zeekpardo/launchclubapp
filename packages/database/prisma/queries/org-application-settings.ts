@@ -8,7 +8,7 @@ export async function getOrgApplicationSettings(organizationId: string) {
 
 export async function upsertOrgApplicationSettings(
   organizationId: string,
-  data: { autoMigrate?: boolean; emailNotifications?: boolean },
+  data: { autoMigrate?: boolean; emailNotifications?: boolean; studentIdMode?: string },
 ) {
   return db.organizationApplicationSettings.upsert({
     where: { organizationId },

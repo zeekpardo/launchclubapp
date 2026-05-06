@@ -63,6 +63,7 @@ const personFormSchema = z.object({
 	dateOfBirth: z.string().optional(),
 	gender: z.string().optional(),
 	grade: z.string().optional(),
+	studentId: z.string().max(100).optional(),
 	notes: z.string().optional(),
 });
 
@@ -79,6 +80,7 @@ interface PersonData {
 	isChild?: boolean | null;
 	isActive?: boolean | null;
 	grade?: string | null;
+	studentId?: string | null;
 	householdId?: string | null;
 	notes?: string | null;
 	avatarUrl?: string | null;
@@ -100,6 +102,15 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 	const setCustomFieldValue = useMutation(orpc.customFields.setValue.mutationOptions());
 
 	const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
+
+	const { data: orgSettings } = useQuery(
+		orpc.applications.getOrgSettings.queryOptions({
+			input: { organizationId: organizationId ?? "" },
+			enabled: !!organizationId,
+		}),
+	);
+	const isAutoId = orgSettings?.studentIdMode === "auto";
+	const isEditMode = !!person?.id;
 
 	const { data: customFields = [] } = useQuery(
 		orpc.customFields.list.queryOptions({
@@ -127,6 +138,7 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 			dateOfBirth: formatDateForInput(person?.dateOfBirth),
 			gender: person?.gender ?? "",
 			grade: person?.grade ?? "",
+			studentId: person?.studentId ?? "",
 			notes: person?.notes ?? "",
 		},
 	});
@@ -169,6 +181,7 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 				dateOfBirth,
 				gender: values.gender || undefined,
 				grade: values.isChild ? (values.grade || undefined) : undefined,
+				studentId: isChild ? values.studentId || undefined : undefined,
 				householdId: resolvedHouseholdId || undefined,
 				notes: values.notes || undefined,
 			};
@@ -371,6 +384,31 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 										))}
 									</SelectContent>
 								</Select>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				)}
+
+				{isChild && isAutoId && isEditMode && (
+					<FormItem>
+						<FormLabel>Student ID</FormLabel>
+						<div className="flex items-center gap-2">
+							<Input value={person?.studentId ?? "Generating..."} readOnly className="bg-muted text-muted-foreground" />
+							<span className="text-xs text-muted-foreground whitespace-nowrap">Auto-generated</span>
+						</div>
+					</FormItem>
+				)}
+				{isChild && !isAutoId && (
+					<FormField
+						control={form.control}
+						name="studentId"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Student ID</FormLabel>
+								<FormControl>
+									<Input placeholder="e.g. STU-00123" {...field} />
+								</FormControl>
 								<FormMessage />
 							</FormItem>
 						)}

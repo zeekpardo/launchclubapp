@@ -91,6 +91,7 @@ export async function createPerson(data: {
   gender?: string;
   isChild?: boolean;
   grade?: string;
+  studentId?: string;
   notes?: string;
   avatarUrl?: string;
 }) {

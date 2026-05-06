@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/client";
-import { upsertOrgApplicationSettings } from "@repo/database";
+import { db, upsertOrgApplicationSettings } from "@repo/database";
 import { verifyOrganizationMembership } from "../../organizations/lib/membership";
 import { protectedProcedure } from "../../../orpc/procedures";
 import { updateOrgApplicationSettingsSchema } from "../types";
@@ -19,5 +19,40 @@ export const updateOrgApplicationSettingsProcedure = protectedProcedure
     if (!isOwner) throw new ORPCError("FORBIDDEN");
 
     const { organizationId, ...data } = input;
-    return upsertOrgApplicationSettings(organizationId, data);
+    const result = await upsertOrgApplicationSettings(organizationId, data);
+
+    if (input.studentIdMode === "auto") {
+      const unassigned = await db.person.findMany({
+        where: {
+          organizationId: input.organizationId,
+          isChild: true,
+          studentId: null,
+        },
+        select: { id: true },
+      });
+
+      for (const child of unassigned) {
+        try {
+          let studentId: string | null = null;
+          for (let i = 0; i < 10; i++) {
+            const candidate = String(Math.floor(100000 + Math.random() * 900000));
+            const exists = await db.person.findFirst({
+              where: { organizationId: input.organizationId, studentId: candidate },
+              select: { id: true },
+            });
+            if (!exists) { studentId = candidate; break; }
+          }
+          if (studentId) {
+            await db.person.update({
+              where: { id: child.id },
+              data: { studentId },
+            });
+          }
+        } catch {
+          // silently skip — backfill failure for one child should not abort the rest
+        }
+      }
+    }
+
+    return result;
   });

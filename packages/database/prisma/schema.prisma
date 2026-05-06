@@ -316,6 +316,7 @@ model Person {
   isChild        Boolean       @default(false)
   isActive       Boolean       @default(true)
   grade          String?
+  studentId      String?
   notes          String?       @db.Text
   avatarUrl      String?
   observationConsent  Boolean  @default(false)
@@ -665,6 +666,7 @@ model OrganizationApplicationSettings {
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
   organization       Organization @relation("OrganizationApplicationSettings", fields: [organizationId], references: [id], onDelete: Cascade)
+  studentIdMode      String       @default("auto")
 
   @@map("organization_application_settings")
 }

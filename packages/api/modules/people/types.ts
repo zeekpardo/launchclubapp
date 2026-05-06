@@ -12,6 +12,7 @@ export const createPersonSchema = z.object({
   isChild: z.boolean().default(false),
   isActive: z.boolean().default(true),
   grade: z.string().max(20).optional(),
+  studentId: z.string().max(100).optional(),
   notes: z.string().max(5000).optional(),
   avatarUrl: z.string().max(500).optional(),
 });

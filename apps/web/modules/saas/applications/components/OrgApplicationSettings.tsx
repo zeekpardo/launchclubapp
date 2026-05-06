@@ -3,6 +3,7 @@
 import { Button } from "@repo/ui/components/button";
 import { Switch } from "@repo/ui/components/switch";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
+import { cn } from "@repo/ui";
 import {
 	useOrgApplicationSettings,
 	useUpdateOrgApplicationSettings,
@@ -19,11 +20,13 @@ export function OrgApplicationSettings() {
 
 	const [autoMigrate, setAutoMigrate] = useState(false);
 	const [emailNotifications, setEmailNotifications] = useState(false);
+	const [studentIdMode, setStudentIdMode] = useState<"manual" | "auto">("auto");
 
 	useEffect(() => {
 		if (orgSettings) {
 			setAutoMigrate(orgSettings.autoMigrate);
 			setEmailNotifications(orgSettings.emailNotifications);
+			if (orgSettings?.studentIdMode) setStudentIdMode(orgSettings.studentIdMode as "manual" | "auto");
 		}
 	}, [orgSettings]);
 
@@ -34,6 +37,7 @@ export function OrgApplicationSettings() {
 				organizationId: activeOrganization.id,
 				autoMigrate,
 				emailNotifications,
+				studentIdMode,
 			});
 			toastSuccess(t("launchclub.applications.settings.notifications.saved"));
 		} catch {
@@ -67,6 +71,33 @@ export function OrgApplicationSettings() {
 					checked={false}
 					disabled
 				/>
+			</div>
+
+			<div className="rounded-lg border p-4 space-y-4">
+				<p className="text-sm font-semibold">Student IDs</p>
+
+				<div className="flex items-center justify-between">
+					<div>
+						<p className="text-sm font-medium">ID Generation</p>
+						<p className="text-xs text-muted-foreground mt-0.5">Automatically assign a unique 6-digit ID to each child</p>
+					</div>
+					<div className="flex rounded-md border overflow-hidden">
+						<button
+							type="button"
+							onClick={() => setStudentIdMode("auto")}
+							className={cn("px-3 py-1 text-sm", studentIdMode === "auto" ? "bg-primary text-primary-foreground" : "text-muted-foreground")}
+						>
+							Auto
+						</button>
+						<button
+							type="button"
+							onClick={() => setStudentIdMode("manual")}
+							className={cn("px-3 py-1 text-sm border-l", studentIdMode === "manual" ? "bg-primary text-primary-foreground" : "text-muted-foreground")}
+						>
+							Manual
+						</button>
+					</div>
+				</div>
 			</div>
 
 			<div className="flex justify-end pt-2 border-t">

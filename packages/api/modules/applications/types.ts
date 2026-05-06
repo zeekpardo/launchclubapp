@@ -66,6 +66,7 @@ export const updateOrgApplicationSettingsSchema = z.object({
   organizationId: z.string(),
   autoMigrate: z.boolean().optional(),
   emailNotifications: z.boolean().optional(),
+  studentIdMode: z.enum(["manual", "auto"]).optional(),
 });
 
 export const getOrgApplicationSettingsSchema = z.object({

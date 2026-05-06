@@ -103,7 +103,7 @@ export type HouseholdScalarFieldEnum = z.infer<typeof HouseholdScalarFieldEnumSc
 
 // File: PersonScalarFieldEnum.schema.ts
 
-export const PersonScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'householdId', 'firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender', 'isChild', 'isActive', 'grade', 'notes', 'avatarUrl', 'observationConsent', 'termsConsent', 'photoVideoConsent', 'createdAt', 'updatedAt'])
+export const PersonScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'householdId', 'firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender', 'isChild', 'isActive', 'grade', 'studentId', 'notes', 'avatarUrl', 'observationConsent', 'termsConsent', 'photoVideoConsent', 'createdAt', 'updatedAt'])
 
 export type PersonScalarFieldEnum = z.infer<typeof PersonScalarFieldEnumSchema>;
 
@@ -205,7 +205,7 @@ export type ApplicationFieldValueScalarFieldEnum = z.infer<typeof ApplicationFie
 
 // File: OrganizationApplicationSettingsScalarFieldEnum.schema.ts
 
-export const OrganizationApplicationSettingsScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'autoMigrate', 'emailNotifications', 'createdAt', 'updatedAt'])
+export const OrganizationApplicationSettingsScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'autoMigrate', 'emailNotifications', 'createdAt', 'updatedAt', 'studentIdMode'])
 
 export type OrganizationApplicationSettingsScalarFieldEnum = z.infer<typeof OrganizationApplicationSettingsScalarFieldEnumSchema>;
 
@@ -566,6 +566,7 @@ export const PersonSchema = z.object({
   isChild: z.boolean(),
   isActive: z.boolean().default(true),
   grade: z.string().nullish(),
+  studentId: z.string().nullish(),
   notes: z.string().nullish(),
   avatarUrl: z.string().nullish(),
   observationConsent: z.boolean(),
@@ -854,6 +855,7 @@ export const OrganizationApplicationSettingsSchema = z.object({
   emailNotifications: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  studentIdMode: z.string().default("auto"),
 });
 
 export type OrganizationApplicationSettingsType = z.infer<typeof OrganizationApplicationSettingsSchema>;
