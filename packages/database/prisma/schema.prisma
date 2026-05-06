@@ -44,6 +44,7 @@ model User {
   userGroups               UserGroup[]       @relation("UserGroups")
   submittedPurchaseRequests PurchaseRequest[] @relation("PurchaseRequestedBy")
   reviewedPurchaseRequests  PurchaseRequest[] @relation("PurchaseReviewedBy")
+  academicRecordsRecorded  AcademicRecord[]  @relation("AcademicRecordRecordedBy")
 
   @@unique([email])
   @@unique([username])
@@ -154,6 +155,7 @@ model Organization {
   people              Person[]                        @relation("OrganizationPeople")
   applicationSettings OrganizationApplicationSettings? @relation("OrganizationApplicationSettings")
   customFields        CustomField[]
+  academicYears       AcademicYear[]                  @relation("OrganizationAcademicYears")
 
   @@unique([slug])
   @@map("organization")
@@ -328,6 +330,7 @@ model Person {
   guardianOf         Guardian[]         @relation("GuardianPerson")
   guardians          Guardian[]         @relation("GuardianKid")
   customFieldValues  CustomFieldValue[]
+  academicRecords    AcademicRecord[]
 
   @@index([organizationId])
   @@index([householdId])
@@ -590,6 +593,19 @@ model PurchaseRequestItem {
   @@map("purchase_request_item")
 }
 
+enum GpaTerm {
+  Q1
+  Q2
+  Q3
+  Q4
+  SEMESTER_1
+  SEMESTER_2
+  TRIMESTER_1
+  TRIMESTER_2
+  TRIMESTER_3
+  ANNUAL
+}
+
 enum FormFieldType {
   TEXT
   TEXTAREA
@@ -709,4 +725,42 @@ model ApplicationCustomFieldValue {
 
   @@unique([applicationId, customFieldId])
   @@map("application_custom_field_value")
+}
+
+model AcademicRecord {
+  id            String    @id @default(cuid())
+  personId      String
+  schoolYear    String
+  term          GpaTerm
+  termGpa       Float?
+  cumulativeGpa Float?
+  gradeLevel    String?
+  gradeScale    Float     @default(4.0)
+  notes         String?   @db.Text
+  recordedById  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  person        Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
+  recordedBy    User?     @relation("AcademicRecordRecordedBy", fields: [recordedById], references: [id], onDelete: SetNull)
+
+  @@unique([personId, schoolYear, term])
+  @@index([personId])
+  @@index([schoolYear])
+  @@map("academic_record")
+}
+
+model AcademicYear {
+  id             String       @id @default(cuid())
+  organizationId String
+  label          String
+  startDate      DateTime?
+  endDate        DateTime?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation("OrganizationAcademicYears", fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, label])
+  @@index([organizationId])
+  @@map("academic_year")
 }

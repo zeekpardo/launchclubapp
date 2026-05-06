@@ -227,6 +227,18 @@ export const ApplicationCustomFieldValueScalarFieldEnumSchema = z.enum(['id', 'a
 
 export type ApplicationCustomFieldValueScalarFieldEnum = z.infer<typeof ApplicationCustomFieldValueScalarFieldEnumSchema>;
 
+// File: AcademicRecordScalarFieldEnum.schema.ts
+
+export const AcademicRecordScalarFieldEnumSchema = z.enum(['id', 'personId', 'schoolYear', 'term', 'termGpa', 'cumulativeGpa', 'gradeLevel', 'gradeScale', 'notes', 'recordedById', 'createdAt', 'updatedAt'])
+
+export type AcademicRecordScalarFieldEnum = z.infer<typeof AcademicRecordScalarFieldEnumSchema>;
+
+// File: AcademicYearScalarFieldEnum.schema.ts
+
+export const AcademicYearScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'label', 'startDate', 'endDate', 'isActive', 'createdAt', 'updatedAt'])
+
+export type AcademicYearScalarFieldEnum = z.infer<typeof AcademicYearScalarFieldEnumSchema>;
+
 // File: SortOrder.schema.ts
 
 export const SortOrderSchema = z.enum(['asc', 'desc'])
@@ -280,6 +292,12 @@ export type FormFieldType = z.infer<typeof FormFieldTypeSchema>;
 export const CustomFieldTypeSchema = z.enum(['TEXT', 'TEXTAREA', 'NUMBER', 'CHECKBOX', 'SELECT', 'DATE', 'FILE'])
 
 export type CustomFieldType = z.infer<typeof CustomFieldTypeSchema>;
+
+// File: GpaTerm.schema.ts
+
+export const GpaTermSchema = z.enum(['Q1', 'Q2', 'Q3', 'Q4', 'SEMESTER_1', 'SEMESTER_2', 'TRIMESTER_1', 'TRIMESTER_2', 'TRIMESTER_3', 'ANNUAL'])
+
+export type GpaTerm = z.infer<typeof GpaTermSchema>;
 
 // File: User.schema.ts
 
@@ -884,4 +902,40 @@ export const ApplicationCustomFieldValueSchema = z.object({
 });
 
 export type ApplicationCustomFieldValueType = z.infer<typeof ApplicationCustomFieldValueSchema>;
+
+
+// File: AcademicRecord.schema.ts
+
+export const AcademicRecordSchema = z.object({
+  id: z.string(),
+  personId: z.string(),
+  schoolYear: z.string(),
+  term: GpaTermSchema,
+  termGpa: z.number().nullish(),
+  cumulativeGpa: z.number().nullish(),
+  gradeLevel: z.string().nullish(),
+  gradeScale: z.number().default(4.0),
+  notes: z.string().nullish(),
+  recordedById: z.string().nullish(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type AcademicRecordType = z.infer<typeof AcademicRecordSchema>;
+
+
+// File: AcademicYear.schema.ts
+
+export const AcademicYearSchema = z.object({
+  id: z.string(),
+  organizationId: z.string(),
+  label: z.string(),
+  startDate: z.date().nullish(),
+  endDate: z.date().nullish(),
+  isActive: z.boolean().default(true),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type AcademicYearType = z.infer<typeof AcademicYearSchema>;
 

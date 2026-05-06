@@ -1,4 +1,6 @@
 import type { RouterClient } from "@orpc/server";
+import { academicRecordsRouter } from "../modules/academic-records/router";
+import { academicYearsRouter } from "../modules/academic-years/router";
 import { adminRouter } from "../modules/admin/router";
 import { applicationsRouter } from "../modules/applications/router";
 import { aiRouter } from "../modules/ai/router";
@@ -22,6 +24,8 @@ import { usersRouter } from "../modules/users/router";
 import { publicProcedure } from "./procedures";
 
 export const router = publicProcedure.router({
+	academicRecords: academicRecordsRouter,
+	academicYears: academicYearsRouter,
 	admin: adminRouter,
 	newsletter: newsletterRouter,
 	contact: contactRouter,

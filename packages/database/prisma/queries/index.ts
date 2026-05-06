@@ -16,3 +16,5 @@ export * from "./resources";
 export * from "./purchase-requests";
 export * from "./custom-fields";
 export * from "./form-fields";
+export * from "./academic-records";
+export * from "./academic-years";

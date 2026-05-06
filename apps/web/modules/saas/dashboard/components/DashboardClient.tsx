@@ -15,6 +15,7 @@ import { useState } from "react";
 import { ApplicationsWidget } from "./ApplicationsWidget";
 import { AttendanceWidget } from "./AttendanceWidget";
 import { DashboardStats } from "./DashboardStats";
+import { GpaWidget } from "./GpaWidget";
 
 export type DateRange = "7" | "30" | "90" | "180" | "all";
 
@@ -127,6 +128,9 @@ export function DashboardClient() {
 					dateRange={dateRange}
 				/>
 				<ApplicationsWidget />
+				<div className="lg:col-span-2">
+					<GpaWidget areaId={areaId} siteId={siteId} />
+				</div>
 			</div>
 		</div>
 	);

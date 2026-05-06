@@ -9,6 +9,7 @@ import {
 	Building2Icon,
 	ClipboardListIcon,
 	CreditCardIcon,
+	GraduationCapIcon,
 	Settings2Icon,
 	ShieldIcon,
 	SlidersIcon,
@@ -82,6 +83,11 @@ export default async function SettingsLayout({
 								title: t("settings.menu.organization.customFields"),
 								href: `${organizationSettingsBasePath}/custom-fields`,
 								icon: <SlidersIcon className="size-4 opacity-50" />,
+							},
+							{
+								title: "Academic Years",
+								href: `${organizationSettingsBasePath}/academic-years`,
+								icon: <GraduationCapIcon className="size-4 opacity-50" />,
 							},
 						]
 					: []),

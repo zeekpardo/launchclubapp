@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { usePerson } from "../hooks/use-people";
+import { AcademicRecordsSection } from "./AcademicRecordsSection";
 import { HouseholdPanel } from "./HouseholdPanel";
 import { PersonForm } from "./PersonForm";
 
@@ -137,6 +138,12 @@ export function PersonProfile({ personId }: PersonProfileProps) {
 							</CardContent>
 						</Card>
 					)}
+
+					{/* Academic Records — children only */}
+					<AcademicRecordsSection
+						personId={personId}
+						isChild={person.isChild}
+					/>
 				</div>
 			</div>
 		</div>

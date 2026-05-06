@@ -275,8 +275,13 @@ export function PeopleTable() {
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
 								<DropdownMenuItem asChild>
+									<Link href={`/app/${params.organizationSlug}/settings/academic-years`}>
+										Academic Years
+									</Link>
+								</DropdownMenuItem>
+								<DropdownMenuItem asChild>
 									<Link href={`/app/${params.organizationSlug}/settings/custom-fields`}>
-										Advanced Settings
+										Custom Fields
 									</Link>
 								</DropdownMenuItem>
 							</DropdownMenuContent>
