@@ -18,6 +18,7 @@ import { usePendingApplicationCount } from "@saas/applications/hooks/use-applica
 import { usePendingPurchaseRequestCount } from "@saas/groups/hooks/use-purchase-requests";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { OrganizationLogo } from "@saas/organizations/components/OrganizationLogo";
+import { NotificationBell } from "@saas/notifications/components/NotificationBell";
 import { UserMenu } from "@saas/shared/components/UserMenu";
 import {
 	CalendarIcon,
@@ -175,6 +176,7 @@ export function NavBar() {
 							<MenuIcon className="size-5" />
 						</Button>
 
+						<NotificationBell />
 						<UserMenu />
 					</div>
 				</div>
@@ -312,6 +314,23 @@ export function NavBar() {
 								<li key={menuItem.href}>{menuItemContent}</li>
 							);
 						})}
+
+						{useSidebarLayout && (
+							<li>
+								{isCollapsed ? (
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<NotificationBell navMode collapsed />
+										</TooltipTrigger>
+										<TooltipContent side="right">
+											Notifications
+										</TooltipContent>
+									</Tooltip>
+								) : (
+									<NotificationBell navMode />
+								)}
+							</li>
+						)}
 					</ul>
 				</TooltipProvider>
 

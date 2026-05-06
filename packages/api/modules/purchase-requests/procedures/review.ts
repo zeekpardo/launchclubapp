@@ -1,8 +1,15 @@
 import { ORPCError } from "@orpc/client";
-import { reviewPurchaseRequest, getPurchaseRequestById, getSiteById, getAreaById } from "@repo/database";
+import {
+  reviewPurchaseRequest,
+  createNotification,
+  getPurchaseRequestById,
+  getSiteById,
+  getAreaById,
+} from "@repo/database";
 import { verifyOrganizationMembership } from "../../organizations/lib/membership";
 import { protectedProcedure } from "../../../orpc/procedures";
 import { reviewPurchaseRequestSchema } from "../types";
+import { NOTIFICATION_TYPES } from "../../notifications/lib/notification-types";
 
 export const reviewPurchaseRequestProcedure = protectedProcedure
   .route({ method: "POST", path: "/purchase-requests/{id}/review", tags: ["PurchaseRequests"] })
@@ -19,5 +26,21 @@ export const reviewPurchaseRequestProcedure = protectedProcedure
     if (membership.role !== "owner" && membership.role !== "admin" && context.user.role !== "admin") {
       throw new ORPCError("FORBIDDEN");
     }
-    return reviewPurchaseRequest(input.id, input.status, context.user.id, input.reviewNote);
+    const result = await reviewPurchaseRequest(input.id, input.status, context.user.id, input.reviewNote);
+
+    if (input.status !== "PENDING" && existing.requestedById !== context.user.id) {
+      const nt = NOTIFICATION_TYPES.PURCHASE_REQUEST_STATUS_CHANGED;
+      createNotification({
+        organizationId: area.organizationId,
+        recipientId: existing.requestedById,
+        type: "PURCHASE_REQUEST_STATUS_CHANGED",
+        title: nt.title(input.status),
+        message: nt.message(existing.name, input.status),
+        link: "/purchase-requests",
+        entityType: "purchase_request",
+        entityId: input.id,
+      }).catch(() => {});
+    }
+
+    return result;
   });

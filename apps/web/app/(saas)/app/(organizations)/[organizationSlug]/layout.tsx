@@ -4,6 +4,7 @@ import { activeOrganizationQueryKey } from "@saas/organizations/lib/api";
 import { AppWrapper } from "@saas/shared/components/AppWrapper";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { getServerQueryClient } from "@shared/lib/server";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { notFound } from "next/navigation";
 import type { PropsWithChildren } from "react";
 
@@ -40,5 +41,9 @@ export default async function OrganizationLayout({
 		);
 	}
 
-	return <AppWrapper>{children}</AppWrapper>;
+	return (
+		<HydrationBoundary state={dehydrate(queryClient)}>
+			<AppWrapper>{children}</AppWrapper>
+		</HydrationBoundary>
+	);
 }

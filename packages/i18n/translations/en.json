@@ -1675,7 +1675,8 @@
         "title": "Required Consents",
         "observation": "I give permission for observation sessions *",
         "terms": "I agree to the Launch Club terms *",
-        "photoVideo": "I give permission for photos/videos *"
+        "photoVideo": "I give permission for photos/videos *",
+        "signatureFile": "Consent signature document (optional)"
       },
       "additionalInfo": "Additional Information",
       "fileField": {

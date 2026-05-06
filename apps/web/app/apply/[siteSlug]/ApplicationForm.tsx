@@ -16,26 +16,52 @@ import { Input } from "@repo/ui/components/input";
 import { orpcClient } from "@shared/lib/orpc-client";
 import { CheckCircleIcon, LoaderIcon, PlusIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { ChildCard } from "./ChildCard";
 
-const childSchema = z.object({
+export interface ConsentConfig {
+	showObservation: boolean;
+	showTerms: boolean;
+	showPhotoVideo: boolean;
+	observationFormUrl?: string | null;
+	termsFormUrl?: string | null;
+	photoVideoFormUrl?: string | null;
+}
+
+const baseChildSchema = z.object({
 	firstName: z.string().min(1, "Required"),
 	lastName: z.string().min(1, "Required"),
 	birthday: z.string().optional(),
 	grade: z.string().optional(),
 	isPartOfChurch: z.boolean().optional(),
-	observationConsent: z.literal(true),
-	termsConsent: z.literal(true),
-	photoVideoConsent: z.literal(true),
+	observationConsent: z.boolean(),
+	termsConsent: z.boolean(),
+	photoVideoConsent: z.boolean(),
 	photoUrl: z.string().optional(),
+	observationConsentFileUrl: z.string().optional(),
+	termsConsentFileUrl: z.string().optional(),
+	photoVideoConsentFileUrl: z.string().optional(),
 	profileFields: z.record(z.string(), z.string()).optional(),
 	formFields: z.record(z.string(), z.string()).optional(),
 });
 
-export const applicationFormSchema = z.object({
+function buildChildSchema(config: ConsentConfig) {
+	return baseChildSchema.superRefine((data, ctx) => {
+		if (config.showObservation && !data.observationConsent) {
+			ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["observationConsent"], message: "Required" });
+		}
+		if (config.showTerms && !data.termsConsent) {
+			ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["termsConsent"], message: "Required" });
+		}
+		if (config.showPhotoVideo && !data.photoVideoConsent) {
+			ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["photoVideoConsent"], message: "Required" });
+		}
+	});
+}
+
+const parentSchema = z.object({
 	parentFirstName: z.string().min(1, "First name is required"),
 	parentLastName: z.string().min(1, "Last name is required"),
 	parentEmail: z.string().email().optional().or(z.literal("")),
@@ -53,18 +79,18 @@ export const applicationFormSchema = z.object({
 	spouseLastName: z.string().optional(),
 	spouseEmail: z.string().email().optional().or(z.literal("")),
 	spousePhone: z.string().optional(),
-	children: z.array(childSchema),
+	children: z.array(baseChildSchema),
 });
 
-export type ApplicationFormValues = z.infer<typeof applicationFormSchema>;
+export type ApplicationFormValues = z.infer<typeof parentSchema>;
 
 const defaultChild = {
 	firstName: "",
 	lastName: "",
 	isPartOfChurch: false,
-	observationConsent: false as unknown as true,
-	termsConsent: false as unknown as true,
-	photoVideoConsent: false as unknown as true,
+	observationConsent: false,
+	termsConsent: false,
+	photoVideoConsent: false,
 };
 
 export interface ProfileField {
@@ -92,16 +118,22 @@ interface ApplicationFormProps {
 	siteName?: string;
 	profileFields?: ProfileField[];
 	formFields?: BasicFormField[];
+	enableConsentFileUpload?: boolean;
+	consentConfig?: ConsentConfig;
 }
 
-export function ApplicationForm({ siteSlug, profileFields = [], formFields = [] }: ApplicationFormProps) {
+const DEFAULT_CONSENT_CONFIG: ConsentConfig = { showObservation: true, showTerms: true, showPhotoVideo: true };
+
+export function ApplicationForm({ siteSlug, profileFields = [], formFields = [], enableConsentFileUpload = false, consentConfig = DEFAULT_CONSENT_CONFIG }: ApplicationFormProps) {
 	const t = useTranslations("application");
 	const [submitted, setSubmitted] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 	const [serverError, setServerError] = useState<string | null>(null);
 
+	const schema = useMemo(() => parentSchema.extend({ children: z.array(buildChildSchema(consentConfig)) }), [consentConfig]);
+
 	const form = useForm<ApplicationFormValues>({
-		resolver: zodResolver(applicationFormSchema),
+		resolver: zodResolver(schema),
 		defaultValues: {
 			parentFirstName: "",
 			parentLastName: "",
@@ -166,6 +198,9 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [] 
 						termsConsent: child.termsConsent,
 						photoVideoConsent: child.photoVideoConsent,
 						photoUrl: child.photoUrl || undefined,
+						observationConsentFileUrl: child.observationConsentFileUrl || undefined,
+						termsConsentFileUrl: child.termsConsentFileUrl || undefined,
+						photoVideoConsentFileUrl: child.photoVideoConsentFileUrl || undefined,
 						profileFieldValues: childProfileFieldValues.length ? childProfileFieldValues : undefined,
 						formFieldValues: childFormFieldValues.length ? childFormFieldValues : undefined,
 					};
@@ -493,6 +528,8 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [] 
 							profileFields={profileFields}
 							formFields={formFields}
 							siteSlug={siteSlug}
+							enableConsentFileUpload={enableConsentFileUpload}
+							consentConfig={consentConfig}
 						/>
 					))}
 				</div>

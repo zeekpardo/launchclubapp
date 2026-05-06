@@ -10,13 +10,16 @@ const withNextIntl = nextIntlPlugin("./modules/i18n/request.ts");
 // All Turnstile assets (script, iframe, verification) live on this origin.
 const TURNSTILE_ORIGIN = "https://challenges.cloudflare.com";
 
+// Allow local MinIO (http) uploads in dev; prod only allows https.
+const DEV_CONNECT = process.env.NODE_ENV === "development" ? " http://localhost:*" : "";
+
 const ContentSecurityPolicy = `
 	default-src 'self';
 	script-src 'self' 'unsafe-inline' 'unsafe-eval' ${TURNSTILE_ORIGIN};
 	style-src 'self' 'unsafe-inline';
 	img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com;
 	font-src 'self';
-	connect-src 'self' https: blob: ${TURNSTILE_ORIGIN};
+	connect-src 'self' https: blob:${DEV_CONNECT} ${TURNSTILE_ORIGIN};
 	frame-src ${TURNSTILE_ORIGIN};
 	frame-ancestors 'none';
 	base-uri 'self';

@@ -22,11 +22,11 @@ import { Textarea } from "@repo/ui/components/textarea";
 import { CustomFieldInput } from "@saas/custom-fields/components/CustomFieldInput";
 import type { CustomFieldType } from "@repo/api/modules/custom-fields/types";
 import { orpcClient } from "@shared/lib/orpc-client";
-import { ImageIcon, PaperclipIcon, TrashIcon, XIcon } from "lucide-react";
+import { DownloadIcon, ImageIcon, PaperclipIcon, TrashIcon, XIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
-import type { Control, UseFormSetValue } from "react-hook-form";
-import type { ApplicationFormValues, BasicFormField, ProfileField } from "./ApplicationForm";
+import { useWatch, type Control, type UseFormSetValue } from "react-hook-form";
+import type { ApplicationFormValues, BasicFormField, ConsentConfig, ProfileField } from "./ApplicationForm";
 
 interface ChildCardProps {
 	index: number;
@@ -37,6 +37,8 @@ interface ChildCardProps {
 	profileFields?: ProfileField[];
 	formFields?: BasicFormField[];
 	siteSlug: string;
+	enableConsentFileUpload?: boolean;
+	consentConfig?: ConsentConfig;
 }
 
 const FILE_FIELD_ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "application/pdf"] as const;
@@ -47,9 +49,10 @@ interface FileFieldUploadProps {
 	siteSlug: string;
 	value: string;
 	onChange: (url: string) => void;
+	uploadUrlProcedure?: "formField" | "consentSignature";
 }
 
-function FileFieldUpload({ fieldId, siteSlug, value, onChange }: FileFieldUploadProps) {
+function FileFieldUpload({ fieldId, siteSlug, value, onChange, uploadUrlProcedure = "formField" }: FileFieldUploadProps) {
 	const t = useTranslations("application.children");
 	const [uploading, setUploading] = useState(false);
 	const [fileName, setFileName] = useState<string | null>(null);
@@ -71,7 +74,9 @@ function FileFieldUpload({ fieldId, siteSlug, value, onChange }: FileFieldUpload
 		setError(null);
 		try {
 			const contentType = file.type as (typeof FILE_FIELD_ALLOWED_TYPES)[number];
-			const { signedUploadUrl, path } = await orpcClient.applications.formFieldFileUploadUrl({ contentType, siteSlug });
+			const { signedUploadUrl, path } = uploadUrlProcedure === "consentSignature"
+				? await orpcClient.applications.consentSignatureUploadUrl({ contentType, siteSlug })
+				: await orpcClient.applications.formFieldFileUploadUrl({ contentType, siteSlug });
 			const res = await fetch(signedUploadUrl, {
 				method: "PUT",
 				body: file,
@@ -135,9 +140,19 @@ function FileFieldUpload({ fieldId, siteSlug, value, onChange }: FileFieldUpload
 	);
 }
 
-export function ChildCard({ index, canRemove, onRemove, control, setValue, profileFields = [], formFields = [] as BasicFormField[], siteSlug }: ChildCardProps) {
+const DEFAULT_CONSENT_CONFIG: ConsentConfig = { showObservation: true, showTerms: true, showPhotoVideo: true };
+
+export function ChildCard({ index, canRemove, onRemove, control, setValue, profileFields = [], formFields = [] as BasicFormField[], siteSlug, enableConsentFileUpload = false, consentConfig = DEFAULT_CONSENT_CONFIG }: ChildCardProps) {
 	const t = useTranslations("application.children");
 	const locale = useLocale();
+	const [obsChecked, termsChecked, photoChecked] = useWatch({
+		control,
+		name: [
+			`children.${index}.observationConsent`,
+			`children.${index}.termsConsent`,
+			`children.${index}.photoVideoConsent`,
+		],
+	});
 	const [uploading, setUploading] = useState(false);
 	const [preview, setPreview] = useState<string | null>(null);
 	const [uploadError, setUploadError] = useState<string | null>(null);
@@ -343,45 +358,89 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 				/>
 
 				{/* Consents */}
-				<div className="space-y-3 border-t pt-4">
+				{(consentConfig.showObservation || consentConfig.showTerms || consentConfig.showPhotoVideo) && <div className="space-y-3 border-t pt-4">
 					<h4 className="font-semibold">{t("consents.title")}</h4>
 					{(
 						[
 							{
 								name: `children.${index}.observationConsent` as const,
 								label: t("consents.observation"),
+								fileFieldName: `children.${index}.observationConsentFileUrl` as const,
+								checked: obsChecked,
+								show: consentConfig.showObservation,
+								formUrl: consentConfig.observationFormUrl ?? null,
 							},
 							{
 								name: `children.${index}.termsConsent` as const,
 								label: t("consents.terms"),
+								fileFieldName: `children.${index}.termsConsentFileUrl` as const,
+								checked: termsChecked,
+								show: consentConfig.showTerms,
+								formUrl: consentConfig.termsFormUrl ?? null,
 							},
 							{
 								name: `children.${index}.photoVideoConsent` as const,
 								label: t("consents.photoVideo"),
+								fileFieldName: `children.${index}.photoVideoConsentFileUrl` as const,
+								checked: photoChecked,
+								show: consentConfig.showPhotoVideo,
+								formUrl: consentConfig.photoVideoFormUrl ?? null,
 							},
 						] as const
-					).map(({ name, label }) => (
-						<FormField
-							key={name}
-							control={control}
-							name={name}
-							render={({ field }) => (
-								<FormItem className="flex items-start gap-3 space-y-0">
-									<FormControl>
-										<Checkbox
-											checked={field.value as boolean}
-											onCheckedChange={field.onChange}
-										/>
-									</FormControl>
-									<div className="space-y-1">
-										<FormLabel className="font-normal">{label}</FormLabel>
-										<FormMessage />
-									</div>
-								</FormItem>
+					).filter(({ show }) => show).map(({ name, label, fileFieldName, checked, formUrl }) => (
+						<div key={name} className="space-y-2">
+							<FormField
+								control={control}
+								name={name}
+								render={({ field }) => (
+									<FormItem className="flex items-start gap-3 space-y-0">
+										<FormControl>
+											<Checkbox
+												checked={field.value as boolean}
+												onCheckedChange={field.onChange}
+											/>
+										</FormControl>
+										<div className="space-y-1">
+											<FormLabel className="font-normal">{label}</FormLabel>
+											{formUrl && (
+												<a
+													href={formUrl}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="flex items-center gap-1 text-xs text-primary hover:underline w-fit"
+												>
+													<DownloadIcon className="size-3" />
+													Download form to sign
+												</a>
+											)}
+											<FormMessage />
+										</div>
+									</FormItem>
+								)}
+							/>
+							{enableConsentFileUpload && checked && (
+								<FormField
+									control={control}
+									name={fileFieldName}
+									render={({ field }) => (
+										<FormItem className="pl-7">
+											<FormControl>
+												<FileFieldUpload
+													fieldId={`${fileFieldName}-${index}`}
+													siteSlug={siteSlug}
+													value={field.value ?? ""}
+													onChange={field.onChange}
+													uploadUrlProcedure="consentSignature"
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 							)}
-						/>
+						</div>
 					))}
-				</div>
+				</div>}
 
 				{/* Per-child basic form fields */}
 				{formFields.length > 0 && (

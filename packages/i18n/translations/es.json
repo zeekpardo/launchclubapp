@@ -1625,7 +1625,8 @@
         "title": "Consentimientos requeridos",
         "observation": "Doy permiso para las sesiones de observación *",
         "terms": "Acepto los términos de Launch Club *",
-        "photoVideo": "Doy permiso para fotos/videos *"
+        "photoVideo": "Doy permiso para fotos/videos *",
+        "signatureFile": "Documento de firma de consentimiento (opcional)"
       },
       "additionalInfo": "Información adicional",
       "fileField": {

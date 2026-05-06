@@ -47,6 +47,7 @@ model User {
   academicRecordsRecorded  AcademicRecord[]  @relation("AcademicRecordRecordedBy")
   personNotesAuthored      PersonNote[]      @relation("PersonNoteAuthor")
   personNoteMentions       PersonNoteMention[] @relation("PersonNoteMentions")
+  notifications            Notification[]    @relation("UserNotifications")
 
   @@unique([email])
   @@unique([username])
@@ -157,8 +158,10 @@ model Organization {
   people              Person[]                        @relation("OrganizationPeople")
   applicationSettings OrganizationApplicationSettings? @relation("OrganizationApplicationSettings")
   customFields        CustomField[]
+  customFieldFolders  CustomFieldFolder[]
   academicYears       AcademicYear[]                  @relation("OrganizationAcademicYears")
   personNotes         PersonNote[]                    @relation("OrgPersonNotes")
+  notifications       Notification[]                  @relation("OrgNotifications")
 
   @@unique([slug])
   @@map("organization")
@@ -324,9 +327,6 @@ model Person {
   allergies      String?       @db.Text
   medicalNotes   String?       @db.Text
   avatarUrl      String?
-  observationConsent  Boolean  @default(false)
-  termsConsent        Boolean  @default(false)
-  photoVideoConsent   Boolean  @default(false)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   organization       Organization       @relation("OrganizationPeople", fields: [organizationId], references: [id], onDelete: Cascade)
@@ -338,6 +338,7 @@ model Person {
   customFieldValues  CustomFieldValue[]
   academicRecords    AcademicRecord[]
   personNotes        PersonNote[]
+  personConsents     PersonConsent[]
 
   @@index([organizationId])
   @@index([householdId])
@@ -536,11 +537,14 @@ model ApplicationChild {
   emergencyContactPhone String?
   emergencyContactEmail String?
   photoUrl              String?
-  observationConsent    Boolean     @default(false)
-  termsConsent          Boolean     @default(false)
-  photoVideoConsent     Boolean     @default(false)
-  createdAt             DateTime    @default(now())
-  application           Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  observationConsent            Boolean     @default(false)
+  termsConsent                  Boolean     @default(false)
+  photoVideoConsent             Boolean     @default(false)
+  observationConsentFileUrl     String?
+  termsConsentFileUrl           String?
+  photoVideoConsentFileUrl      String?
+  createdAt                DateTime    @default(now())
+  application              Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   profileFieldValues    ApplicationChildCustomFieldValue[]
   formFieldValues       ApplicationChildFormFieldValue[]
 
@@ -631,6 +635,12 @@ model PurchaseRequestItem {
   @@map("purchase_request_item")
 }
 
+enum ConsentType {
+  OBSERVATION
+  TERMS_AND_CONDITIONS
+  PHOTO_VIDEO
+}
+
 enum GpaTerm {
   Q1
   Q2
@@ -702,8 +712,15 @@ model OrganizationApplicationSettings {
   emailNotifications Boolean      @default(false)
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
-  organization       Organization @relation("OrganizationApplicationSettings", fields: [organizationId], references: [id], onDelete: Cascade)
-  studentIdMode      String       @default("auto")
+  organization              Organization @relation("OrganizationApplicationSettings", fields: [organizationId], references: [id], onDelete: Cascade)
+  studentIdMode             String       @default("auto")
+  enableConsentFileUpload   Boolean      @default(false)
+  showObservationConsent        Boolean      @default(true)
+  showTermsConsent              Boolean      @default(true)
+  showPhotoVideoConsent         Boolean      @default(true)
+  observationConsentFormUrl     String?
+  termsConsentFormUrl           String?
+  photoVideoConsentFormUrl      String?
 
   @@map("organization_application_settings")
 }
@@ -718,9 +735,25 @@ enum CustomFieldType {
   FILE
 }
 
+model CustomFieldFolder {
+  id             String        @id @default(cuid())
+  organizationId String
+  name           String
+  nameEs         String?
+  order          Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  fields         CustomField[]
+
+  @@index([organizationId])
+  @@map("custom_field_folder")
+}
+
 model CustomField {
   id                   String             @id @default(cuid())
   organizationId       String
+  folderId             String?
   name                 String
   nameEs               String?
   type                 CustomFieldType
@@ -731,6 +764,7 @@ model CustomField {
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   organization         Organization                    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  folder               CustomFieldFolder?              @relation(fields: [folderId], references: [id], onDelete: SetNull)
   values               CustomFieldValue[]
   applicationValues    ApplicationCustomFieldValue[]
   applicationChildValues ApplicationChildCustomFieldValue[]
@@ -799,8 +833,51 @@ model AcademicYear {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   organization   Organization @relation("OrganizationAcademicYears", fields: [organizationId], references: [id], onDelete: Cascade)
+  personConsents PersonConsent[]
 
   @@unique([organizationId, label])
   @@index([organizationId])
   @@map("academic_year")
+}
+
+model PersonConsent {
+  id               String      @id @default(cuid())
+  personId         String
+  academicYearId   String
+  consentType      ConsentType
+  granted          Boolean
+  grantedAt        DateTime?
+  signatureFileUrl String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  person       Person       @relation(fields: [personId], references: [id], onDelete: Cascade)
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+
+  @@unique([personId, academicYearId, consentType])
+  @@index([personId])
+  @@index([academicYearId])
+  @@map("person_consent")
+}
+
+model Notification {
+  id             String    @id @default(cuid())
+  organizationId String
+  recipientId    String
+  type           String
+  title          String
+  message        String    @db.Text
+  link           String?
+  isRead         Boolean   @default(false)
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+  entityType     String?
+  entityId       String?
+
+  organization Organization @relation("OrgNotifications", fields: [organizationId], references: [id], onDelete: Cascade)
+  recipient    User         @relation("UserNotifications", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId, isRead])
+  @@index([organizationId])
+  @@map("notification")
 }

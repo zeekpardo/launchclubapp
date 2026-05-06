@@ -1,14 +1,18 @@
 import { ORPCError } from "@orpc/client";
 import {
   createApplication,
+  createNotification,
   countRecentApplicationsByEmail,
   countRecentApplicationsBySite,
+  getAdminUserIdsForOrg,
+  getAreaById,
   getSiteBySlug,
   getCollectInApplicationFieldsBySite,
   getFormFieldsForApplication,
 } from "@repo/database";
 import { publicProcedure } from "../../../orpc/procedures";
 import { submitApplicationSchema } from "../types";
+import { NOTIFICATION_TYPES } from "../../notifications/lib/notification-types";
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
@@ -67,7 +71,7 @@ export const submitApplication = publicProcedure
     const safeCustomFieldValues = customFieldValues?.filter((v) => validFormFieldIds.has(v.formFieldId));
     const safeProfileFieldValues = profileFieldValues?.filter((v) => validCustomFieldIds.has(v.customFieldId));
 
-    return createApplication({
+    const result = await createApplication({
       siteId: site.id,
       ...parentData,
       children: children.map(({ profileFieldValues: childPfv, formFieldValues: childFfv, ...child }) => {
@@ -83,4 +87,30 @@ export const submitApplication = publicProcedure
       customFieldValues: safeCustomFieldValues?.length ? safeCustomFieldValues : undefined,
       profileFieldValues: safeProfileFieldValues?.length ? safeProfileFieldValues : undefined,
     });
+
+    const area = await getAreaById(site.areaId).catch(() => null);
+    const organizationId = area?.organizationId;
+    const adminUserIds = organizationId
+      ? await getAdminUserIdsForOrg(organizationId).catch(() => [])
+      : [];
+    if (organizationId && adminUserIds.length > 0) {
+      const applicantName = `${input.parentFirstName} ${input.parentLastName}`;
+      const nt = NOTIFICATION_TYPES.APPLICATION_SUBMITTED;
+      await Promise.allSettled(
+        adminUserIds.map((userId) =>
+          createNotification({
+            organizationId,
+            recipientId: userId,
+            type: "APPLICATION_SUBMITTED",
+            title: nt.title(),
+            message: nt.message(applicantName),
+            link: `/applications/${result.id}`,
+            entityType: "application",
+            entityId: result.id,
+          }),
+        ),
+      );
+    }
+
+    return result;
   });

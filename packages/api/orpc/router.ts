@@ -16,6 +16,8 @@ import { purchaseRequestsRouter } from "../modules/purchase-requests/router";
 import { customFieldsRouter } from "../modules/custom-fields/router";
 import { formBuilderRouter } from "../modules/form-builder/router";
 import { newsletterRouter } from "../modules/newsletter/router";
+import { notificationsRouter } from "../modules/notifications/router";
+import { personConsentsRouter } from "../modules/person-consents/router";
 import { personNotesRouter } from "../modules/person-notes/router";
 import { peopleRouter } from "../modules/people/router";
 import { organizationsRouter } from "../modules/organizations/router";
@@ -47,7 +49,9 @@ export const router = publicProcedure.router({
 	purchaseRequests: purchaseRequestsRouter,
 	customFields: customFieldsRouter,
 	formBuilder: formBuilderRouter,
+	personConsents: personConsentsRouter,
 	personNotes: personNotesRouter,
+	notifications: notificationsRouter,
 });
 
 export type ApiRouterClient = RouterClient<typeof router>;

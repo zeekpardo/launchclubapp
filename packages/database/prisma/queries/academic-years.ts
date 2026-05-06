@@ -36,3 +36,10 @@ export async function updateAcademicYear(
 export async function deleteAcademicYear(id: string) {
   return db.academicYear.delete({ where: { id } });
 }
+
+export async function deactivateOtherAcademicYears(organizationId: string, exceptId: string) {
+  return db.academicYear.updateMany({
+    where: { organizationId, id: { not: exceptId }, isActive: true },
+    data: { isActive: false },
+  });
+}

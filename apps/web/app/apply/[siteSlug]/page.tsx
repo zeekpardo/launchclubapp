@@ -1,4 +1,4 @@
-import { getCollectInApplicationFieldsBySite, getFormFieldsBySiteSlug, getSiteBySlug } from "@repo/database";
+import { getCollectInApplicationFieldsBySite, getFormFieldsBySiteSlug, getOrgApplicationSettings, getSiteBySlug } from "@repo/database";
 import { getTranslations } from "next-intl/server";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import type { BasicFormField } from "./ApplicationForm";
@@ -16,6 +16,16 @@ export default async function ApplyPage({
 		getFormFieldsBySiteSlug(siteSlug),
 		getTranslations("application"),
 	]);
+	const orgSettings = site ? await getOrgApplicationSettings(site.area.organizationId) : null;
+	const enableConsentFileUpload = orgSettings?.enableConsentFileUpload ?? false;
+	const consentConfig = {
+		showObservation: orgSettings?.showObservationConsent ?? true,
+		showTerms: orgSettings?.showTermsConsent ?? true,
+		showPhotoVideo: orgSettings?.showPhotoVideoConsent ?? true,
+		observationFormUrl: orgSettings?.observationConsentFormUrl ?? null,
+		termsFormUrl: orgSettings?.termsConsentFormUrl ?? null,
+		photoVideoFormUrl: orgSettings?.photoVideoConsentFormUrl ?? null,
+	};
 	const formFields: BasicFormField[] = [...areaFields, ...siteFields].map((f) => ({
 		id: f.id,
 		label: f.label,
@@ -53,7 +63,7 @@ export default async function ApplyPage({
 						</p>
 					</div>
 				) : (
-					<ApplicationForm siteSlug={siteSlug} siteName={site?.name} profileFields={profileFields} formFields={formFields} />
+					<ApplicationForm siteSlug={siteSlug} siteName={site?.name} profileFields={profileFields} formFields={formFields} enableConsentFileUpload={enableConsentFileUpload} consentConfig={consentConfig} />
 				)}
 			</div>
 		</div>

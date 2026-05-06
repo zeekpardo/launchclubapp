@@ -61,6 +61,9 @@ export async function createApplication(data: {
     termsConsent?: boolean;
     photoVideoConsent?: boolean;
     photoUrl?: string;
+    observationConsentFileUrl?: string;
+    termsConsentFileUrl?: string;
+    photoVideoConsentFileUrl?: string;
     profileFieldValues?: { customFieldId: string; value: string }[];
     formFieldValues?: { formFieldId: string; value: string }[];
   }[];
@@ -173,9 +176,6 @@ export async function migrateApplicationToPeople(
           dateOfBirth: child.birthday ?? undefined,
           grade: child.grade ?? undefined,
           isChild: true,
-          observationConsent: child.observationConsent ?? false,
-          termsConsent: child.termsConsent ?? false,
-          photoVideoConsent: child.photoVideoConsent ?? false,
         },
       });
 

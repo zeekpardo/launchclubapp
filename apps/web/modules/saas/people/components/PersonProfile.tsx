@@ -9,7 +9,7 @@ import {
 	CardTitle,
 } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
-import { ArrowLeftIcon, CheckCircle2Icon, ChevronDownIcon, XCircleIcon } from "lucide-react";
+import { ArrowLeftIcon, ChevronDownIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -17,6 +17,7 @@ import { useState } from "react";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { usePerson } from "../hooks/use-people";
 import { AcademicRecordsSection } from "./AcademicRecordsSection";
+import { ConsentsSection } from "./ConsentsSection";
 import { HouseholdPanel } from "./HouseholdPanel";
 import { PersonForm } from "./PersonForm";
 import { PersonNotesSection } from "./PersonNotesSection";
@@ -33,7 +34,6 @@ export function PersonProfile({ personId }: PersonProfileProps) {
 
 	const basePath = `/app/${params.organizationSlug}/people`;
 	const [groupsCollapsed, setGroupsCollapsed] = useState(false);
-	const [consentsCollapsed, setConsentsCollapsed] = useState(false);
 
 	if (isLoading) {
 		return (
@@ -138,23 +138,10 @@ export function PersonProfile({ personId }: PersonProfileProps) {
 
 					{/* Consents — children only */}
 					{person.isChild && (
-						<Card>
-							<CardHeader className="pb-3">
-								<div className="flex items-center justify-between">
-									<CardTitle className="text-base">Consents</CardTitle>
-									<Button size="icon" variant="ghost" className="size-7" onClick={() => setConsentsCollapsed((c) => !c)}>
-										<ChevronDownIcon className={`size-4 transition-transform ${consentsCollapsed ? "" : "rotate-180"}`} />
-									</Button>
-								</div>
-							</CardHeader>
-							{!consentsCollapsed && (
-								<CardContent className="space-y-2">
-									<ConsentRow label="Observation" granted={person.observationConsent} />
-									<ConsentRow label="Terms & Conditions" granted={person.termsConsent} />
-									<ConsentRow label="Photo / Video" granted={person.photoVideoConsent} />
-								</CardContent>
-							)}
-						</Card>
+						<ConsentsSection
+							personId={personId}
+							organizationId={activeOrganization?.id ?? ""}
+						/>
 					)}
 
 					{/* Academic Records — children only */}
@@ -171,13 +158,3 @@ export function PersonProfile({ personId }: PersonProfileProps) {
 	);
 }
 
-function ConsentRow({ label, granted }: { label: string; granted: boolean }) {
-	return (
-		<div className={`flex items-center gap-2 text-sm font-medium ${granted ? "text-green-600" : "text-muted-foreground"}`}>
-			{granted
-				? <CheckCircle2Icon className="size-4 shrink-0" />
-				: <XCircleIcon className="size-4 shrink-0" />}
-			{label}
-		</div>
-	);
-}

@@ -143,6 +143,17 @@ export async function getPendingInvitationByEmail(email: string) {
 	});
 }
 
+export async function getAdminUserIdsForOrg(
+	organizationId: string,
+): Promise<string[]> {
+	const members = await db.member.findMany({
+		where: { organizationId, role: { in: ["owner", "admin"] } },
+		select: { userId: true },
+		take: 20,
+	});
+	return members.map((m) => m.userId);
+}
+
 export async function updateOrganization(
 	organization: Partial<z.infer<typeof OrganizationSchema>> & { id: string },
 ) {

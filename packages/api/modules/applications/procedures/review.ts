@@ -35,5 +35,8 @@ export const reviewApplicationProcedure = protectedProcedure
       }
     }
 
+    // TODO: send email notification to application.parentEmail when status changes
+    // Use @repo/mail and the OrganizationApplicationSettings.emailNotifications flag
+
     return reviewed;
   });

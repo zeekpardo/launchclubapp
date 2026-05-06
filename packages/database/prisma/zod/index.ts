@@ -103,7 +103,7 @@ export type HouseholdScalarFieldEnum = z.infer<typeof HouseholdScalarFieldEnumSc
 
 // File: PersonScalarFieldEnum.schema.ts
 
-export const PersonScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'householdId', 'firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender', 'isChild', 'isActive', 'grade', 'studentId', 'notes', 'allergies', 'medicalNotes', 'avatarUrl', 'observationConsent', 'termsConsent', 'photoVideoConsent', 'createdAt', 'updatedAt'])
+export const PersonScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'householdId', 'firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender', 'isChild', 'isActive', 'grade', 'studentId', 'notes', 'allergies', 'medicalNotes', 'avatarUrl', 'createdAt', 'updatedAt'])
 
 export type PersonScalarFieldEnum = z.infer<typeof PersonScalarFieldEnumSchema>;
 
@@ -169,7 +169,7 @@ export type ApplicationScalarFieldEnum = z.infer<typeof ApplicationScalarFieldEn
 
 // File: ApplicationChildScalarFieldEnum.schema.ts
 
-export const ApplicationChildScalarFieldEnumSchema = z.enum(['id', 'applicationId', 'firstName', 'lastName', 'birthday', 'grade', 'isPartOfChurch', 'emergencyContactName', 'emergencyContactPhone', 'emergencyContactEmail', 'photoUrl', 'observationConsent', 'termsConsent', 'photoVideoConsent', 'createdAt'])
+export const ApplicationChildScalarFieldEnumSchema = z.enum(['id', 'applicationId', 'firstName', 'lastName', 'birthday', 'grade', 'isPartOfChurch', 'emergencyContactName', 'emergencyContactPhone', 'emergencyContactEmail', 'photoUrl', 'observationConsent', 'termsConsent', 'photoVideoConsent', 'observationConsentFileUrl', 'termsConsentFileUrl', 'photoVideoConsentFileUrl', 'createdAt'])
 
 export type ApplicationChildScalarFieldEnum = z.infer<typeof ApplicationChildScalarFieldEnumSchema>;
 
@@ -217,13 +217,19 @@ export type ApplicationFieldValueScalarFieldEnum = z.infer<typeof ApplicationFie
 
 // File: OrganizationApplicationSettingsScalarFieldEnum.schema.ts
 
-export const OrganizationApplicationSettingsScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'autoMigrate', 'emailNotifications', 'createdAt', 'updatedAt', 'studentIdMode'])
+export const OrganizationApplicationSettingsScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'autoMigrate', 'emailNotifications', 'createdAt', 'updatedAt', 'studentIdMode', 'enableConsentFileUpload', 'showObservationConsent', 'showTermsConsent', 'showPhotoVideoConsent', 'observationConsentFormUrl', 'termsConsentFormUrl', 'photoVideoConsentFormUrl'])
 
 export type OrganizationApplicationSettingsScalarFieldEnum = z.infer<typeof OrganizationApplicationSettingsScalarFieldEnumSchema>;
 
+// File: CustomFieldFolderScalarFieldEnum.schema.ts
+
+export const CustomFieldFolderScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'name', 'nameEs', 'order', 'createdAt', 'updatedAt'])
+
+export type CustomFieldFolderScalarFieldEnum = z.infer<typeof CustomFieldFolderScalarFieldEnumSchema>;
+
 // File: CustomFieldScalarFieldEnum.schema.ts
 
-export const CustomFieldScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'name', 'nameEs', 'type', 'required', 'options', 'order', 'collectInApplication', 'createdAt', 'updatedAt'])
+export const CustomFieldScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'folderId', 'name', 'nameEs', 'type', 'required', 'options', 'order', 'collectInApplication', 'createdAt', 'updatedAt'])
 
 export type CustomFieldScalarFieldEnum = z.infer<typeof CustomFieldScalarFieldEnumSchema>;
 
@@ -250,6 +256,18 @@ export type AcademicRecordScalarFieldEnum = z.infer<typeof AcademicRecordScalarF
 export const AcademicYearScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'label', 'startDate', 'endDate', 'isActive', 'createdAt', 'updatedAt'])
 
 export type AcademicYearScalarFieldEnum = z.infer<typeof AcademicYearScalarFieldEnumSchema>;
+
+// File: PersonConsentScalarFieldEnum.schema.ts
+
+export const PersonConsentScalarFieldEnumSchema = z.enum(['id', 'personId', 'academicYearId', 'consentType', 'granted', 'grantedAt', 'signatureFileUrl', 'createdAt', 'updatedAt'])
+
+export type PersonConsentScalarFieldEnum = z.infer<typeof PersonConsentScalarFieldEnumSchema>;
+
+// File: NotificationScalarFieldEnum.schema.ts
+
+export const NotificationScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'recipientId', 'type', 'title', 'message', 'link', 'isRead', 'readAt', 'createdAt', 'entityType', 'entityId'])
+
+export type NotificationScalarFieldEnum = z.infer<typeof NotificationScalarFieldEnumSchema>;
 
 // File: SortOrder.schema.ts
 
@@ -310,6 +328,12 @@ export type CustomFieldType = z.infer<typeof CustomFieldTypeSchema>;
 export const GpaTermSchema = z.enum(['Q1', 'Q2', 'Q3', 'Q4', 'SEMESTER_1', 'SEMESTER_2', 'TRIMESTER_1', 'TRIMESTER_2', 'TRIMESTER_3', 'ANNUAL'])
 
 export type GpaTerm = z.infer<typeof GpaTermSchema>;
+
+// File: ConsentType.schema.ts
+
+export const ConsentTypeSchema = z.enum(['OBSERVATION', 'TERMS_AND_CONDITIONS', 'PHOTO_VIDEO'])
+
+export type ConsentType = z.infer<typeof ConsentTypeSchema>;
 
 // File: User.schema.ts
 
@@ -583,9 +607,6 @@ export const PersonSchema = z.object({
   allergies: z.string().nullish(),
   medicalNotes: z.string().nullish(),
   avatarUrl: z.string().nullish(),
-  observationConsent: z.boolean(),
-  termsConsent: z.boolean(),
-  photoVideoConsent: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -764,6 +785,9 @@ export const ApplicationChildSchema = z.object({
   observationConsent: z.boolean(),
   termsConsent: z.boolean(),
   photoVideoConsent: z.boolean(),
+  observationConsentFileUrl: z.string().nullish(),
+  termsConsentFileUrl: z.string().nullish(),
+  photoVideoConsentFileUrl: z.string().nullish(),
   createdAt: z.date(),
 });
 
@@ -896,9 +920,31 @@ export const OrganizationApplicationSettingsSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   studentIdMode: z.string().default("auto"),
+  enableConsentFileUpload: z.boolean(),
+  showObservationConsent: z.boolean().default(true),
+  showTermsConsent: z.boolean().default(true),
+  showPhotoVideoConsent: z.boolean().default(true),
+  observationConsentFormUrl: z.string().nullish(),
+  termsConsentFormUrl: z.string().nullish(),
+  photoVideoConsentFormUrl: z.string().nullish(),
 });
 
 export type OrganizationApplicationSettingsType = z.infer<typeof OrganizationApplicationSettingsSchema>;
+
+
+// File: CustomFieldFolder.schema.ts
+
+export const CustomFieldFolderSchema = z.object({
+  id: z.string(),
+  organizationId: z.string(),
+  name: z.string(),
+  nameEs: z.string().nullish(),
+  order: z.number().int(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type CustomFieldFolderType = z.infer<typeof CustomFieldFolderSchema>;
 
 
 // File: CustomField.schema.ts
@@ -906,6 +952,7 @@ export type OrganizationApplicationSettingsType = z.infer<typeof OrganizationApp
 export const CustomFieldSchema = z.object({
   id: z.string(),
   organizationId: z.string(),
+  folderId: z.string().nullish(),
   name: z.string(),
   nameEs: z.string().nullish(),
   type: CustomFieldTypeSchema,
@@ -981,4 +1028,41 @@ export const AcademicYearSchema = z.object({
 });
 
 export type AcademicYearType = z.infer<typeof AcademicYearSchema>;
+
+
+// File: PersonConsent.schema.ts
+
+export const PersonConsentSchema = z.object({
+  id: z.string(),
+  personId: z.string(),
+  academicYearId: z.string(),
+  consentType: ConsentTypeSchema,
+  granted: z.boolean(),
+  grantedAt: z.date().nullish(),
+  signatureFileUrl: z.string().nullish(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type PersonConsentType = z.infer<typeof PersonConsentSchema>;
+
+
+// File: Notification.schema.ts
+
+export const NotificationSchema = z.object({
+  id: z.string(),
+  organizationId: z.string(),
+  recipientId: z.string(),
+  type: z.string(),
+  title: z.string(),
+  message: z.string(),
+  link: z.string().nullish(),
+  isRead: z.boolean(),
+  readAt: z.date().nullish(),
+  createdAt: z.date(),
+  entityType: z.string().nullish(),
+  entityId: z.string().nullish(),
+});
+
+export type NotificationType = z.infer<typeof NotificationSchema>;
 

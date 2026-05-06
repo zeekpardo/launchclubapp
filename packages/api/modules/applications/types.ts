@@ -13,6 +13,9 @@ const childSchema = z.object({
   termsConsent: z.boolean().optional(),
   photoVideoConsent: z.boolean().optional(),
   photoUrl: z.string().max(500).optional(),
+  observationConsentFileUrl: z.string().max(500).optional(),
+  termsConsentFileUrl: z.string().max(500).optional(),
+  photoVideoConsentFileUrl: z.string().max(500).optional(),
   profileFieldValues: z
     .array(z.object({ customFieldId: z.string().max(36).uuid(), value: z.string().max(1000) }))
     .max(50)
@@ -67,6 +70,18 @@ export const updateOrgApplicationSettingsSchema = z.object({
   autoMigrate: z.boolean().optional(),
   emailNotifications: z.boolean().optional(),
   studentIdMode: z.enum(["manual", "auto"]).optional(),
+  enableConsentFileUpload: z.boolean().optional(),
+  showObservationConsent: z.boolean().optional(),
+  showTermsConsent: z.boolean().optional(),
+  showPhotoVideoConsent: z.boolean().optional(),
+  observationConsentFormUrl: z.string().nullable().optional(),
+  termsConsentFormUrl: z.string().nullable().optional(),
+  photoVideoConsentFormUrl: z.string().nullable().optional(),
+});
+
+export const createConsentFormUploadUrlSchema = z.object({
+  organizationId: z.string(),
+  consentType: z.enum(["observation", "terms", "photoVideo"]),
 });
 
 export const getOrgApplicationSettingsSchema = z.object({

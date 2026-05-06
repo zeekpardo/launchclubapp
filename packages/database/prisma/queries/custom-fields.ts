@@ -51,6 +51,22 @@ export async function reorderCustomFields(ids: string[]) {
   );
 }
 
+export async function moveCustomField(
+  fieldId: string,
+  folderId: string | null,
+  updatedOrders: { id: string; order: number }[],
+) {
+  return db.$transaction([
+    db.customField.update({
+      where: { id: fieldId },
+      data: { folderId },
+    }),
+    ...updatedOrders.map(({ id, order }) =>
+      db.customField.update({ where: { id }, data: { order } }),
+    ),
+  ]);
+}
+
 export async function getCollectInApplicationFieldsBySite(siteSlug: string) {
   return db.customField.findMany({
     where: {
