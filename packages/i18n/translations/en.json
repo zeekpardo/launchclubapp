@@ -1580,7 +1580,8 @@
       "delete": "Delete Field",
       "noFields": "No custom fields yet.",
       "form": {
-        "name": "Field Name",
+        "name": "Field Name (English)",
+        "nameEs": "Field Name (Spanish)",
         "type": "Field Type",
         "typeLockedHint": "Field type cannot be changed after creation.",
         "required": "Required",

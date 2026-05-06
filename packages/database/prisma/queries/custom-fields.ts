@@ -15,6 +15,7 @@ export async function getCustomFieldById(id: string) {
 export async function createCustomField(data: {
   organizationId: string;
   name: string;
+  nameEs?: string | null;
   type: CustomFieldType;
   required?: boolean;
   options?: string[];
@@ -27,6 +28,7 @@ export async function updateCustomField(
   id: string,
   data: Partial<{
     name: string;
+    nameEs: string | null;
     type: CustomFieldType;
     required: boolean;
     options: string[];

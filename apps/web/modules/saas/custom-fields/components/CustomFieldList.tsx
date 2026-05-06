@@ -21,6 +21,7 @@ type FieldType = (typeof CUSTOM_FIELD_TYPES)[number];
 interface CustomField {
   id: string;
   name: string;
+  nameEs?: string | null;
   type: FieldType;
   required: boolean;
   options: string[];
@@ -114,6 +115,7 @@ export function CustomFieldList({ organizationId, title, description }: CustomFi
                       handleEdit({
                         id: field.id,
                         name: field.name,
+                        nameEs: (field as CustomField).nameEs,
                         type: field.type as FieldType,
                         required: field.required,
                         options: field.options,

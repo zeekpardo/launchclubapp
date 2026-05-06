@@ -15,6 +15,7 @@ export type CustomFieldType = (typeof CUSTOM_FIELD_TYPES)[number];
 export const createCustomFieldSchema = z.object({
   organizationId: z.string().max(36),
   name: z.string().min(1).max(100),
+  nameEs: z.string().max(100).optional().nullable(),
   type: z.enum(CUSTOM_FIELD_TYPES),
   required: z.boolean().optional().default(false),
   options: z.array(z.string().max(200)).max(100).optional().default([]),
@@ -24,6 +25,7 @@ export const createCustomFieldSchema = z.object({
 export const updateCustomFieldSchema = z.object({
   id: z.string().max(36),
   name: z.string().min(1).max(100).optional(),
+  nameEs: z.string().max(100).optional().nullable(),
   required: z.boolean().optional(),
   options: z.array(z.string().max(200)).max(100).optional(),
   order: z.number().int().optional(),

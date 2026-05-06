@@ -70,6 +70,7 @@ const defaultChild = {
 export interface ProfileField {
 	id: string;
 	name: string;
+	nameEs?: string | null;
 	type: string;
 	required: boolean;
 	options: string[];

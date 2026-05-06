@@ -10,7 +10,7 @@ import {
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import type { CustomFieldType } from "@repo/api/modules/custom-fields/types";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import {
   useCustomFields,
@@ -25,6 +25,7 @@ interface CustomFieldsPersonPanelProps {
 
 export function CustomFieldsPersonPanel({ personId }: CustomFieldsPersonPanelProps) {
   const t = useTranslations();
+  const locale = useLocale();
   const { activeOrganization } = useActiveOrganization();
   const organizationId = activeOrganization?.id ?? "";
 
@@ -78,7 +79,7 @@ export function CustomFieldsPersonPanel({ personId }: CustomFieldsPersonPanelPro
         {fields.map((field) => (
           <div key={field.id} className="space-y-1">
             <label className="font-medium text-sm">
-              {field.name}
+              {(locale === "es" && (field as { nameEs?: string | null }).nameEs) || field.name}
               {field.required && <span className="ml-1 text-destructive">*</span>}
             </label>
             <div className="flex items-center gap-2">

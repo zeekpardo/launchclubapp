@@ -683,6 +683,7 @@ model CustomField {
   id                   String             @id @default(cuid())
   organizationId       String
   name                 String
+  nameEs               String?
   type                 CustomFieldType
   required             Boolean            @default(false)
   options              String[]

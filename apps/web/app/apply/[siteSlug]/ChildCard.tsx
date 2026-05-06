@@ -23,7 +23,7 @@ import { CustomFieldInput } from "@saas/custom-fields/components/CustomFieldInpu
 import type { CustomFieldType } from "@repo/api/modules/custom-fields/types";
 import { orpcClient } from "@shared/lib/orpc-client";
 import { ImageIcon, PaperclipIcon, TrashIcon, XIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import type { Control, UseFormSetValue } from "react-hook-form";
 import type { ApplicationFormValues, BasicFormField, ProfileField } from "./ApplicationForm";
@@ -137,6 +137,7 @@ function FileFieldUpload({ fieldId, siteSlug, value, onChange }: FileFieldUpload
 
 export function ChildCard({ index, canRemove, onRemove, control, setValue, profileFields = [], formFields = [] as BasicFormField[], siteSlug }: ChildCardProps) {
 	const t = useTranslations("application.children");
+	const locale = useLocale();
 	const [uploading, setUploading] = useState(false);
 	const [preview, setPreview] = useState<string | null>(null);
 	const [uploadError, setUploadError] = useState<string | null>(null);
@@ -491,7 +492,7 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											{pf.name}
+											{(locale === "es" && pf.nameEs) || pf.name}
 											{pf.required && " *"}
 										</FormLabel>
 										<FormControl>

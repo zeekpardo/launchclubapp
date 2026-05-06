@@ -1532,7 +1532,9 @@
       "delete": "Eliminar Campo",
       "noFields": "Aún no hay campos personalizados.",
       "form": {
-        "name": "Nombre del Campo",
+        "name": "Nombre del Campo (Inglés)",
+        "nameEs": "Nombre del Campo (Español)",
+        "typeLockedHint": "El tipo de campo no se puede cambiar después de la creación.",
         "type": "Tipo de Campo",
         "required": "Obligatorio",
         "options": "Opciones (una por línea)",

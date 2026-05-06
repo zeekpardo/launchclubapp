@@ -211,7 +211,7 @@ export type OrganizationApplicationSettingsScalarFieldEnum = z.infer<typeof Orga
 
 // File: CustomFieldScalarFieldEnum.schema.ts
 
-export const CustomFieldScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'name', 'type', 'required', 'options', 'order', 'collectInApplication', 'createdAt', 'updatedAt'])
+export const CustomFieldScalarFieldEnumSchema = z.enum(['id', 'organizationId', 'name', 'nameEs', 'type', 'required', 'options', 'order', 'collectInApplication', 'createdAt', 'updatedAt'])
 
 export type CustomFieldScalarFieldEnum = z.infer<typeof CustomFieldScalarFieldEnumSchema>;
 
@@ -865,6 +865,7 @@ export const CustomFieldSchema = z.object({
   id: z.string(),
   organizationId: z.string(),
   name: z.string(),
+  nameEs: z.string().nullish(),
   type: CustomFieldTypeSchema,
   required: z.boolean(),
   options: z.array(z.string()),

@@ -42,6 +42,7 @@ const FIELD_TYPES = CUSTOM_FIELD_TYPES;
 
 const formSchema = z.object({
   name: z.string().min(1),
+  nameEs: z.string().optional(),
   type: z.enum(FIELD_TYPES),
   required: z.boolean(),
   options: z.string(),
@@ -56,6 +57,7 @@ interface CustomFieldDialogProps {
   field?: {
     id: string;
     name: string;
+    nameEs?: string | null;
     type: (typeof FIELD_TYPES)[number];
     required: boolean;
     options: string[];
@@ -78,6 +80,7 @@ export function CustomFieldDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: field?.name ?? "",
+      nameEs: field?.nameEs ?? "",
       type: field?.type ?? "TEXT",
       required: field?.required ?? false,
       options: field?.options.join("\n") ?? "",
@@ -88,6 +91,7 @@ export function CustomFieldDialog({
     if (open) {
       form.reset({
         name: field?.name ?? "",
+        nameEs: field?.nameEs ?? "",
         type: field?.type ?? "TEXT",
         required: field?.required ?? false,
         options: field?.options.join("\n") ?? "",
@@ -108,6 +112,7 @@ export function CustomFieldDialog({
         await updateField.mutateAsync({
           id: field.id,
           name: values.name,
+          nameEs: values.nameEs || null,
           required: values.required,
           options,
         });
@@ -116,6 +121,7 @@ export function CustomFieldDialog({
         await createField.mutateAsync({
           organizationId,
           name: values.name,
+          nameEs: values.nameEs || null,
           type: values.type,
           required: values.required,
           options,
@@ -149,6 +155,19 @@ export function CustomFieldDialog({
               render={({ field: f }) => (
                 <FormItem>
                   <FormLabel>{t("launchclub.customFields.form.name")}</FormLabel>
+                  <FormControl>
+                    <Input {...f} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="nameEs"
+              render={({ field: f }) => (
+                <FormItem>
+                  <FormLabel>{t("launchclub.customFields.form.nameEs")}</FormLabel>
                   <FormControl>
                     <Input {...f} />
                   </FormControl>
