@@ -84,6 +84,11 @@ export const createConsentFormUploadUrlSchema = z.object({
   consentType: z.enum(["observation", "terms", "photoVideo"]),
 });
 
+export const getConsentFormDownloadUrlSchema = z.object({
+  organizationId: z.string(),
+  consentType: z.enum(["observation", "terms", "photoVideo"]),
+});
+
 export const getOrgApplicationSettingsSchema = z.object({
   organizationId: z.string(),
 });

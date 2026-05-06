@@ -28,6 +28,7 @@ function ConsentFormUpload({ organizationId, consentType, currentUrl, onSaved }:
 	const [uploading, setUploading] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const getUploadUrl = useMutation(orpc.applications.consentFormUploadUrl.mutationOptions());
+	const getDownloadUrl = useMutation(orpc.applications.consentFormDownloadUrl.mutationOptions());
 	const saveSettings = useMutation(orpc.applications.updateOrgSettings.mutationOptions());
 
 	async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -39,7 +40,7 @@ function ConsentFormUpload({ organizationId, consentType, currentUrl, onSaved }:
 		}
 		setUploading(true);
 		try {
-			const { uploadUrl, fileUrl } = await getUploadUrl.mutateAsync({ organizationId, consentType });
+			const { uploadUrl, fileKey } = await getUploadUrl.mutateAsync({ organizationId, consentType });
 			const res = await fetch(uploadUrl, {
 				method: "PUT",
 				body: file,
@@ -47,12 +48,12 @@ function ConsentFormUpload({ organizationId, consentType, currentUrl, onSaved }:
 			});
 			if (!res.ok) throw new Error("Upload failed");
 			const urlField = consentType === "observation"
-				? { observationConsentFormUrl: fileUrl }
+				? { observationConsentFormUrl: fileKey }
 				: consentType === "terms"
-				? { termsConsentFormUrl: fileUrl }
-				: { photoVideoConsentFormUrl: fileUrl };
+				? { termsConsentFormUrl: fileKey }
+				: { photoVideoConsentFormUrl: fileKey };
 			await saveSettings.mutateAsync({ organizationId, ...urlField });
-			onSaved(fileUrl);
+			onSaved(fileKey);
 			toastSuccess("Form PDF saved");
 		} catch {
 			toastError("Upload failed");
@@ -82,15 +83,22 @@ function ConsentFormUpload({ organizationId, consentType, currentUrl, onSaved }:
 			<input ref={inputRef} type="file" accept="application/pdf" className="hidden" onChange={handleFile} />
 			{currentUrl ? (
 				<>
-					<a
-						href={currentUrl}
-						target="_blank"
-						rel="noopener noreferrer"
-						className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+					<button
+						type="button"
+						onClick={async () => {
+							try {
+								const { downloadUrl } = await getDownloadUrl.mutateAsync({ organizationId, consentType });
+								window.open(downloadUrl, "_blank", "noopener,noreferrer");
+							} catch {
+								toastError("Could not load PDF");
+							}
+						}}
+						disabled={getDownloadUrl.isPending}
+						className="flex items-center gap-1.5 text-xs text-primary hover:underline disabled:opacity-50"
 					>
 						<FileTextIcon className="size-3.5" />
-						View PDF
-					</a>
+						{getDownloadUrl.isPending ? "Loading…" : "View PDF"}
+					</button>
 					<button
 						type="button"
 						onClick={handleRemove}

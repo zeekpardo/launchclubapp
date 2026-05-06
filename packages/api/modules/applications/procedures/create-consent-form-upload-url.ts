@@ -24,5 +24,5 @@ export const createConsentFormUploadUrlProcedure = protectedProcedure
       contentType: "application/pdf",
       maxBytes: 20 * 1024 * 1024,
     });
-    return { uploadUrl, fileUrl: path };
+    return { uploadUrl, fileKey: path };
   });

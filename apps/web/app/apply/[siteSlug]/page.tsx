@@ -1,4 +1,5 @@
 import { getCollectInApplicationFieldsBySite, getFormFieldsBySiteSlug, getOrgApplicationSettings, getSiteBySlug } from "@repo/database";
+import { getSignedUrl } from "@repo/storage";
 import { getTranslations } from "next-intl/server";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import type { BasicFormField } from "./ApplicationForm";
@@ -18,13 +19,29 @@ export default async function ApplyPage({
 	]);
 	const orgSettings = site ? await getOrgApplicationSettings(site.area.organizationId) : null;
 	const enableConsentFileUpload = orgSettings?.enableConsentFileUpload ?? false;
+
+	async function resolveConsentUrl(key: string | null | undefined) {
+		if (!key) return null;
+		try {
+			return await getSignedUrl(key, { bucket: "consentForms", expiresIn: 3600 });
+		} catch {
+			return null;
+		}
+	}
+
+	const [observationFormUrl, termsFormUrl, photoVideoFormUrl] = await Promise.all([
+		resolveConsentUrl(orgSettings?.observationConsentFormUrl),
+		resolveConsentUrl(orgSettings?.termsConsentFormUrl),
+		resolveConsentUrl(orgSettings?.photoVideoConsentFormUrl),
+	]);
+
 	const consentConfig = {
 		showObservation: orgSettings?.showObservationConsent ?? true,
 		showTerms: orgSettings?.showTermsConsent ?? true,
 		showPhotoVideo: orgSettings?.showPhotoVideoConsent ?? true,
-		observationFormUrl: orgSettings?.observationConsentFormUrl ?? null,
-		termsFormUrl: orgSettings?.termsConsentFormUrl ?? null,
-		photoVideoFormUrl: orgSettings?.photoVideoConsentFormUrl ?? null,
+		observationFormUrl,
+		termsFormUrl,
+		photoVideoFormUrl,
 	};
 	const formFields: BasicFormField[] = [...areaFields, ...siteFields].map((f) => ({
 		id: f.id,

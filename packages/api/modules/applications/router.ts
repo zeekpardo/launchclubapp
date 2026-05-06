@@ -1,6 +1,7 @@
 import { createChildPhotoUploadUrl } from "./procedures/create-child-photo-upload-url";
 import { createConsentSignatureUploadUrlProcedure } from "./procedures/create-consent-signature-upload-url";
 import { createConsentFormUploadUrlProcedure } from "./procedures/create-consent-form-upload-url";
+import { getConsentFormDownloadUrlProcedure } from "./procedures/get-consent-form-download-url";
 import { createFormFieldFileUploadUrl } from "./procedures/create-form-field-file-upload-url";
 import { submitApplication } from "./procedures/submit";
 import { listApplications } from "./procedures/list";
@@ -20,4 +21,5 @@ export const applicationsRouter = {
   formFieldFileUploadUrl: createFormFieldFileUploadUrl,
   consentSignatureUploadUrl: createConsentSignatureUploadUrlProcedure,
   consentFormUploadUrl: createConsentFormUploadUrlProcedure,
+  consentFormDownloadUrl: getConsentFormDownloadUrlProcedure,
 };
