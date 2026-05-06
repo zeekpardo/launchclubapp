@@ -25,7 +25,7 @@ import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { CustomFieldInput } from "@saas/custom-fields/components/CustomFieldInput";
@@ -106,6 +106,27 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 	const setCustomFieldValue = useMutation(orpc.customFields.setValue.mutationOptions());
 
 	const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
+
+	const { data: existingFieldValues } = useQuery(
+		orpc.customFields.listValues.queryOptions({
+			input: { organizationId, personId: person?.id ?? "" },
+			enabled: !!person?.id && !!organizationId,
+		}),
+	);
+
+	useEffect(() => {
+		if (existingFieldValues) {
+			setCustomFieldValues((prev) => {
+				const next = { ...prev };
+				for (const v of existingFieldValues) {
+					if (next[v.customFieldId] === undefined && v.value !== null) {
+						next[v.customFieldId] = v.value;
+					}
+				}
+				return next;
+			});
+		}
+	}, [existingFieldValues]);
 
 	const { data: orgSettings } = useQuery(
 		orpc.applications.getOrgSettings.queryOptions({
