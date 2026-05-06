@@ -14,7 +14,7 @@ CREATE TYPE "ConsentType" AS ENUM ('OBSERVATION', 'TERMS_AND_CONDITIONS', 'PHOTO
 ALTER TABLE "custom_field" ADD COLUMN     "folderId" TEXT;
 
 -- AlterTable
-ALTER TABLE "organization_application_settings" DROP COLUMN "studentIdPrefix",
+ALTER TABLE "organization_application_settings" DROP COLUMN IF EXISTS "studentIdPrefix",
 ADD COLUMN     "enableConsentFileUpload" BOOLEAN NOT NULL DEFAULT false;
 
 -- AlterTable
