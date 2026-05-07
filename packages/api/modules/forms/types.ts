@@ -37,6 +37,10 @@ export const publicGetFormSchema = z.object({
   formSlug: z.string(),
 });
 
+export const publicConsentUploadUrlSchema = z.object({
+  consentItemId: z.string(),
+});
+
 export const publicSubmitFormSchema = z.object({
   orgSlug: z.string(),
   formSlug: z.string(),

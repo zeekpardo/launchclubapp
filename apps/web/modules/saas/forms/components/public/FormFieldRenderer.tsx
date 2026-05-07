@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useRef } from "react";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { Textarea } from "@repo/ui/components/textarea";
+import { orpcClient } from "@shared/lib/orpc-client";
 
 const GRADES = [
 	"Pre-K",
@@ -38,7 +40,7 @@ export interface PublicFormField {
 	profileFieldKey?: string | null;
 	targetPersonType?: string | null;
 	customField?: { type: string; options: string[] } | null;
-	consentItem?: { id: string; name: string; pdfKey?: string | null } | null;
+	consentItem?: { id: string; name: string; pdfKey?: string | null; downloadUrl?: string | null } | null;
 }
 
 interface FormFieldRendererProps {
@@ -269,28 +271,13 @@ export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererP
 	}
 
 	if (field.type === "CONSENT") {
-		const consentName = field.consentItem?.name ?? field.label;
 		return (
-			<div className="rounded-lg border border-border bg-muted/30 p-4">
-				<div className="flex items-start gap-3">
-					<input
-						id={id}
-						type="checkbox"
-						checked={value === "true"}
-						onChange={(e) => onChange(e.target.checked ? "true" : "false")}
-						className="mt-0.5 size-4 shrink-0 rounded border-border accent-primary"
-					/>
-					<div className="space-y-1 min-w-0">
-						<Label htmlFor={id} className="cursor-pointer leading-snug">
-							{consentName}
-							{field.required && <span className="ml-1 text-destructive">*</span>}
-						</Label>
-						{field.helpText && (
-							<p className="text-xs text-muted-foreground">{field.helpText}</p>
-						)}
-					</div>
-				</div>
-			</div>
+			<ConsentField
+				id={id}
+				field={field}
+				value={value}
+				onChange={onChange}
+			/>
 		);
 	}
 
@@ -409,4 +396,141 @@ export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererP
 				</div>
 			);
 	}
+}
+
+// ── Consent Field ─────────────────────────────────────────────────────────────
+
+function ConsentField({
+	id,
+	field,
+	value,
+	onChange,
+}: {
+	id: string;
+	field: PublicFormField;
+	value: string;
+	onChange: (v: string) => void;
+}) {
+	const consentName = field.consentItem?.name ?? field.label;
+	const downloadUrl = field.consentItem?.downloadUrl;
+	const consentItemId = field.consentItem?.id;
+
+	const isChecked = value === "true" || value.startsWith("agreed:");
+	const uploadedFileKey = value.startsWith("agreed:") ? value.slice("agreed:".length) : null;
+
+	const [uploading, setUploading] = useState(false);
+	const [uploadError, setUploadError] = useState<string | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	const handleCheck = (checked: boolean) => {
+		if (!checked) {
+			onChange("false");
+		} else {
+			onChange("true");
+		}
+	};
+
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file || !consentItemId) return;
+
+		setUploading(true);
+		setUploadError(null);
+
+		try {
+			const { uploadUrl, fileKey } = await orpcClient.forms.publicConsentUploadUrl({ consentItemId });
+
+			const upload = await fetch(uploadUrl, {
+				method: "PUT",
+				headers: { "Content-Type": "application/pdf" },
+				body: file,
+			});
+			if (!upload.ok) throw new Error("Upload failed");
+
+			onChange(`agreed:${fileKey}`);
+		} catch {
+			setUploadError("Upload failed. Please try again.");
+		} finally {
+			setUploading(false);
+			if (fileInputRef.current) fileInputRef.current.value = "";
+		}
+	};
+
+	const handleRemoveFile = () => {
+		onChange("true");
+	};
+
+	return (
+		<div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+			{/* Header: name + download link */}
+			<div className="flex items-start justify-between gap-3">
+				<div className="flex items-start gap-3 min-w-0">
+					<input
+						id={id}
+						type="checkbox"
+						checked={isChecked}
+						onChange={(e) => handleCheck(e.target.checked)}
+						className="mt-0.5 size-4 shrink-0 rounded border-border accent-primary"
+					/>
+					<div className="space-y-1 min-w-0">
+						<Label htmlFor={id} className="cursor-pointer leading-snug">
+							{consentName}
+							{field.required && <span className="ml-1 text-destructive">*</span>}
+						</Label>
+						{field.helpText && (
+							<p className="text-xs text-muted-foreground">{field.helpText}</p>
+						)}
+					</div>
+				</div>
+				{downloadUrl && (
+					<a
+						href={downloadUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="shrink-0 text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/80 whitespace-nowrap"
+					>
+						Download form
+					</a>
+				)}
+			</div>
+
+			{/* Upload section — shown when checked */}
+			{isChecked && (
+				<div className="ml-7 space-y-2">
+					{uploadedFileKey ? (
+						<div className="flex items-center gap-2 text-sm">
+							<span className="text-green-600 dark:text-green-400 font-medium">✓ Signed form uploaded</span>
+							<button
+								type="button"
+								onClick={handleRemoveFile}
+								className="text-xs text-muted-foreground underline hover:text-foreground"
+							>
+								Remove
+							</button>
+						</div>
+					) : (
+						<div className="space-y-1">
+							<p className="text-xs text-muted-foreground">
+								Upload your signed copy <span className="opacity-60">(optional)</span>
+							</p>
+							<label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-xs hover:bg-muted transition-colors">
+								{uploading ? "Uploading…" : "Choose PDF file"}
+								<input
+									ref={fileInputRef}
+									type="file"
+									accept="application/pdf"
+									className="sr-only"
+									disabled={uploading}
+									onChange={handleFileChange}
+								/>
+							</label>
+							{uploadError && (
+								<p className="text-xs text-destructive">{uploadError}</p>
+							)}
+						</div>
+					)}
+				</div>
+			)}
+		</div>
+	);
 }

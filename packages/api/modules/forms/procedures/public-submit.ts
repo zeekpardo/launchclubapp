@@ -117,9 +117,10 @@ function validateRequiredFields(
     if (!ff.required) continue;
     if (ff.type === "HEADER" || ff.type === "SITE_SELECTOR") continue;
     const val = fields[ff.id];
-    // CONSENT fields must be explicitly checked ("true"); empty or "false" counts as missing
+    // CONSENT fields: "true" (agreed) or "agreed:{fileKey}" (agreed + uploaded) are valid
     if (ff.type === "CONSENT") {
-      if (val !== "true") missing.push(ff.label);
+      const agreed = val === "true" || val?.startsWith("agreed:");
+      if (!agreed) missing.push(ff.label);
     } else if (!val || val.trim() === "") {
       missing.push(ff.label);
     }

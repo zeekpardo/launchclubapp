@@ -6,6 +6,7 @@ import { softDeleteFormProcedure } from "./procedures/soft-delete";
 import { assignSitesProcedure } from "./procedures/assign-sites";
 import { publicGetForm } from "./procedures/public-get";
 import { publicSubmitForm } from "./procedures/public-submit";
+import { publicConsentUploadUrl } from "./procedures/public-consent-upload-url";
 
 export const formsRouter = {
   create: createFormProcedure,
@@ -16,4 +17,5 @@ export const formsRouter = {
   assignSites: assignSitesProcedure,
   publicGet: publicGetForm,
   publicSubmit: publicSubmitForm,
+  publicConsentUploadUrl,
 };
