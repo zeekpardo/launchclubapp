@@ -10,7 +10,7 @@ export async function getGroupsBySite(siteId: string) {
 
 const groupListInclude = {
   site: { include: { area: true } },
-  _count: { select: { personGroups: true } },
+  _count: { select: { personGroups: { where: { role: "MEMBER" } } } },
   personGroups: {
     where: { role: "LEADER" },
     include: { person: { select: { firstName: true, lastName: true } } },

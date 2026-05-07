@@ -1027,7 +1027,8 @@
         "site": "Site",
         "gradeLevel": "Grade Level",
         "meetingDays": "Meeting Days",
-        "mentor": "Mentor"
+        "mentor": "Mentor",
+        "students": "Students"
       },
       "image": {
         "title": "Group Image",

@@ -34,7 +34,7 @@ import { ExternalLinkIcon, MapPinIcon, PlusIcon, Settings2Icon } from "lucide-re
 import { formatMeetingDays } from "@saas/groups/lib/day-utils";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useGroups } from "../hooks/use-groups";
 import { GroupDialog } from "./GroupDialog";
@@ -56,6 +56,7 @@ export function GroupList() {
 	const [selectedSiteId, setSelectedSiteId] = useState<string>(ALL);
 	const [search, setSearch] = useState("");
 
+	const router = useRouter();
 	const { data: groups, isLoading } = useGroups();
 
 	// Derive unique areas from groups data
@@ -197,13 +198,14 @@ export function GroupList() {
 					) : filteredGroups.length > 0 ? (
 						<Table>
 							<TableHeader>
-								<TableRow>
+								<TableRow className="hover:bg-transparent">
 									<TableHead className="hidden md:table-cell w-16" />
 									<TableHead>{t("launchclub.groups.columns.name")}</TableHead>
 									<TableHead>{t("launchclub.groups.columns.site")}</TableHead>
 									<TableHead className="hidden md:table-cell">{t("launchclub.groups.columns.gradeLevel")}</TableHead>
 									<TableHead className="hidden md:table-cell">{t("launchclub.groups.columns.meetingDays")}</TableHead>
 									<TableHead className="hidden md:table-cell">{t("launchclub.groups.columns.mentor")}</TableHead>
+									<TableHead className="hidden md:table-cell text-right">{t("launchclub.groups.columns.students")}</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -219,69 +221,31 @@ export function GroupList() {
 										<TableRow
 											key={group.id}
 											className="cursor-pointer"
+											onClick={() => router.push(`/app/${organizationSlug}/groups/${group.id}`)}
 										>
 											<TableCell className="hidden md:table-cell">
-												<Link
-													href={`/app/${organizationSlug}/groups/${group.id}`}
-													className="block"
-												>
-													<div className="h-8 w-12 overflow-hidden rounded border bg-muted">
-														{group.image ? (
-															<img
-																src={`/image-proxy/${storageConfig.bucketNames.avatars}/${group.image}`}
-																alt={group.name}
-																className="h-full w-full object-cover"
-															/>
-														) : (
-															<div className="flex h-full w-full items-center justify-center">
-																<span className="text-xs font-semibold text-muted-foreground/70">
-																	{group.name.charAt(0).toUpperCase()}
-																</span>
-															</div>
-														)}
-													</div>
-												</Link>
+												<div className="h-8 w-12 overflow-hidden rounded border bg-muted">
+													{group.image ? (
+														<img
+															src={`/image-proxy/${storageConfig.bucketNames.avatars}/${group.image}`}
+															alt={group.name}
+															className="h-full w-full object-cover"
+														/>
+													) : (
+														<div className="flex h-full w-full items-center justify-center">
+															<span className="text-xs font-semibold text-muted-foreground/70">
+																{group.name.charAt(0).toUpperCase()}
+															</span>
+														</div>
+													)}
+												</div>
 											</TableCell>
-											<TableCell className="font-medium">
-												<Link
-													href={`/app/${organizationSlug}/groups/${group.id}`}
-													className="hover:text-primary"
-												>
-													{group.name}
-												</Link>
-											</TableCell>
-											<TableCell>
-												<Link
-													href={`/app/${organizationSlug}/groups/${group.id}`}
-													className="block"
-												>
-													{group.site?.name ?? "-"}
-												</Link>
-											</TableCell>
-											<TableCell className="hidden md:table-cell">
-												<Link
-													href={`/app/${organizationSlug}/groups/${group.id}`}
-													className="block"
-												>
-													{gradeLevel}
-												</Link>
-											</TableCell>
-											<TableCell className="hidden md:table-cell">
-												<Link
-													href={`/app/${organizationSlug}/groups/${group.id}`}
-													className="block"
-												>
-													{meetingDays}
-												</Link>
-											</TableCell>
-											<TableCell className="hidden md:table-cell">
-												<Link
-													href={`/app/${organizationSlug}/groups/${group.id}`}
-													className="block"
-												>
-													{mentorName}
-												</Link>
-											</TableCell>
+											<TableCell className="font-medium">{group.name}</TableCell>
+											<TableCell>{group.site?.name ?? "-"}</TableCell>
+											<TableCell className="hidden md:table-cell">{gradeLevel}</TableCell>
+											<TableCell className="hidden md:table-cell">{meetingDays}</TableCell>
+											<TableCell className="hidden md:table-cell">{mentorName}</TableCell>
+											<TableCell className="hidden md:table-cell text-right">{group._count.personGroups}</TableCell>
 										</TableRow>
 									);
 								})}

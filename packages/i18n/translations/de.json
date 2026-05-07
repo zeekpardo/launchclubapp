@@ -940,7 +940,8 @@
         "site": "Standort",
         "gradeLevel": "Klassenstufe",
         "meetingDays": "Treffentage",
-        "mentor": "Mentor"
+        "mentor": "Mentor",
+        "students": "Schüler"
       }
     },
     "people": {

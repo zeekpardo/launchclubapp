@@ -987,7 +987,8 @@
         "site": "Sede",
         "gradeLevel": "Nivel de Grado",
         "meetingDays": "Días de Reunión",
-        "mentor": "Mentor"
+        "mentor": "Mentor",
+        "students": "Estudiantes"
       },
       "image": {
         "title": "Imagen del Grupo",

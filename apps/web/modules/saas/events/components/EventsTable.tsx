@@ -12,6 +12,7 @@ import {
 } from "@repo/ui/components/alert-dialog";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
+import { Skeleton } from "@repo/ui/components/skeleton";
 import {
 	Table,
 	TableBody,
@@ -49,6 +50,7 @@ interface EventRow {
 interface EventsTableProps {
 	events: EventRow[];
 	organizationId: string;
+	isLoading?: boolean;
 }
 
 function EventTableRow({
@@ -94,7 +96,7 @@ function EventTableRow({
 
 	return (
 		<>
-			<TableRow>
+			<TableRow className="cursor-pointer" onClick={() => setEditOpen(true)}>
 				<TableCell className="font-medium">{event.name}</TableCell>
 				<TableCell className="text-muted-foreground">
 					{primaryGroup ? (
@@ -112,7 +114,7 @@ function EventTableRow({
 				<TableCell className="text-muted-foreground whitespace-nowrap">
 					{timeLabel}
 				</TableCell>
-				<TableCell>
+				<TableCell onClick={(e) => e.stopPropagation()}>
 					<Badge
 						status={totalMembers > 0 ? "success" : "info"}
 						className="flex w-fit cursor-pointer items-center gap-1 whitespace-nowrap"
@@ -127,7 +129,7 @@ function EventTableRow({
 				<TableCell className="text-muted-foreground max-w-xs truncate">
 					{event.description ?? "—"}
 				</TableCell>
-				<TableCell className="text-right">
+				<TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
 					<div className="flex justify-end gap-0.5">
 						<Button
 							variant="ghost"
@@ -200,13 +202,13 @@ function EventTableRow({
 	);
 }
 
-export function EventsTable({ events, organizationId }: EventsTableProps) {
+export function EventsTable({ events, organizationId, isLoading }: EventsTableProps) {
 	const t = useTranslations();
 	return (
-		<div className="rounded-xl border">
+		<div className="rounded-xl border bg-card">
 			<Table>
 				<TableHeader>
-					<TableRow>
+					<TableRow className="hover:bg-transparent">
 						<TableHead>{t("launchclub.events.table.event")}</TableHead>
 						<TableHead>{t("launchclub.events.table.group")}</TableHead>
 						<TableHead>{t("launchclub.events.table.date")}</TableHead>
@@ -217,13 +219,34 @@ export function EventsTable({ events, organizationId }: EventsTableProps) {
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{events.map((event) => (
-						<EventTableRow
-							key={event.id}
-							event={event}
-							organizationId={organizationId}
-						/>
-					))}
+					{isLoading ? (
+						Array.from({ length: 5 }).map((_, i) => (
+							// biome-ignore lint/suspicious/noArrayIndexKey: skeleton
+							<TableRow key={i}>
+								<TableCell><Skeleton className="h-4 w-36" /></TableCell>
+								<TableCell><Skeleton className="h-4 w-24" /></TableCell>
+								<TableCell><Skeleton className="h-4 w-28" /></TableCell>
+								<TableCell><Skeleton className="h-4 w-16" /></TableCell>
+								<TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
+								<TableCell><Skeleton className="h-4 w-40" /></TableCell>
+								<TableCell />
+							</TableRow>
+						))
+					) : events.length === 0 ? (
+						<TableRow>
+							<TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+								{t("launchclub.events.noResults")}
+							</TableCell>
+						</TableRow>
+					) : (
+						events.map((event) => (
+							<EventTableRow
+								key={event.id}
+								event={event}
+								organizationId={organizationId}
+							/>
+						))
+					)}
 				</TableBody>
 			</Table>
 		</div>

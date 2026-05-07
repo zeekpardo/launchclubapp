@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from "@repo/ui/components/input";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import {
 	Select,
@@ -9,12 +10,11 @@ import {
 	SelectValue,
 } from "@repo/ui/components/select";
 import { Button } from "@repo/ui/components/button";
-import { SearchInput } from "@shared/components/SearchInput";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { useGroups } from "@saas/groups/hooks/use-groups";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarIcon, LayoutGridIcon, PlusCircleIcon, TableIcon } from "lucide-react";
+import { CalendarIcon, LayoutGridIcon, PlusIcon, TableIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useMemo } from "react";
 import { EventCard } from "./EventCard";
@@ -126,107 +126,109 @@ export function EventsPageClient() {
 	// ── Render ────────────────────────────────────────────────────────────────
 
 	return (
-		<div className="space-y-6">
+		<div className="space-y-4">
 			{/* Filter bar */}
-			<div className="flex flex-wrap items-center gap-3">
-				<Select value={selectedAreaId} onValueChange={handleAreaChange}>
-					<SelectTrigger className="w-44">
-						<SelectValue placeholder={t("launchclub.events.allAreas")} />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value={ALL}>{t("launchclub.events.allAreas")}</SelectItem>
-						{(areas ?? []).map((area) => (
-							<SelectItem key={area.id} value={area.id}>
-								{area.name}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-
-				<Select value={selectedSiteId} onValueChange={setSelectedSiteId}>
-					<SelectTrigger className="w-44">
-						<SelectValue placeholder={t("launchclub.events.allSites")} />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value={ALL}>{t("launchclub.events.allSites")}</SelectItem>
-						{visibleSites.map((site) => (
-							<SelectItem key={site.id} value={site.id}>
-								{site.name}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-
-				<SearchInput
-					value={search}
-					onChange={setSearch}
-					placeholder={t("launchclub.events.searchPlaceholder")}
-					className="w-64"
-				/>
-
-				<Button variant="primary" className="gap-2" onClick={() => setCreateOpen(true)}>
-					<PlusCircleIcon className="size-4" />
-					{t("launchclub.events.new")}
-				</Button>
-
-				{/* View toggle */}
-				<div className="ml-auto flex items-center gap-1 rounded-lg border p-1">
-					<Button
-						variant={viewMode === "grid" ? "secondary" : "ghost"}
-						size="icon"
-						className="size-7"
-						onClick={() => setViewMode("grid")}
-						aria-label={t("launchclub.events.gridView")}
-					>
-						<LayoutGridIcon className="size-3.5" />
+			<div className="flex flex-col gap-3">
+				{/* Row 1: Search + view toggle + New button */}
+				<div className="flex items-center gap-2">
+					<Input
+						type="search"
+						placeholder={t("launchclub.events.searchPlaceholder")}
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						className="flex-1"
+					/>
+					<div className="flex items-center gap-1 rounded-lg border p-1 shrink-0">
+						<Button
+							variant={viewMode === "grid" ? "secondary" : "ghost"}
+							size="icon"
+							className="size-7"
+							onClick={() => setViewMode("grid")}
+							aria-label={t("launchclub.events.gridView")}
+						>
+							<LayoutGridIcon className="size-3.5" />
+						</Button>
+						<Button
+							variant={viewMode === "table" ? "secondary" : "ghost"}
+							size="icon"
+							className="size-7"
+							onClick={() => setViewMode("table")}
+							aria-label={t("launchclub.events.tableView")}
+						>
+							<TableIcon className="size-3.5" />
+						</Button>
+					</div>
+					<Button className="shrink-0" onClick={() => setCreateOpen(true)}>
+						<PlusIcon className="size-4 md:mr-2" />
+						<span className="hidden md:inline">{t("launchclub.events.new")}</span>
 					</Button>
-					<Button
-						variant={viewMode === "table" ? "secondary" : "ghost"}
-						size="icon"
-						className="size-7"
-						onClick={() => setViewMode("table")}
-						aria-label={t("launchclub.events.tableView")}
-					>
-						<TableIcon className="size-3.5" />
-					</Button>
+				</div>
+
+				{/* Row 2: Area + Site selects */}
+				<div className="flex items-center gap-2">
+					<Select value={selectedAreaId} onValueChange={handleAreaChange}>
+						<SelectTrigger className="flex-1">
+							<SelectValue placeholder={t("launchclub.events.allAreas")} />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value={ALL}>{t("launchclub.events.allAreas")}</SelectItem>
+							{(areas ?? []).map((area) => (
+								<SelectItem key={area.id} value={area.id}>
+									{area.name}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+
+					<Select value={selectedSiteId} onValueChange={setSelectedSiteId}>
+						<SelectTrigger className="flex-1">
+							<SelectValue placeholder={t("launchclub.events.allSites")} />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value={ALL}>{t("launchclub.events.allSites")}</SelectItem>
+							{visibleSites.map((site) => (
+								<SelectItem key={site.id} value={site.id}>
+									{site.name}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
 				</div>
 			</div>
 
 			{/* Content */}
-			{isLoading ? (
-				viewMode === "grid" ? (
+			{viewMode === "grid" ? (
+				isLoading ? (
 					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{Array.from({ length: 6 }).map((_, i) => (
 							// biome-ignore lint/suspicious/noArrayIndexKey: skeleton
 							<Skeleton key={i} className="h-40 w-full rounded-xl" />
 						))}
 					</div>
+				) : filteredEvents.length === 0 ? (
+					<div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+						<CalendarIcon className="mb-3 size-10 opacity-40" />
+						<p className="text-sm">{t("launchclub.events.noResults")}</p>
+					</div>
 				) : (
-					<div className="space-y-2">
-						{Array.from({ length: 6 }).map((_, i) => (
-							// biome-ignore lint/suspicious/noArrayIndexKey: skeleton
-							<Skeleton key={i} className="h-12 w-full rounded-lg" />
+					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						{filteredEvents.map((event) => (
+							<EventCard
+								key={event.id}
+								event={event}
+								organizationId={organizationId}
+							/>
 						))}
 					</div>
 				)
-			) : filteredEvents.length === 0 ? (
-				<div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-					<CalendarIcon className="mb-3 size-10 opacity-40" />
-					<p className="text-sm">{t("launchclub.events.noResults")}</p>
-				</div>
-			) : viewMode === "grid" ? (
-				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{filteredEvents.map((event) => (
-						<EventCard
-							key={event.id}
-							event={event}
-							organizationId={organizationId}
-						/>
-					))}
-				</div>
 			) : (
-				<EventsTable events={filteredEvents} organizationId={organizationId} />
+				<EventsTable
+					events={filteredEvents}
+					organizationId={organizationId}
+					isLoading={isLoading}
+				/>
 			)}
+
 			<EventDialog
 				open={createOpen}
 				onOpenChange={setCreateOpen}

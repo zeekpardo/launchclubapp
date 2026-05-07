@@ -33,6 +33,7 @@ export async function getFormsByOrganization(organizationId: string) {
     where: { organizationId, deletedAt: null },
     include: {
       _count: { select: { formSites: true, fields: true } },
+      formSites: { select: { site: { select: { id: true, name: true } } } },
     },
     orderBy: { createdAt: "desc" },
   });

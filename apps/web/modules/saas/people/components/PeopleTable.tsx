@@ -48,7 +48,7 @@ import {
 import { PencilIcon, PlusIcon, Settings2Icon, TrashIcon, UserIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
 	useDeletePerson,
@@ -181,6 +181,7 @@ function GuardianSheet({
 export function PeopleTable() {
 	const t = useTranslations();
 	const params = useParams<{ organizationSlug: string }>();
+	const router = useRouter();
 	const { activeOrganization, activeOrganizationUserRole } = useActiveOrganization();
 	// Both site leaders and group leaders have member.role="member" in Better Auth.
 	// We distinguish them by whether sites.list returns data (site leaders have UserSite records).
@@ -411,7 +412,11 @@ export function PeopleTable() {
 							))
 						) : people && people.length > 0 ? (
 							people.map((person) => (
-								<TableRow key={person.id}>
+								<TableRow
+									key={person.id}
+									className="cursor-pointer"
+									onClick={() => router.push(`${basePath}/${person.id}`)}
+								>
 									<TableCell>
 										<PersonAvatar
 											firstName={person.firstName}
@@ -420,13 +425,8 @@ export function PeopleTable() {
 											avatarUrl={person.avatarUrl}
 										/>
 									</TableCell>
-									<TableCell>
-										<Link
-											href={`${basePath}/${person.id}`}
-											className="font-medium hover:underline"
-										>
-											{person.firstName} {person.lastName}
-										</Link>
+									<TableCell className="font-medium">
+										{person.firstName} {person.lastName}
 									</TableCell>
 									<TableCell>
 										<TypeBadge
@@ -457,7 +457,7 @@ export function PeopleTable() {
 											{person.isActive ? t("launchclub.people.statusActive") : t("launchclub.people.statusInactive")}
 										</span>
 									</TableCell>
-									<TableCell>
+									<TableCell onClick={(e) => e.stopPropagation()}>
 										<div className="flex items-center gap-1">
 											{person.personType === "STUDENT" && (
 												<Button
