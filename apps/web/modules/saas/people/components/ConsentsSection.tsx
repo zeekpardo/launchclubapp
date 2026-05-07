@@ -35,7 +35,7 @@ import {
 	UploadIcon,
 	XCircleIcon,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useAcademicYears } from "../hooks/use-academic-records";
@@ -65,6 +65,14 @@ interface ConsentRecord {
 // ---------------------------------------------------------------------------
 // Shared sub-components
 // ---------------------------------------------------------------------------
+
+function CollapseButton({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+	return (
+		<Button size="icon" variant="ghost" className="size-7" onClick={onToggle}>
+			<ChevronDownIcon className={`size-4 transition-transform ${collapsed ? "" : "rotate-180"}`} />
+		</Button>
+	);
+}
 
 function ViewConsentFormButton({ consentItem, organizationId }: { consentItem: ConsentItem; organizationId: string }) {
 	const pdfDownloadUrl = usePdfDownloadUrl();
@@ -277,6 +285,9 @@ function ConsentEditRow({
 // Edit dialog
 // ---------------------------------------------------------------------------
 
+const editSchema = z.record(z.string(), consentRowSchema);
+type EditValues = Record<string, ConsentRowValue>;
+
 interface EditConsentsDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -298,31 +309,26 @@ function EditConsentsDialog({
 }: EditConsentsDialogProps) {
 	const upsertConsent = useUpsertPersonConsent();
 
-	const editSchema = z.record(z.string(), consentRowSchema);
-	type EditValues = Record<string, ConsentRowValue>;
-
-	function buildDefaultValues(): EditValues {
+	const defaultValues = useMemo<EditValues>(() => {
 		const result: EditValues = {};
 		for (const item of consentItems) {
 			const r = existingConsents.find((c) => c.consentItemId === item.id);
 			result[item.id] = {
 				granted: r?.granted ?? false,
-				grantedAt: r?.grantedAt
-					? new Date(r.grantedAt).toISOString().slice(0, 10)
-					: null,
+				grantedAt: r?.grantedAt ? new Date(r.grantedAt).toISOString().slice(0, 10) : null,
 				signatureFileUrl: r?.signatureFileUrl ?? null,
 			};
 		}
 		return result;
-	}
+	}, [consentItems, existingConsents]);
 
 	const form = useForm<EditValues>({
 		resolver: zodResolver(editSchema),
-		defaultValues: buildDefaultValues(),
+		defaultValues,
 	});
 
 	function handleOpenChange(nextOpen: boolean) {
-		if (nextOpen) form.reset(buildDefaultValues());
+		if (nextOpen) form.reset(defaultValues);
 		onOpenChange(nextOpen);
 	}
 
@@ -407,16 +413,7 @@ function PreviousYearConsents({ personId, organizationId }: PreviousYearConsents
 					<CardTitle className="text-sm text-muted-foreground">
 						{academicYear.label} (Previous Year)
 					</CardTitle>
-					<Button
-						size="icon"
-						variant="ghost"
-						className="size-7"
-						onClick={() => setCollapsed((c) => !c)}
-					>
-						<ChevronDownIcon
-							className={`size-4 transition-transform ${collapsed ? "" : "rotate-180"}`}
-						/>
-					</Button>
+					<CollapseButton collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
 				</div>
 			</CardHeader>
 			{!collapsed && (
@@ -493,16 +490,7 @@ export function ConsentsSection({ personId, organizationId, personType }: Consen
 									Edit
 								</Button>
 							)}
-							<Button
-								size="icon"
-								variant="ghost"
-								className="size-7"
-								onClick={() => setCollapsed((c) => !c)}
-							>
-								<ChevronDownIcon
-									className={`size-4 transition-transform ${collapsed ? "" : "rotate-180"}`}
-								/>
-							</Button>
+							<CollapseButton collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
 						</div>
 					</div>
 				</CardHeader>
