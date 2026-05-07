@@ -10,6 +10,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon, Heading2Icon, PlusIcon, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { slugify } from "../lib/slugify";
 
 export interface FormFieldItem {
 	id: string;
@@ -33,10 +34,6 @@ export interface FormFieldItem {
 interface FieldOption {
 	label: string;
 	value: string;
-}
-
-function slugify(str: string) {
-	return str.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 }
 
 interface FieldCardProps {

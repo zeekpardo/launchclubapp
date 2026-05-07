@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { useForms } from "@saas/forms/hooks/use-forms";
@@ -9,6 +8,7 @@ import Link from "next/link";
 import { PlusIcon, FileTextIcon } from "lucide-react";
 import { useState } from "react";
 import { CreateFormModal } from "./CreateFormModal";
+import { FormTypeBadge, FormStatusBadge } from "./FormBadges";
 
 export function FormsListClient() {
 	const { data: forms = [], isLoading } = useForms();
@@ -80,16 +80,3 @@ export function FormsListClient() {
 	);
 }
 
-function FormTypeBadge({ type }: { type: string }) {
-	if (type === "STUDENT") {
-		return <Badge status="info" className="text-xs">Student</Badge>;
-	}
-	return <Badge status="warning" className="text-xs">Mentor</Badge>;
-}
-
-function FormStatusBadge({ status }: { status: string }) {
-	if (status === "PUBLISHED") {
-		return <Badge status="success" className="text-xs">Published</Badge>;
-	}
-	return <Badge className="text-xs">Unpublished</Badge>;
-}

@@ -10,6 +10,7 @@ import { PlusIcon, TrashIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useUpdateFormField } from "../hooks/use-form-fields";
 import type { FormFieldItem } from "./FieldCard";
+import { slugify } from "../lib/slugify";
 
 interface FieldOption {
 	label: string;
@@ -20,13 +21,6 @@ interface FieldEditorPanelProps {
 	field: FormFieldItem;
 	areaId: string;
 	onClose: () => void;
-}
-
-function slugify(str: string) {
-	return str
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "_")
-		.replace(/^_|_$/g, "");
 }
 
 export function FieldEditorPanel({ field, areaId, onClose }: FieldEditorPanelProps) {

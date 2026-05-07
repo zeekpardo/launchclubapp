@@ -39,12 +39,9 @@ import {
 import type { FormFieldItem } from "./FieldCard";
 import { FieldTypePicker } from "./FieldTypePicker";
 import { FormBuilderCanvas } from "./FormBuilderCanvas";
+import { slugify } from "../lib/slugify";
 
 type FormFieldType = z.infer<typeof formFieldTypeEnum>;
-
-function slugify(str: string) {
-	return str.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
-}
 
 const PRESET_FIELDS = [
 	{ id: "emergency_contact_name", label: "Emergency Contact Name", type: "TEXT" },
