@@ -5,6 +5,7 @@ import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { Textarea } from "@repo/ui/components/textarea";
 import { orpcClient } from "@shared/lib/orpc-client";
+import { DownloadIcon } from "lucide-react";
 
 const GRADES = [
 	"Pre-K",
@@ -487,9 +488,11 @@ function ConsentField({
 						href={downloadUrl}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="shrink-0 text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/80 whitespace-nowrap"
+						className="flex shrink-0 items-center gap-1 max-w-[140px] text-xs font-medium text-primary hover:text-primary/80"
+						title={`${consentName}.pdf`}
 					>
-						Download form
+						<DownloadIcon className="size-3 shrink-0" />
+						<span className="truncate">{consentName}.pdf</span>
 					</a>
 				)}
 			</div>
