@@ -1,4 +1,4 @@
-import { orpcClient } from "@shared/lib/orpc-client";
+import { getOrganizationBySlug, getFormBySlug } from "@repo/database";
 import { MentorFormLayout } from "@saas/forms/components/public/MentorFormLayout";
 import { StudentFormLayout } from "@saas/forms/components/public/StudentFormLayout";
 
@@ -12,22 +12,22 @@ export default async function PublicFormPage({
 	const { orgSlug, formSlug } = await params;
 	const { site: siteSlug } = await searchParams;
 
-	let form: Awaited<ReturnType<typeof orpcClient.forms.publicGet>> | null = null;
-
-	try {
-		form = await orpcClient.forms.publicGet({ orgSlug, formSlug });
-	} catch {
-		return (
-			<div className="min-h-screen flex items-center justify-center p-4">
-				<div className="max-w-md text-center space-y-3">
-					<h1 className="text-2xl font-bold">Form Not Available</h1>
-					<p className="text-muted-foreground">
-						This form isn&apos;t available. Please reach out to staff.
-					</p>
-				</div>
+	const notAvailable = (
+		<div className="min-h-screen flex items-center justify-center p-4">
+			<div className="max-w-md text-center space-y-3">
+				<h1 className="text-2xl font-bold">Form Not Available</h1>
+				<p className="text-muted-foreground">
+					This form isn&apos;t available. Please reach out to staff.
+				</p>
 			</div>
-		);
-	}
+		</div>
+	);
+
+	const org = await getOrganizationBySlug(orgSlug);
+	if (!org) return notAvailable;
+
+	const form = await getFormBySlug(org.id, formSlug);
+	if (!form || form.deletedAt || form.status === "UNPUBLISHED") return notAvailable;
 
 	const formSites = (form.formSites ?? []) as {
 		siteId: string;
@@ -40,7 +40,6 @@ export default async function PublicFormPage({
 		slug: fs.site?.slug ?? "",
 	}));
 
-	// Resolve ?site=slug to a site ID so the form can pre-select and hide the picker
 	const preselectedSiteId = siteSlug
 		? (formSites.find((fs) => fs.site?.slug === siteSlug)?.siteId ?? undefined)
 		: undefined;

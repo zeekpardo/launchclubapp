@@ -513,6 +513,25 @@ export function FormBuilderPage({ formId }: FormBuilderPageProps) {
 						)}
 					</div>
 
+					<div className="rounded-lg border border-destructive/40 bg-card p-6 space-y-4">
+						<h3 className="font-semibold text-destructive">Danger Zone</h3>
+						<p className="text-sm text-muted-foreground">
+							Deleting a form is permanent and cannot be undone.
+						</p>
+						<Button
+							variant="destructive"
+							size="sm"
+							onClick={() => setDeleteDialogOpen(true)}
+						>
+							Delete Form
+						</Button>
+					</div>
+				</div>
+			)}
+
+			{/* Share Tab */}
+			{activeTab === "share" && (
+				<div className="max-w-2xl space-y-6">
 					<div className="rounded-lg border bg-card p-6 space-y-4">
 						<h3 className="font-semibold">Publish</h3>
 						<div className="flex items-center justify-between">
@@ -533,26 +552,6 @@ export function FormBuilderPage({ formId }: FormBuilderPageProps) {
 							/>
 						</div>
 					</div>
-
-					<div className="rounded-lg border border-destructive/40 bg-card p-6 space-y-4">
-						<h3 className="font-semibold text-destructive">Danger Zone</h3>
-						<p className="text-sm text-muted-foreground">
-							Deleting a form is permanent and cannot be undone.
-						</p>
-						<Button
-							variant="destructive"
-							size="sm"
-							onClick={() => setDeleteDialogOpen(true)}
-						>
-							Delete Form
-						</Button>
-					</div>
-				</div>
-			)}
-
-			{/* Share Tab */}
-			{activeTab === "share" && (
-				<div className="max-w-2xl space-y-6">
 					<ShareLinksSection form={form} orgSlug={orgSlug} />
 				</div>
 			)}
