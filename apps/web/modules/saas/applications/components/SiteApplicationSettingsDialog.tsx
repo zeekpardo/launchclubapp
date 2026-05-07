@@ -12,7 +12,7 @@ import { Label } from "@repo/ui/components/label";
 import { Switch } from "@repo/ui/components/switch";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useUpdateSiteApplicationSettings } from "@saas/applications/hooks/use-application-settings";
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { CopyButton } from "@shared/components/CopyButton";
 import { useEffect, useState } from "react";
 
 interface SiteApplicationSettingsDialogProps {
@@ -38,7 +38,6 @@ export function SiteApplicationSettingsDialog({
 	const [deadline, setDeadline] = useState(
 		site.applicationDeadline ? site.applicationDeadline.slice(0, 10) : "",
 	);
-	const [copied, setCopied] = useState(false);
 
 	const appUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/apply/${site.slug}`;
 
@@ -58,12 +57,6 @@ export function SiteApplicationSettingsDialog({
 		} catch {
 			toastError("Failed to save settings.");
 		}
-	}
-
-	function handleCopy() {
-		navigator.clipboard.writeText(appUrl);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
 	}
 
 	return (
@@ -106,19 +99,7 @@ export function SiteApplicationSettingsDialog({
 							<div className="flex-1 rounded-md border bg-muted px-3 py-2 text-sm font-mono overflow-x-auto whitespace-nowrap">
 								{appUrl}
 							</div>
-							<Button
-								type="button"
-								variant="outline"
-								size="icon"
-								className="shrink-0"
-								onClick={handleCopy}
-							>
-								{copied ? (
-									<CheckIcon className="size-4 text-green-500" />
-								) : (
-									<CopyIcon className="size-4" />
-								)}
-							</Button>
+							<CopyButton url={appUrl} title="Copy application URL" />
 						</div>
 						<p className="text-xs text-muted-foreground">
 							Share this URL with parents to accept applications for this site

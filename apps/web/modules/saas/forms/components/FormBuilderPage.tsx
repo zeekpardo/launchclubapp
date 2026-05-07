@@ -1,10 +1,9 @@
 "use client";
 
-import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { CopyButton } from "@shared/components/CopyButton";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { Switch } from "@repo/ui/components/switch";
 import { Textarea } from "@repo/ui/components/textarea";
@@ -16,7 +15,7 @@ import {
 	useUpdateFormField,
 } from "@saas/form-builder/hooks/use-form-fields";
 import type { FormFieldItem } from "@saas/form-builder/components/FieldCard";
-import { FieldTypePicker } from "@saas/form-builder/components/FieldTypePicker";
+import { FieldTypePicker, PARENT_PROFILE_FIELDS, STUDENT_PROFILE_FIELDS, MENTOR_PROFILE_FIELDS } from "@saas/form-builder/components/FieldTypePicker";
 import { FormBuilderCanvas } from "@saas/form-builder/components/FormBuilderCanvas";
 import { useSites } from "@saas/sites/hooks/use-sites";
 import { useAssignSites, useSoftDeleteForm, useUpdateForm, useFormData } from "@saas/forms/hooks/use-forms";
@@ -25,6 +24,8 @@ import { useConsentItems } from "@saas/applications/hooks/use-consent-items";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { slugify } from "@saas/form-builder/lib/slugify";
+import { FormTypeBadge, FormStatusBadge } from "./FormBadges";
 import { formFieldTypeEnum } from "@repo/api/modules/form-builder/types";
 import type { z } from "zod";
 import {
@@ -41,34 +42,6 @@ import {
 type FormFieldType = z.infer<typeof formFieldTypeEnum>;
 type ActiveSection = "PARENT" | "STUDENT";
 type TabKey = "builder" | "settings" | "share";
-
-function slugify(str: string) {
-	return str.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
-}
-
-// Built-in profile fields available per section
-const PARENT_PROFILE_FIELDS = [
-	{ key: "phone", label: "Phone" },
-	{ key: "addressLine1", label: "Address" },
-	{ key: "notes", label: "Notes" },
-	{ key: "emergency_contact_name", label: "Emergency Contact Name" },
-	{ key: "emergency_contact_phone", label: "Emergency Contact Phone" },
-] as const;
-
-const STUDENT_PROFILE_FIELDS = [
-	{ key: "dateOfBirth", label: "Date of Birth" },
-	{ key: "grade", label: "Grade" },
-	{ key: "notes", label: "Notes" },
-	{ key: "allergies", label: "Allergies" },
-	{ key: "medicalNotes", label: "Medical Notes" },
-] as const;
-
-const MENTOR_PROFILE_FIELDS = [
-	{ key: "phone", label: "Phone" },
-	{ key: "addressLine1", label: "Address" },
-	{ key: "dateOfBirth", label: "Date of Birth" },
-	{ key: "notes", label: "Notes" },
-] as const;
 
 interface FormBuilderPageProps {
 	formId: string;
@@ -586,20 +559,6 @@ interface AssignedSite {
 	site: { id: string; name: string; slug: string };
 }
 
-function CopyButton({ url }: { url: string }) {
-	const [copied, setCopied] = useState(false);
-	const handleCopy = async () => {
-		await navigator.clipboard.writeText(url);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
-	};
-	return (
-		<Button variant="outline" size="icon" onClick={handleCopy} className="shrink-0" title="Copy link">
-			{copied ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}
-		</Button>
-	);
-}
-
 function ShareLinksSection({
 	form,
 	orgSlug,
@@ -652,16 +611,3 @@ function ShareLinksSection({
 	);
 }
 
-function FormTypeBadge({ type }: { type: string }) {
-	if (type === "STUDENT") {
-		return <Badge status="info" className="text-xs">Student</Badge>;
-	}
-	return <Badge status="warning" className="text-xs">Mentor</Badge>;
-}
-
-function FormStatusBadge({ status }: { status: string }) {
-	if (status === "PUBLISHED") {
-		return <Badge status="success" className="text-xs">Published</Badge>;
-	}
-	return <Badge className="text-xs">Unpublished</Badge>;
-}

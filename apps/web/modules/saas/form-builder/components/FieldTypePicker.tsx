@@ -31,21 +31,21 @@ interface ProfileFieldDef {
 	icon: LucideIcon;
 }
 
-const PARENT_PROFILE_FIELDS: ProfileFieldDef[] = [
+export const PARENT_PROFILE_FIELDS: ProfileFieldDef[] = [
 	{ key: "phone", label: "Phone", icon: PhoneIcon },
 	{ key: "addressLine1", label: "Address", icon: MapPinIcon },
 	{ key: "emergency_contact_name", label: "Emergency Name", icon: PhoneCallIcon },
 	{ key: "emergency_contact_phone", label: "Emergency Phone", icon: PhoneCallIcon },
 ];
 
-const STUDENT_PROFILE_FIELDS: ProfileFieldDef[] = [
+export const STUDENT_PROFILE_FIELDS: ProfileFieldDef[] = [
 	{ key: "dateOfBirth", label: "Date of Birth", icon: CalendarIcon },
 	{ key: "grade", label: "Grade", icon: BookOpenIcon },
 	{ key: "allergies", label: "Allergies", icon: AlertTriangleIcon },
 	{ key: "medicalNotes", label: "Medical Notes", icon: ActivityIcon },
 ];
 
-const MENTOR_PROFILE_FIELDS: ProfileFieldDef[] = [
+export const MENTOR_PROFILE_FIELDS: ProfileFieldDef[] = [
 	{ key: "phone", label: "Phone", icon: PhoneIcon },
 	{ key: "addressLine1", label: "Address", icon: MapPinIcon },
 	{ key: "dateOfBirth", label: "Date of Birth", icon: CalendarIcon },
