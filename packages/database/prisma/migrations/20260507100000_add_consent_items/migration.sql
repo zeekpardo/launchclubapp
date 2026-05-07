@@ -123,3 +123,7 @@ ALTER TABLE "organization_application_settings"
     DROP COLUMN IF EXISTS "termsConsentFormUrl",
     DROP COLUMN IF EXISTS "photoVideoConsentFormUrl",
     DROP COLUMN IF EXISTS "enableConsentFileUpload";
+
+-- Step 11: Add FK from form_field.consentItemId -> consent_item (moved from 20260507044002)
+ALTER TABLE "form_field" ADD CONSTRAINT "form_field_consentItemId_fkey"
+    FOREIGN KEY ("consentItemId") REFERENCES "consent_item"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -1,8 +1,7 @@
--- AlterEnum
-ALTER TYPE "FormFieldType" ADD VALUE 'CONSENT';
+-- AlterEnum (IF NOT EXISTS handles re-run after partial apply)
+ALTER TYPE "FormFieldType" ADD VALUE IF NOT EXISTS 'CONSENT';
 
--- AlterTable
-ALTER TABLE "form_field" ADD COLUMN     "consentItemId" TEXT;
+-- AlterTable (IF NOT EXISTS handles re-run after partial apply)
+ALTER TABLE "form_field" ADD COLUMN IF NOT EXISTS "consentItemId" TEXT;
 
--- AddForeignKey
-ALTER TABLE "form_field" ADD CONSTRAINT "form_field_consentItemId_fkey" FOREIGN KEY ("consentItemId") REFERENCES "consent_item"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+-- FK moved to 20260507100000_add_consent_items where consent_item table is created
