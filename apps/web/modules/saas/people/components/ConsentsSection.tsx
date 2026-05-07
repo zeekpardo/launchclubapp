@@ -22,9 +22,9 @@ import { Switch } from "@repo/ui/components/switch";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useSession } from "@saas/auth/hooks/use-session";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
-import { usePdfDownloadUrl } from "@saas/applications/hooks/use-consent-items";
+import { useConsentItems, usePdfDownloadUrl } from "@saas/applications/hooks/use-consent-items";
 import { orpc } from "@shared/lib/orpc-query-utils";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
 	CheckCircle2Icon,
@@ -63,6 +63,34 @@ interface ConsentRecord {
 }
 
 // ---------------------------------------------------------------------------
+// Shared sub-components
+// ---------------------------------------------------------------------------
+
+function ViewConsentFormButton({ consentItem, organizationId }: { consentItem: ConsentItem; organizationId: string }) {
+	const pdfDownloadUrl = usePdfDownloadUrl();
+	if (!consentItem.pdfKey) return null;
+	async function handleClick() {
+		try {
+			const { downloadUrl } = await pdfDownloadUrl.mutateAsync({ id: consentItem.id, organizationId });
+			window.open(downloadUrl, "_blank", "noopener,noreferrer");
+		} catch {
+			toastError("Could not load consent form PDF");
+		}
+	}
+	return (
+		<button
+			type="button"
+			title="View consent form"
+			className="text-muted-foreground hover:text-primary transition-colors"
+			onClick={handleClick}
+			disabled={pdfDownloadUrl.isPending}
+		>
+			<FileTextIcon className="size-3.5" />
+		</button>
+	);
+}
+
+// ---------------------------------------------------------------------------
 // Display row
 // ---------------------------------------------------------------------------
 
@@ -74,84 +102,29 @@ interface ConsentRowProps {
 }
 
 function ConsentRow({ label, record, consentItem, organizationId }: ConsentRowProps) {
-	const pdfDownloadUrl = usePdfDownloadUrl();
-
-	async function handleViewForm() {
-		try {
-			const { downloadUrl } = await pdfDownloadUrl.mutateAsync({
-				id: consentItem.id,
-				organizationId,
-			});
-			window.open(downloadUrl, "_blank", "noopener,noreferrer");
-		} catch {
-			toastError("Could not load consent form PDF");
-		}
-	}
-
 	if (!record) {
 		return (
 			<div className="flex items-center gap-2 text-sm">
 				<span className="text-muted-foreground">—</span>
 				<span className="text-muted-foreground">{label}</span>
-				{consentItem.pdfKey && (
-					<button
-						type="button"
-						title="View consent form"
-						className="text-muted-foreground hover:text-primary transition-colors"
-						onClick={handleViewForm}
-						disabled={pdfDownloadUrl.isPending}
-					>
-						<FileTextIcon className="size-3.5" />
-					</button>
-				)}
+				<ViewConsentFormButton consentItem={consentItem} organizationId={organizationId} />
 				<span className="text-xs text-muted-foreground ml-auto">Not collected</span>
 			</div>
 		);
 	}
 
-	if (!record.granted) {
-		return (
-			<div className="flex items-center gap-2 text-sm text-muted-foreground">
-				<XCircleIcon className="size-4 shrink-0 text-destructive" />
-				<span>{label}</span>
-				{consentItem.pdfKey && (
-					<button
-						type="button"
-						title="View consent form"
-						className="text-muted-foreground hover:text-primary transition-colors"
-						onClick={handleViewForm}
-						disabled={pdfDownloadUrl.isPending}
-					>
-						<FileTextIcon className="size-3.5" />
-					</button>
-				)}
-			</div>
-		);
-	}
-
-	const dateStr = record.grantedAt
-		? format(new Date(record.grantedAt), "MMM d, yyyy")
-		: null;
+	const granted = record.granted;
+	const dateStr = granted && record.grantedAt ? format(new Date(record.grantedAt), "MMM d, yyyy") : null;
 
 	return (
-		<div className="flex items-center gap-2 text-sm text-green-600">
-			<CheckCircle2Icon className="size-4 shrink-0" />
-			<span className="font-medium">{label}</span>
-			{consentItem.pdfKey && (
-				<button
-					type="button"
-					title="View consent form"
-					className="text-muted-foreground hover:text-primary transition-colors"
-					onClick={handleViewForm}
-					disabled={pdfDownloadUrl.isPending}
-				>
-					<FileTextIcon className="size-3.5" />
-				</button>
-			)}
-			{dateStr && (
-				<span className="text-xs text-muted-foreground">{dateStr}</span>
-			)}
-			{record.signatureFileUrl && (
+		<div className={`flex items-center gap-2 text-sm ${granted ? "text-green-600" : "text-muted-foreground"}`}>
+			{granted
+				? <CheckCircle2Icon className="size-4 shrink-0" />
+				: <XCircleIcon className="size-4 shrink-0 text-destructive" />}
+			<span className={granted ? "font-medium" : ""}>{label}</span>
+			<ViewConsentFormButton consentItem={consentItem} organizationId={organizationId} />
+			{dateStr && <span className="text-xs text-muted-foreground">{dateStr}</span>}
+			{granted && record.signatureFileUrl && (
 				<a
 					href={`/image-proxy/consent-signatures/${record.signatureFileUrl}`}
 					target="_blank"
@@ -198,19 +171,6 @@ function ConsentEditRow({
 	const createUploadUrl = useMutation(
 		orpc.personConsents.createSignatureUploadUrl.mutationOptions(),
 	);
-	const pdfDownloadUrl = usePdfDownloadUrl();
-
-	async function handleViewForm() {
-		try {
-			const { downloadUrl } = await pdfDownloadUrl.mutateAsync({
-				id: consentItem.id,
-				organizationId,
-			});
-			window.open(downloadUrl, "_blank", "noopener,noreferrer");
-		} catch {
-			toastError("Could not load consent form PDF");
-		}
-	}
 
 	function handleToggle(checked: boolean) {
 		onChange({
@@ -254,17 +214,7 @@ function ConsentEditRow({
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
 					<Label className="text-sm font-medium">{consentItem.name}</Label>
-					{consentItem.pdfKey && (
-						<button
-							type="button"
-							title="View consent form"
-							className="text-muted-foreground hover:text-primary transition-colors"
-							onClick={handleViewForm}
-							disabled={pdfDownloadUrl.isPending}
-						>
-							<FileTextIcon className="size-3.5" />
-						</button>
-					)}
+					<ViewConsentFormButton consentItem={consentItem} organizationId={organizationId} />
 				</div>
 				<Switch checked={value.granted} onCheckedChange={handleToggle} />
 			</div>
@@ -503,12 +453,7 @@ export function ConsentsSection({ personId, organizationId, personType }: Consen
 	const activeYear = academicYears.find((y) => y.isActive);
 	const { data: consents = [] } = usePersonConsents(personId, activeYear?.id);
 
-	const { data: allConsentItems = [] } = useQuery(
-		orpc.consentItems.list.queryOptions({
-			input: { organizationId },
-			enabled: !!organizationId,
-		}),
-	);
+	const { data: allConsentItems = [] } = useConsentItems(organizationId);
 
 	const consentItems = allConsentItems.filter(
 		(item) => item.applicantType === personType && item.isActive,
