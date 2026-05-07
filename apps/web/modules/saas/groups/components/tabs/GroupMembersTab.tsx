@@ -144,7 +144,7 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 		const emailSet = new Set<string>();
 
 		for (const { person } of activeMembers) {
-			if (person.isChild) {
+			if (person.personType === "STUDENT") {
 				// Email guardians/parents instead
 				for (const guardian of person.guardians ?? []) {
 					if (guardian.person?.email) {
@@ -192,7 +192,7 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 				role,
 				person.email ?? "",
 				person.phone ?? "",
-				person.isChild ? "Yes" : "No",
+				person.personType,
 				guardianEmails,
 				new Date(joinedAt).toLocaleDateString(),
 			];
@@ -362,7 +362,7 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 										</Button>
 									</TableCell>
 									<TableCell className="text-muted-foreground">
-										{person.isChild && guardianEmails.length > 0 ? (
+										{person.personType === "STUDENT" && guardianEmails.length > 0 ? (
 											<span title={`Parent: ${guardianEmails.join(", ")}`}>
 												{guardianEmails[0]}
 												{guardianEmails.length > 1 && (

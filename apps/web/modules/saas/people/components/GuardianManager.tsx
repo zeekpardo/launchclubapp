@@ -66,7 +66,7 @@ export function GuardianManager({ kid }: GuardianManagerProps) {
 		orpc.people.list.queryOptions({
 			input: {
 				organizationId: activeOrganization?.id ?? "",
-				isChild: false,
+				personType: "PARENT" as const,
 			},
 		}),
 	);

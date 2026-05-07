@@ -54,12 +54,12 @@ const GRADES = [
 ];
 
 const personFormSchema = z.object({
-	isChild: z.boolean(),
+	personType: z.enum(["STUDENT", "PARENT", "MENTOR"]),
 	isActive: z.boolean(),
 	firstName: z.string().min(1),
 	lastName: z.string().min(1),
-	email: z.string().email().optional().or(z.literal("")),
-	phone: z.string().optional(),
+	email: z.string().email("Invalid email address").optional().or(z.literal("")),
+	phone: z.string().regex(/^[\d\s\-()+.]*$/, "Phone may only contain numbers and standard formatting").optional().or(z.literal("")),
 	dateOfBirth: z.string().optional(),
 	gender: z.string().optional(),
 	grade: z.string().optional(),
@@ -79,7 +79,7 @@ interface PersonData {
 	phone?: string | null;
 	dateOfBirth?: Date | string | null;
 	gender?: string | null;
-	isChild?: boolean | null;
+	personType?: "STUDENT" | "PARENT" | "MENTOR" | null;
 	isActive?: boolean | null;
 	grade?: string | null;
 	studentId?: string | null;
@@ -154,7 +154,7 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 	const form = useForm<PersonFormValues>({
 		resolver: zodResolver(personFormSchema),
 		defaultValues: {
-			isChild: person?.isChild ?? false,
+			personType: person?.personType ?? "STUDENT",
 			isActive: person?.isActive ?? true,
 			firstName: person?.firstName ?? "",
 			lastName: person?.lastName ?? "",
@@ -170,7 +170,8 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 		},
 	});
 
-	const isChild = useWatch({ control: form.control, name: "isChild" });
+	const personType = useWatch({ control: form.control, name: "personType" });
+	const isStudent = personType === "STUDENT";
 
 	const saveCustomFields = async (personId: string) => {
 		const filled = customFields.filter(
@@ -199,7 +200,7 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 				: householdId;
 
 			const payload = {
-				isChild: values.isChild,
+				personType: values.personType,
 				isActive: values.isActive,
 				firstName: values.firstName,
 				lastName: values.lastName,
@@ -207,8 +208,8 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 				phone: values.phone || undefined,
 				dateOfBirth,
 				gender: values.gender || undefined,
-				grade: values.isChild ? (values.grade || undefined) : undefined,
-				studentId: isChild ? values.studentId || undefined : undefined,
+				grade: values.personType === "STUDENT" ? (values.grade || undefined) : undefined,
+				studentId: values.personType === "STUDENT" ? values.studentId || undefined : undefined,
 				householdId: resolvedHouseholdId || undefined,
 				notes: values.notes || undefined,
 				allergies: values.allergies || undefined,
@@ -298,13 +299,7 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 										<SelectItem value="female">
 											{t("launchclub.people.form.genderOptions.female")}
 										</SelectItem>
-										<SelectItem value="other">
-											{t("launchclub.people.form.genderOptions.other")}
-										</SelectItem>
-										<SelectItem value="preferNotToSay">
-											{t("launchclub.people.form.genderOptions.preferNotToSay")}
-										</SelectItem>
-									</SelectContent>
+																			</SelectContent>
 								</Select>
 								<FormMessage />
 							</FormItem>
@@ -330,7 +325,11 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 							<FormItem>
 								<FormLabel>{t("launchclub.people.form.phone")}</FormLabel>
 								<FormControl>
-									<Input type="tel" {...field} />
+									<Input
+										type="tel"
+										{...field}
+										onChange={(e) => field.onChange(e.target.value.replace(/[^\d\s\-()+.]/g, ""))}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -353,22 +352,29 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 					)}
 				/>
 
-				{/* isChild + isActive toggles */}
+				{/* personType + isActive toggles */}
 				<div className="grid gap-4 md:grid-cols-2">
 					<FormField
 						control={form.control}
-						name="isChild"
+						name="personType"
 						render={({ field }) => (
-							<FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+							<FormItem>
 								<FormLabel className="text-base font-medium">
-									{t("launchclub.people.form.isChild")}
+									{t("launchclub.people.form.personType")}
 								</FormLabel>
-								<FormControl>
-									<Switch
-										checked={field.value}
-										onCheckedChange={field.onChange}
-									/>
-								</FormControl>
+								<Select onValueChange={field.onChange} value={field.value}>
+									<FormControl>
+										<SelectTrigger>
+											<SelectValue />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										<SelectItem value="STUDENT">{t("launchclub.people.personType.STUDENT")}</SelectItem>
+										<SelectItem value="PARENT">{t("launchclub.people.personType.PARENT")}</SelectItem>
+										<SelectItem value="MENTOR">{t("launchclub.people.personType.MENTOR")}</SelectItem>
+									</SelectContent>
+								</Select>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>
@@ -392,7 +398,7 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 				</div>
 
 				{/* Grade — child only */}
-				{isChild && (
+				{isStudent && (
 					<FormField
 						control={form.control}
 						name="grade"
@@ -419,7 +425,7 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 					/>
 				)}
 
-				{isChild && isAutoId && isEditMode && (
+				{isStudent && isAutoId && isEditMode && (
 					<FormItem>
 						<FormLabel>Student ID</FormLabel>
 						<div className="flex items-center gap-2">
@@ -428,7 +434,7 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 						</div>
 					</FormItem>
 				)}
-				{isChild && !isAutoId && (
+				{isStudent && !isAutoId && (
 					<FormField
 						control={form.control}
 						name="studentId"
@@ -460,7 +466,7 @@ export function PersonForm({ person, organizationId, onSuccess, backHref, househ
 				/>
 
 				{/* Allergies & Medical Notes — child only */}
-				{isChild && (
+				{isStudent && (
 					<>
 						<FormField
 							control={form.control}

@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/client";
-import { removePersonFromGroup, getGroupById, getSiteById, getAreaById, getUserSiteIds } from "@repo/database";
+import { removePersonFromGroup, getGroupById, getSiteById, getAreaById } from "@repo/database";
 import { verifyOrganizationMembership } from "../../organizations/lib/membership";
-import { canAccessSite, canManageGroup } from "../../organizations/lib/site-access";
+import { canAccessSite } from "../../organizations/lib/site-access";
 import { protectedProcedure } from "../../../orpc/procedures";
 import { z } from "zod";
 
@@ -19,12 +19,7 @@ export const removeMember = protectedProcedure
     if (!membership) throw new ORPCError("FORBIDDEN");
     const isOwner = membership.role === "owner" || membership.role === "admin" || context.user.role === "admin";
     if (!isOwner) {
-      const userSiteIds = await getUserSiteIds(context.user.id);
-      if (userSiteIds.length > 0) {
-        if (!(await canAccessSite(context.user.id, group.siteId))) throw new ORPCError("FORBIDDEN");
-      } else {
-        if (!(await canManageGroup(context.user.id, input.groupId))) throw new ORPCError("FORBIDDEN");
-      }
+      if (!(await canAccessSite(context.user.id, group.siteId))) throw new ORPCError("FORBIDDEN");
     }
     await removePersonFromGroup(input.personId, input.groupId);
     return { success: true };

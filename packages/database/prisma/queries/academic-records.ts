@@ -68,7 +68,7 @@ export async function getGpaTrendByScope(params: {
       schoolYear,
       cumulativeGpa: { not: null },
       person: {
-        isChild: true,
+        personType: "STUDENT",
         organizationId,
         ...(groupId
           ? { personGroups: { some: { groupId } } }

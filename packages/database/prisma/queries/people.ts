@@ -2,7 +2,7 @@ import { db } from "../client";
 
 export async function getPeopleByOrganization(
   organizationId: string,
-  opts?: { isChild?: boolean; isActive?: boolean; query?: string; areaId?: string; siteId?: string; siteIds?: string[]; groupIds?: string[] },
+  opts?: { personType?: "STUDENT" | "PARENT" | "MENTOR"; isActive?: boolean; query?: string; areaId?: string; siteId?: string; siteIds?: string[]; groupIds?: string[] },
 ) {
   // Priority: groupIds scope > siteIds scope > siteId/areaId UI filter
   const personGroupsFilter = opts?.groupIds
@@ -18,7 +18,7 @@ export async function getPeopleByOrganization(
   return db.person.findMany({
     where: {
       organizationId,
-      ...(opts?.isChild !== undefined ? { isChild: opts.isChild } : {}),
+      ...(opts?.personType !== undefined ? { personType: opts.personType } : {}),
       ...(opts?.isActive !== undefined ? { isActive: opts.isActive } : {}),
       ...(personGroupsFilter ? { personGroups: personGroupsFilter } : {}),
       ...(opts?.query
@@ -89,7 +89,7 @@ export async function createPerson(data: {
   phone?: string;
   dateOfBirth?: Date;
   gender?: string;
-  isChild?: boolean;
+  personType?: "STUDENT" | "PARENT" | "MENTOR";
   grade?: string;
   studentId?: string;
   notes?: string;

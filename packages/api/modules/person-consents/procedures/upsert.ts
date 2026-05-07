@@ -20,7 +20,7 @@ export const upsertPersonConsentProcedure = protectedProcedure
     return upsertPersonConsent({
       personId: input.personId,
       academicYearId: input.academicYearId,
-      consentType: input.consentType,
+      consentItemId: input.consentItemId,
       granted: input.granted,
       grantedAt: input.granted && input.grantedAt ? new Date(input.grantedAt) : null,
       signatureFileUrl: input.signatureFileUrl,

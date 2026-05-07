@@ -104,8 +104,8 @@ export function AllPeopleList() {
 										{person.household?.organization?.name ?? "—"}
 									</TableCell>
 									<TableCell>
-										<Badge status={person.isChild ? "info" : "success"}>
-											{person.isChild ? "Child" : "Adult"}
+										<Badge status={person.personType === "STUDENT" ? "info" : "success"}>
+											{person.personType === "STUDENT" ? "Student" : person.personType === "MENTOR" ? "Mentor" : "Parent"}
 										</Badge>
 									</TableCell>
 								</TableRow>

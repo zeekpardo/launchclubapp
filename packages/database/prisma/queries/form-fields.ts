@@ -1,49 +1,15 @@
 import { db } from "../client";
-import type { FormFieldType } from "../generated/enums";
+import type { FormFieldType, PersonType } from "../generated/enums";
 
-export async function getAreaFormFields(areaId: string) {
+export async function getFormFields(formId: string) {
   return db.formField.findMany({
-    where: { areaId },
+    where: { formId },
     orderBy: { order: "asc" },
   });
 }
 
-export async function getSiteFormFields(siteId: string) {
-  const site = await db.site.findUnique({
-    where: { id: siteId },
-    select: { areaId: true },
-  });
-
-  const [areaFields, siteFields] = await Promise.all([
-    site?.areaId
-      ? db.formField.findMany({
-          where: { areaId: site.areaId },
-          orderBy: { order: "asc" },
-        })
-      : Promise.resolve([]),
-    db.formField.findMany({
-      where: { siteId },
-      orderBy: { order: "asc" },
-    }),
-  ]);
-
-  return { areaFields, siteFields };
-}
-
-export async function getFormFieldsForApplication(siteId: string) {
-  return getSiteFormFields(siteId);
-}
-
-export async function getFormFieldsBySiteSlug(siteSlug: string) {
-  const site = await db.site.findUnique({
-    where: { slug: siteSlug },
-    select: { id: true, areaId: true },
-  });
-  if (!site) return { areaFields: [], siteFields: [] };
-  return getSiteFormFields(site.id);
-}
-
 export async function createFormField(data: {
+  formId: string;
   label: string;
   fieldKey: string;
   type: FormFieldType;
@@ -52,15 +18,12 @@ export async function createFormField(data: {
   required?: boolean;
   options?: { label: string; value: string }[];
   validation?: { minLength?: number; maxLength?: number; pattern?: string };
-  areaId?: string;
-  siteId?: string;
+  profileFieldKey?: string;
+  customFieldId?: string;
+  targetPersonType?: PersonType;
+  consentItemId?: string;
 }) {
-  const count = await db.formField.count({
-    where: {
-      ...(data.areaId ? { areaId: data.areaId } : {}),
-      ...(data.siteId ? { siteId: data.siteId } : {}),
-    },
-  });
+  const count = await db.formField.count({ where: { formId: data.formId } });
 
   return db.formField.create({
     data: {
@@ -83,6 +46,10 @@ export async function updateFormField(
     required?: boolean;
     options?: { label: string; value: string }[];
     validation?: { minLength?: number; maxLength?: number; pattern?: string };
+    profileFieldKey?: string;
+    customFieldId?: string | null;
+    targetPersonType?: PersonType | null;
+    consentItemId?: string | null;
   },
 ) {
   return db.formField.update({
@@ -108,4 +75,38 @@ export async function reorderFormFields(ids: string[]) {
       }),
     ),
   );
+}
+
+/**
+ * Returns all form fields from Forms assigned to a given site via FormSite.
+ * Used to validate submitted field IDs on application submit.
+ */
+export async function getFormFieldsForSite(siteId: string) {
+  const formSites = await db.formSite.findMany({
+    where: {
+      siteId,
+      form: { deletedAt: null, status: "PUBLISHED" },
+    },
+    include: {
+      form: { include: { fields: { orderBy: { order: "asc" } } } },
+    },
+  });
+  return formSites.flatMap((fs) => fs.form.fields);
+}
+
+/**
+ * Returns all form fields from Forms assigned to a site looked up by slug.
+ * Convenience wrapper for public-facing apply pages.
+ */
+export async function getFormFieldsBySiteSlug(siteSlug: string) {
+  const formSites = await db.formSite.findMany({
+    where: {
+      site: { slug: siteSlug },
+      form: { deletedAt: null, status: "PUBLISHED" },
+    },
+    include: {
+      form: { include: { fields: { orderBy: { order: "asc" } } } },
+    },
+  });
+  return formSites.flatMap((fs) => fs.form.fields);
 }

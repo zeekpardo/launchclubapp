@@ -16,5 +16,5 @@ export const getOrgApplicationSettingsProcedure = protectedProcedure
     const membership = await verifyOrganizationMembership(input.organizationId, context.user.id);
     if (!membership) throw new ORPCError("FORBIDDEN");
     const settings = await getOrgApplicationSettings(input.organizationId);
-    return settings ?? { autoMigrate: false, emailNotifications: false, studentIdMode: "auto", studentIdPrefix: "STU", enableConsentFileUpload: false, showObservationConsent: true, showTermsConsent: true, showPhotoVideoConsent: true, observationConsentFormUrl: null, termsConsentFormUrl: null, photoVideoConsentFormUrl: null };
+    return settings ?? { autoMigrate: false, emailNotifications: false, studentIdMode: "auto", mentorContractUrl: null, mentorSecurityClearanceUrl: null, showMentorContract: false, showMentorSecurityClearance: false, enableMentorDocumentUpload: false };
   });

@@ -8,7 +8,7 @@ import {
   getAreaById,
   getSiteBySlug,
   getCollectInApplicationFieldsBySite,
-  getFormFieldsForApplication,
+  getFormFieldsForSite,
 } from "@repo/database";
 import { publicProcedure } from "../../../orpc/procedures";
 import { submitApplicationSchema } from "../types";
@@ -58,13 +58,13 @@ export const submitApplication = publicProcedure
     }
 
     // Fetch valid field IDs for this site to prevent cross-tenant field injection
-    const [validCustomFields, { areaFields, siteFields }] = await Promise.all([
+    const [validCustomFields, siteFormFields] = await Promise.all([
       getCollectInApplicationFieldsBySite(input.siteSlug),
-      getFormFieldsForApplication(site.id),
+      getFormFieldsForSite(site.id),
     ]);
 
     const validCustomFieldIds = new Set(validCustomFields.map((f) => f.id));
-    const validFormFieldIds = new Set([...areaFields, ...siteFields].map((f) => f.id));
+    const validFormFieldIds = new Set(siteFormFields.map((f) => f.id));
 
     const { siteSlug, children, customFieldValues, profileFieldValues, ...parentData } = input;
 

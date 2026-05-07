@@ -1,8 +1,10 @@
 import type { RouterClient } from "@orpc/server";
 import { academicRecordsRouter } from "../modules/academic-records/router";
 import { academicYearsRouter } from "../modules/academic-years/router";
+import { consentItemsRouter } from "../modules/consent-items/router";
 import { adminRouter } from "../modules/admin/router";
 import { applicationsRouter } from "../modules/applications/router";
+import { mentorApplicationsRouter } from "../modules/mentor-applications/router";
 import { aiRouter } from "../modules/ai/router";
 import { areasRouter } from "../modules/areas/router";
 import { attendanceRouter } from "../modules/attendance/router";
@@ -15,6 +17,7 @@ import { resourcesRouter } from "../modules/resources/router";
 import { purchaseRequestsRouter } from "../modules/purchase-requests/router";
 import { customFieldsRouter } from "../modules/custom-fields/router";
 import { formBuilderRouter } from "../modules/form-builder/router";
+import { formsRouter } from "../modules/forms/router";
 import { newsletterRouter } from "../modules/newsletter/router";
 import { notificationsRouter } from "../modules/notifications/router";
 import { personConsentsRouter } from "../modules/person-consents/router";
@@ -40,6 +43,7 @@ export const router = publicProcedure.router({
 	sites: sitesRouter,
 	groups: groupsRouter,
 	applications: applicationsRouter,
+	mentorApplications: mentorApplicationsRouter,
 	events: eventsRouter,
 	attendance: attendanceRouter,
 	households: householdsRouter,
@@ -49,6 +53,8 @@ export const router = publicProcedure.router({
 	purchaseRequests: purchaseRequestsRouter,
 	customFields: customFieldsRouter,
 	formBuilder: formBuilderRouter,
+	forms: formsRouter,
+	consentItems: consentItemsRouter,
 	personConsents: personConsentsRouter,
 	personNotes: personNotesRouter,
 	notifications: notificationsRouter,

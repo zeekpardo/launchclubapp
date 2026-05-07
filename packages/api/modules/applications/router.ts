@@ -3,6 +3,7 @@ import { createConsentSignatureUploadUrlProcedure } from "./procedures/create-co
 import { createConsentFormUploadUrlProcedure } from "./procedures/create-consent-form-upload-url";
 import { getConsentFormDownloadUrlProcedure } from "./procedures/get-consent-form-download-url";
 import { createFormFieldFileUploadUrl } from "./procedures/create-form-field-file-upload-url";
+import { createMentorDocUploadUrlProcedure } from "./procedures/create-mentor-doc-upload-url";
 import { submitApplication } from "./procedures/submit";
 import { listApplications } from "./procedures/list";
 import { getApplication } from "./procedures/get";
@@ -22,4 +23,5 @@ export const applicationsRouter = {
   consentSignatureUploadUrl: createConsentSignatureUploadUrlProcedure,
   consentFormUploadUrl: createConsentFormUploadUrlProcedure,
   consentFormDownloadUrl: getConsentFormDownloadUrlProcedure,
+  mentorDocUploadUrl: createMentorDocUploadUrlProcedure,
 };

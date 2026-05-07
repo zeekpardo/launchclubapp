@@ -8,7 +8,7 @@ export const listPersonConsentsSchema = z.object({
 export const upsertPersonConsentSchema = z.object({
   personId: z.string(),
   academicYearId: z.string(),
-  consentType: z.enum(["OBSERVATION", "TERMS_AND_CONDITIONS", "PHOTO_VIDEO"]),
+  consentItemId: z.string(),
   granted: z.boolean(),
   grantedAt: z.string().nullable(),
   signatureFileUrl: z.string().nullable(),

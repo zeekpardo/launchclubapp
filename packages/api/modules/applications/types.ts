@@ -70,13 +70,16 @@ export const updateOrgApplicationSettingsSchema = z.object({
   autoMigrate: z.boolean().optional(),
   emailNotifications: z.boolean().optional(),
   studentIdMode: z.enum(["manual", "auto"]).optional(),
-  enableConsentFileUpload: z.boolean().optional(),
-  showObservationConsent: z.boolean().optional(),
-  showTermsConsent: z.boolean().optional(),
-  showPhotoVideoConsent: z.boolean().optional(),
-  observationConsentFormUrl: z.string().nullable().optional(),
-  termsConsentFormUrl: z.string().nullable().optional(),
-  photoVideoConsentFormUrl: z.string().nullable().optional(),
+  mentorContractUrl: z.string().nullable().optional(),
+  mentorSecurityClearanceUrl: z.string().nullable().optional(),
+  showMentorContract: z.boolean().optional(),
+  showMentorSecurityClearance: z.boolean().optional(),
+  enableMentorDocumentUpload: z.boolean().optional(),
+});
+
+export const createMentorDocUploadUrlSchema = z.object({
+  organizationId: z.string(),
+  docType: z.enum(["contract", "securityClearance"]),
 });
 
 export const createConsentFormUploadUrlSchema = z.object({

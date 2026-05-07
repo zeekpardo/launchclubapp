@@ -1,27 +1,27 @@
-import { type ConsentType } from "../generated/enums";
 import { db } from "../client";
 
 export async function getPersonConsents(personId: string, academicYearId: string) {
   return db.personConsent.findMany({
     where: { personId, academicYearId },
-    orderBy: { consentType: "asc" },
+    include: { consentItem: true },
+    orderBy: { consentItem: { sortOrder: "asc" } },
   });
 }
 
 export async function upsertPersonConsent(data: {
   personId: string;
   academicYearId: string;
-  consentType: ConsentType;
+  consentItemId: string;
   granted: boolean;
   grantedAt?: Date | null;
   signatureFileUrl?: string | null;
 }) {
-  const { personId, academicYearId, consentType, ...rest } = data;
+  const { personId, academicYearId, consentItemId, ...rest } = data;
   return db.personConsent.upsert({
     where: {
-      personId_academicYearId_consentType: { personId, academicYearId, consentType },
+      personId_academicYearId_consentItemId: { personId, academicYearId, consentItemId },
     },
-    create: { personId, academicYearId, consentType, ...rest },
+    create: { personId, academicYearId, consentItemId, ...rest },
     update: { ...rest },
   });
 }
@@ -38,7 +38,8 @@ export async function getPreviousYearConsents(personId: string, orgId: string) {
     include: {
       personConsents: {
         where: { personId },
-        orderBy: { consentType: "asc" },
+        include: { consentItem: true },
+        orderBy: { consentItem: { sortOrder: "asc" } },
       },
     },
   });

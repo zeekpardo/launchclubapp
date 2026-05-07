@@ -176,7 +176,7 @@ export function HouseholdPanel({ personId, householdId }: HouseholdPanelProps) {
 						{t("launchclub.households.cardTitle")}
 					</CardTitle>
 					<div className="flex items-center gap-1">
-						{household && !collapsed && (
+						{household && (
 							<Button
 								size="icon"
 								variant="ghost"
@@ -286,9 +286,13 @@ export function HouseholdPanel({ personId, householdId }: HouseholdPanelProps) {
 											<span className="text-sm">
 												{member.firstName} {member.lastName}
 											</span>
-											{member.isChild && (
+											{member.personType && (
 												<span className="text-[10px] text-muted-foreground">
-													{t("launchclub.households.child")}
+													{member.personType === "STUDENT"
+														? t("launchclub.people.personType.STUDENT")
+														: member.personType === "MENTOR"
+														? t("launchclub.people.personType.MENTOR")
+														: t("launchclub.people.personType.PARENT")}
 												</span>
 											)}
 										</div>
@@ -391,7 +395,15 @@ export function HouseholdPanel({ personId, householdId }: HouseholdPanelProps) {
 							{availablePeople?.map((p) => (
 								<SelectItem key={p.id} value={p.id}>
 									{p.firstName} {p.lastName}
-									{p.isChild ? ` ${t("launchclub.households.addPersonDialog.childLabel")}` : ""}
+									{p.personType
+										? ` (${
+											p.personType === "STUDENT"
+												? t("launchclub.people.personType.STUDENT")
+												: p.personType === "MENTOR"
+												? t("launchclub.people.personType.MENTOR")
+												: t("launchclub.people.personType.PARENT")
+										})`
+										: ""}
 								</SelectItem>
 							))}
 						</SelectContent>

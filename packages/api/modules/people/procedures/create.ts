@@ -12,7 +12,7 @@ export const createPersonProcedure = protectedProcedure
     if (!membership) throw new ORPCError("FORBIDDEN");
     const { organizationId, dateOfBirth, ...data } = input;
 
-    if (data.isChild && !data.studentId) {
+    if (data.personType === "STUDENT" && !data.studentId) {
       try {
         const settings = await getOrgApplicationSettings(organizationId);
         if (settings?.studentIdMode === "auto") {

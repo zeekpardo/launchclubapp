@@ -1,0 +1,94 @@
+import { orpcClient } from "@shared/lib/orpc-client";
+import { MentorFormLayout } from "@saas/forms/components/public/MentorFormLayout";
+import { StudentFormLayout } from "@saas/forms/components/public/StudentFormLayout";
+
+export default async function PublicFormPage({
+	params,
+	searchParams,
+}: {
+	params: Promise<{ orgSlug: string; formSlug: string }>;
+	searchParams: Promise<{ site?: string }>;
+}) {
+	const { orgSlug, formSlug } = await params;
+	const { site: siteSlug } = await searchParams;
+
+	let form: Awaited<ReturnType<typeof orpcClient.forms.publicGet>> | null = null;
+
+	try {
+		form = await orpcClient.forms.publicGet({ orgSlug, formSlug });
+	} catch {
+		return (
+			<div className="min-h-screen flex items-center justify-center p-4">
+				<div className="max-w-md text-center space-y-3">
+					<h1 className="text-2xl font-bold">Form Not Available</h1>
+					<p className="text-muted-foreground">
+						This form isn&apos;t available. Please reach out to staff.
+					</p>
+				</div>
+			</div>
+		);
+	}
+
+	const formSites = (form.formSites ?? []) as {
+		siteId: string;
+		site?: { id: string; name: string; slug: string };
+	}[];
+
+	const sites = formSites.map((fs) => ({
+		id: fs.siteId,
+		name: fs.site?.name ?? fs.siteId,
+		slug: fs.site?.slug ?? "",
+	}));
+
+	// Resolve ?site=slug to a site ID so the form can pre-select and hide the picker
+	const preselectedSiteId = siteSlug
+		? (formSites.find((fs) => fs.site?.slug === siteSlug)?.siteId ?? undefined)
+		: undefined;
+
+	const fields = (form.fields ?? []).map((f) => ({
+		id: f.id,
+		label: f.label,
+		fieldKey: f.fieldKey,
+		type: f.type,
+		required: f.required,
+		placeholder: f.placeholder,
+		helpText: f.helpText,
+		options: f.options,
+		profileFieldKey: f.profileFieldKey,
+		targetPersonType: f.targetPersonType,
+		customField: f.customField
+			? { type: f.customField.type, options: f.customField.options }
+			: null,
+		consentItem: f.consentItem
+			? { id: f.consentItem.id, name: f.consentItem.name, pdfKey: f.consentItem.pdfKey }
+			: null,
+	}));
+
+	return (
+		<div className="min-h-screen bg-background py-12 px-4">
+			<div className="max-w-2xl mx-auto space-y-8">
+				{form.type === "STUDENT" ? (
+					<StudentFormLayout
+						orgSlug={orgSlug}
+						formSlug={formSlug}
+						formName={form.name}
+						formDescription={form.description}
+						fields={fields}
+						sites={sites}
+						preselectedSiteId={preselectedSiteId}
+					/>
+				) : (
+					<MentorFormLayout
+						orgSlug={orgSlug}
+						formSlug={formSlug}
+						formName={form.name}
+						formDescription={form.description}
+						fields={fields}
+						sites={sites}
+						preselectedSiteId={preselectedSiteId}
+					/>
+				)}
+			</div>
+		</div>
+	);
+}

@@ -248,13 +248,14 @@ export function PersonNotesSection({ personId }: PersonNotesSectionProps) {
 				<div className="flex items-center justify-between">
 					<CardTitle className="text-base">Internal Notes</CardTitle>
 					<div className="flex items-center gap-1">
-						{!composerOpen && !collapsed && (
+						{!composerOpen && (
 							<Button
 								size="sm"
 								variant="ghost"
 								onClick={() => {
 									setEditingNoteId(null);
 									setComposerOpen(true);
+									setCollapsed(false);
 								}}
 								className="h-7 gap-1 text-xs"
 							>

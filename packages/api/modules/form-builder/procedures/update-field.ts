@@ -13,11 +13,11 @@ export const updateField = protectedProcedure
 
     const field = await db.formField.findUnique({
       where: { id },
-      include: { area: true, site: { include: { area: true } } },
+      include: { form: true },
     });
     if (!field) throw new ORPCError("NOT_FOUND");
 
-    const organizationId = field.area?.organizationId ?? field.site?.area?.organizationId;
+    const organizationId = field.form?.organizationId;
     if (!organizationId) throw new ORPCError("NOT_FOUND");
 
     const membership = await verifyOrganizationMembership(organizationId, context.user.id);

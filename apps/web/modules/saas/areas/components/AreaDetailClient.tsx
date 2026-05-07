@@ -4,17 +4,15 @@ import { cn } from "@repo/ui";
 import { Button } from "@repo/ui/components/button";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { useArea } from "@saas/areas/hooks/use-areas";
-import { AreaFormBuilder } from "@saas/form-builder/components/AreaFormBuilder";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
-import { BuildingIcon, ClipboardListIcon, InboxIcon, SettingsIcon, Share2Icon } from "lucide-react";
+import { BuildingIcon, InboxIcon, SettingsIcon } from "lucide-react";
 import { useState } from "react";
 import { AreaDialog } from "./AreaDialog";
 import { AreaSettingsTab } from "./tabs/AreaSettingsTab";
-import { AreaShareTab } from "./tabs/AreaShareTab";
 import { AreaSitesTab } from "./tabs/AreaSitesTab";
 import { AreaSubmissionsTab } from "./tabs/AreaSubmissionsTab";
 
-type NavSection = "sites" | "form-fields" | "submissions" | "share" | "settings";
+type NavSection = "sites" | "submissions" | "settings";
 
 interface AreaDetailClientProps {
 	areaId: string;
@@ -43,9 +41,7 @@ export function AreaDetailClient({ areaId }: AreaDetailClientProps) {
 
 	const navItems = [
 		{ key: "sites" as NavSection, label: "Sites", icon: BuildingIcon, count: area.sites.length },
-		{ key: "form-fields" as NavSection, label: "Form Fields", icon: ClipboardListIcon },
 		{ key: "submissions" as NavSection, label: "Submissions", icon: InboxIcon },
-		{ key: "share" as NavSection, label: "Share", icon: Share2Icon },
 		{ key: "settings" as NavSection, label: "Settings", icon: SettingsIcon },
 	];
 
@@ -95,26 +91,17 @@ export function AreaDetailClient({ areaId }: AreaDetailClientProps) {
 				</div>
 
 				{/* Content panel */}
-				{activeSection === "form-fields" ? (
-					<div className="min-w-0 flex-1">
-						<AreaFormBuilder areaId={areaId} areaName={area.name} />
-					</div>
-				) : (
-					<div className="min-w-0 flex-1 rounded-lg border bg-card p-6">
-						{activeSection === "sites" && (
-							<AreaSitesTab areaId={areaId} organizationId={organizationId} />
-						)}
-						{activeSection === "submissions" && (
-							<AreaSubmissionsTab areaId={areaId} />
-						)}
-						{activeSection === "share" && (
-							<AreaShareTab sites={area.sites} />
-						)}
-						{activeSection === "settings" && (
-							<AreaSettingsTab area={area} organizationId={organizationId} />
-						)}
-					</div>
-				)}
+				<div className="min-w-0 flex-1 rounded-lg border bg-card p-6">
+					{activeSection === "sites" && (
+						<AreaSitesTab areaId={areaId} organizationId={organizationId} />
+					)}
+					{activeSection === "submissions" && (
+						<AreaSubmissionsTab areaId={areaId} />
+					)}
+					{activeSection === "settings" && (
+						<AreaSettingsTab area={area} organizationId={organizationId} />
+					)}
+				</div>
 			</div>
 
 			<AreaDialog

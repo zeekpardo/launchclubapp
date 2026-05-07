@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const personTypeEnum = z.enum(["STUDENT", "PARENT", "MENTOR"]);
+
 export const createPersonSchema = z.object({
   organizationId: z.string().max(36),
   householdId: z.string().max(36).nullish(),
@@ -9,7 +11,7 @@ export const createPersonSchema = z.object({
   phone: z.string().max(30).optional(),
   dateOfBirth: z.string().datetime().max(30).optional(),
   gender: z.string().max(50).optional(),
-  isChild: z.boolean().default(false),
+  personType: personTypeEnum.default("STUDENT"),
   isActive: z.boolean().default(true),
   grade: z.string().max(20).optional(),
   studentId: z.string().max(100).optional(),
@@ -23,7 +25,7 @@ export const updatePersonSchema = createPersonSchema.omit({ organizationId: true
 
 export const listPeopleSchema = z.object({
   organizationId: z.string().max(36),
-  isChild: z.boolean().optional(),
+  personType: personTypeEnum.optional(),
   isActive: z.boolean().optional(),
   query: z.string().max(200).optional(),
   areaId: z.string().max(36).optional(),

@@ -1069,7 +1069,7 @@
           "error": "Algo salió mal. Por favor, inténtalo de nuevo."
         },
         "cancel": "Cancelar",
-        "isChild": "¿Es un niño?",
+        "personType": "Tipo de Persona",
         "grade": "Grado",
         "gradePlaceholder": "Seleccionar grado"
       },
@@ -1084,12 +1084,18 @@
       "allSites": "Todas las Sedes",
       "tabs": {
         "all": "Todos",
-        "adults": "Adultos",
-        "kids": "Niños"
+        "parents": "Padres",
+        "students": "Estudiantes",
+        "mentors": "Mentores"
       },
       "type": {
-        "child": "Niño",
-        "adult": "Adulto"
+        "child": "Estudiante",
+        "adult": "Padre/Madre"
+      },
+      "personType": {
+        "STUDENT": "Estudiante",
+        "PARENT": "Padre/Madre",
+        "MENTOR": "Mentor"
       },
       "guardianSheet": {
         "title": "{name} — Tutores",

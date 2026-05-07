@@ -62,7 +62,7 @@ interface AcademicRecordFormValues {
 
 interface AcademicRecordsSectionProps {
 	personId: string;
-	isChild: boolean;
+	isStudent: boolean;
 }
 
 interface AcademicRecord {
@@ -78,7 +78,7 @@ interface AcademicRecord {
 
 export function AcademicRecordsSection({
 	personId,
-	isChild,
+	isStudent,
 }: AcademicRecordsSectionProps) {
 	const { user } = useSession();
 	const { activeOrganization } = useActiveOrganization();
@@ -111,7 +111,7 @@ export function AcademicRecordsSection({
 
 	const termValue = watch("term");
 
-	if (!isChild) return null;
+	if (!isStudent) return null;
 
 	function openAdd() {
 		setEditingRecord(null);
@@ -123,6 +123,7 @@ export function AcademicRecordsSection({
 			gradeLevel: "",
 			notes: "",
 		});
+		setCollapsed(false);
 		setDialogOpen(true);
 	}
 
@@ -185,7 +186,7 @@ export function AcademicRecordsSection({
 					<div className="flex items-center justify-between">
 						<CardTitle className="text-base">Academic Records</CardTitle>
 						<div className="flex items-center gap-1">
-							{isAdmin && !collapsed && (
+							{isAdmin && (
 								<Button
 									size="sm"
 									variant="ghost"

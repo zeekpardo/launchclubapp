@@ -29,7 +29,7 @@ export const listPeople = protectedProcedure
     }
 
     return getPeopleByOrganization(input.organizationId, {
-      isChild: input.isChild,
+      personType: input.personType,
       isActive: input.isActive,
       query: input.query,
       areaId: input.areaId,

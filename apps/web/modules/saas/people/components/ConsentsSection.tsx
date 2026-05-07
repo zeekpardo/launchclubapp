@@ -22,12 +22,14 @@ import { Switch } from "@repo/ui/components/switch";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useSession } from "@saas/auth/hooks/use-session";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
+import { usePdfDownloadUrl } from "@saas/applications/hooks/use-consent-items";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
 	CheckCircle2Icon,
 	ChevronDownIcon,
+	FileTextIcon,
 	PaperclipIcon,
 	PencilIcon,
 	UploadIcon,
@@ -43,39 +45,65 @@ import {
 } from "../hooks/use-person-consents";
 import { useUpsertPersonConsent } from "../hooks/use-upsert-person-consent";
 
-type ConsentType = "OBSERVATION" | "TERMS_AND_CONDITIONS" | "PHOTO_VIDEO";
-
-const CONSENT_LABELS: Record<ConsentType, string> = {
-	OBSERVATION: "Observation",
-	TERMS_AND_CONDITIONS: "Terms & Conditions",
-	PHOTO_VIDEO: "Photo / Video",
-};
-
-const ALL_CONSENT_TYPES: ConsentType[] = [
-	"OBSERVATION",
-	"TERMS_AND_CONDITIONS",
-	"PHOTO_VIDEO",
-];
+interface ConsentItem {
+	id: string;
+	name: string;
+	nameES: string | null;
+	pdfKey: string | null;
+	sortOrder: number;
+}
 
 interface ConsentRecord {
 	id: string;
-	consentType: ConsentType;
+	consentItemId: string;
+	consentItem: ConsentItem;
 	granted: boolean;
 	grantedAt: Date | string | null;
 	signatureFileUrl: string | null;
 }
 
+// ---------------------------------------------------------------------------
+// Display row
+// ---------------------------------------------------------------------------
+
 interface ConsentRowProps {
 	label: string;
 	record: ConsentRecord | undefined;
+	consentItem: ConsentItem;
+	organizationId: string;
 }
 
-function ConsentRow({ label, record }: ConsentRowProps) {
+function ConsentRow({ label, record, consentItem, organizationId }: ConsentRowProps) {
+	const pdfDownloadUrl = usePdfDownloadUrl();
+
+	async function handleViewForm() {
+		try {
+			const { downloadUrl } = await pdfDownloadUrl.mutateAsync({
+				id: consentItem.id,
+				organizationId,
+			});
+			window.open(downloadUrl, "_blank", "noopener,noreferrer");
+		} catch {
+			toastError("Could not load consent form PDF");
+		}
+	}
+
 	if (!record) {
 		return (
 			<div className="flex items-center gap-2 text-sm">
 				<span className="text-muted-foreground">—</span>
 				<span className="text-muted-foreground">{label}</span>
+				{consentItem.pdfKey && (
+					<button
+						type="button"
+						title="View consent form"
+						className="text-muted-foreground hover:text-primary transition-colors"
+						onClick={handleViewForm}
+						disabled={pdfDownloadUrl.isPending}
+					>
+						<FileTextIcon className="size-3.5" />
+					</button>
+				)}
 				<span className="text-xs text-muted-foreground ml-auto">Not collected</span>
 			</div>
 		);
@@ -86,6 +114,17 @@ function ConsentRow({ label, record }: ConsentRowProps) {
 			<div className="flex items-center gap-2 text-sm text-muted-foreground">
 				<XCircleIcon className="size-4 shrink-0 text-destructive" />
 				<span>{label}</span>
+				{consentItem.pdfKey && (
+					<button
+						type="button"
+						title="View consent form"
+						className="text-muted-foreground hover:text-primary transition-colors"
+						onClick={handleViewForm}
+						disabled={pdfDownloadUrl.isPending}
+					>
+						<FileTextIcon className="size-3.5" />
+					</button>
+				)}
 			</div>
 		);
 	}
@@ -98,6 +137,17 @@ function ConsentRow({ label, record }: ConsentRowProps) {
 		<div className="flex items-center gap-2 text-sm text-green-600">
 			<CheckCircle2Icon className="size-4 shrink-0" />
 			<span className="font-medium">{label}</span>
+			{consentItem.pdfKey && (
+				<button
+					type="button"
+					title="View consent form"
+					className="text-muted-foreground hover:text-primary transition-colors"
+					onClick={handleViewForm}
+					disabled={pdfDownloadUrl.isPending}
+				>
+					<FileTextIcon className="size-3.5" />
+				</button>
+			)}
 			{dateStr && (
 				<span className="text-xs text-muted-foreground">{dateStr}</span>
 			)}
@@ -116,33 +166,29 @@ function ConsentRow({ label, record }: ConsentRowProps) {
 	);
 }
 
+// ---------------------------------------------------------------------------
+// Edit row
+// ---------------------------------------------------------------------------
+
 const consentRowSchema = z.object({
 	granted: z.boolean(),
 	grantedAt: z.string().nullable(),
 	signatureFileUrl: z.string().nullable(),
 });
 
-const editConsentsSchema = z.object({
-	OBSERVATION: consentRowSchema,
-	TERMS_AND_CONDITIONS: consentRowSchema,
-	PHOTO_VIDEO: consentRowSchema,
-});
-
-type EditConsentsValues = z.infer<typeof editConsentsSchema>;
+type ConsentRowValue = z.infer<typeof consentRowSchema>;
 
 interface ConsentEditRowProps {
-	consentType: ConsentType;
-	label: string;
-	enableFileUpload: boolean;
+	consentItem: ConsentItem;
+	organizationId: string;
 	personId: string;
-	value: EditConsentsValues[ConsentType];
-	onChange: (val: EditConsentsValues[ConsentType]) => void;
+	value: ConsentRowValue;
+	onChange: (val: ConsentRowValue) => void;
 }
 
 function ConsentEditRow({
-	consentType,
-	label,
-	enableFileUpload,
+	consentItem,
+	organizationId,
 	personId,
 	value,
 	onChange,
@@ -152,21 +198,26 @@ function ConsentEditRow({
 	const createUploadUrl = useMutation(
 		orpc.personConsents.createSignatureUploadUrl.mutationOptions(),
 	);
+	const pdfDownloadUrl = usePdfDownloadUrl();
+
+	async function handleViewForm() {
+		try {
+			const { downloadUrl } = await pdfDownloadUrl.mutateAsync({
+				id: consentItem.id,
+				organizationId,
+			});
+			window.open(downloadUrl, "_blank", "noopener,noreferrer");
+		} catch {
+			toastError("Could not load consent form PDF");
+		}
+	}
 
 	function handleToggle(checked: boolean) {
-		if (checked) {
-			onChange({
-				...value,
-				granted: true,
-				grantedAt: new Date().toISOString().slice(0, 10),
-			});
-		} else {
-			onChange({
-				...value,
-				granted: false,
-				grantedAt: null,
-			});
-		}
+		onChange({
+			...value,
+			granted: checked,
+			grantedAt: checked ? new Date().toISOString().slice(0, 10) : null,
+		});
 	}
 
 	function handleDateChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -181,7 +232,7 @@ function ConsentEditRow({
 		try {
 			const { uploadUrl, fileUrl } = await createUploadUrl.mutateAsync({
 				personId,
-				fileName: `${consentType.toLowerCase()}-${Date.now()}-${file.name}`,
+				fileName: `${consentItem.id.toLowerCase()}-${Date.now()}-${file.name}`,
 				contentType: file.type,
 			});
 			const resp = await fetch(uploadUrl, {
@@ -192,7 +243,7 @@ function ConsentEditRow({
 			if (!resp.ok) throw new Error("Upload failed");
 			onChange({ ...value, signatureFileUrl: fileUrl });
 		} catch {
-			toastError("Failed to upload signature file");
+			toastError("Failed to upload document");
 		} finally {
 			setUploading(false);
 		}
@@ -201,18 +252,31 @@ function ConsentEditRow({
 	return (
 		<div className="space-y-2 rounded-lg border p-3">
 			<div className="flex items-center justify-between">
-				<Label className="text-sm font-medium">{label}</Label>
+				<div className="flex items-center gap-2">
+					<Label className="text-sm font-medium">{consentItem.name}</Label>
+					{consentItem.pdfKey && (
+						<button
+							type="button"
+							title="View consent form"
+							className="text-muted-foreground hover:text-primary transition-colors"
+							onClick={handleViewForm}
+							disabled={pdfDownloadUrl.isPending}
+						>
+							<FileTextIcon className="size-3.5" />
+						</button>
+					)}
+				</div>
 				<Switch checked={value.granted} onCheckedChange={handleToggle} />
 			</div>
 
 			{value.granted && (
 				<div className="space-y-2 pl-1">
 					<div className="space-y-1">
-						<Label htmlFor={`date-${consentType}`} className="text-xs text-muted-foreground">
+						<Label htmlFor={`date-${consentItem.id}`} className="text-xs text-muted-foreground">
 							Date granted
 						</Label>
 						<Input
-							id={`date-${consentType}`}
+							id={`date-${consentItem.id}`}
 							type="date"
 							value={value.grantedAt ?? ""}
 							onChange={handleDateChange}
@@ -220,109 +284,112 @@ function ConsentEditRow({
 						/>
 					</div>
 
-					{enableFileUpload && (
-						<div>
-							<input
-								ref={fileInputRef}
-								type="file"
-								accept="image/*,.pdf"
-								className="hidden"
-								onChange={handleFileChange}
-							/>
-							<div className="flex items-center gap-2">
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									className="h-7 gap-1 text-xs"
-									disabled={uploading}
-									onClick={() => fileInputRef.current?.click()}
+					<div>
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept="image/*,.pdf"
+							className="hidden"
+							onChange={handleFileChange}
+						/>
+						<div className="flex items-center gap-2">
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								className="h-7 gap-1 text-xs"
+								disabled={uploading}
+								onClick={() => fileInputRef.current?.click()}
+							>
+								<UploadIcon className="size-3" />
+								{uploading ? "Uploading..." : "Upload document"}
+							</Button>
+							{value.signatureFileUrl && (
+								<a
+									href={`/image-proxy/consent-signatures/${value.signatureFileUrl}`}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
 								>
-									<UploadIcon className="size-3" />
-									{uploading ? "Uploading..." : "Upload signature"}
-								</Button>
-								{value.signatureFileUrl && (
-									<a
-										href={`/image-proxy/consent-signatures/${value.signatureFileUrl}`}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-									>
-										<PaperclipIcon className="size-3" />
-										View file
-									</a>
-								)}
-							</div>
+									<PaperclipIcon className="size-3" />
+									View file
+								</a>
+							)}
 						</div>
-					)}
+					</div>
 				</div>
 			)}
 		</div>
 	);
 }
 
+// ---------------------------------------------------------------------------
+// Edit dialog
+// ---------------------------------------------------------------------------
+
 interface EditConsentsDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	personId: string;
+	organizationId: string;
 	academicYearId: string;
 	existingConsents: ConsentRecord[];
-	enableFileUpload: boolean;
+	consentItems: ConsentItem[];
 }
 
 function EditConsentsDialog({
 	open,
 	onOpenChange,
 	personId,
+	organizationId,
 	academicYearId,
 	existingConsents,
-	enableFileUpload,
+	consentItems,
 }: EditConsentsDialogProps) {
 	const upsertConsent = useUpsertPersonConsent();
 
-	function buildDefaultValues(): EditConsentsValues {
-		const get = (type: ConsentType) => {
-			const r = existingConsents.find((c) => c.consentType === type);
-			return {
+	const editSchema = z.record(z.string(), consentRowSchema);
+	type EditValues = Record<string, ConsentRowValue>;
+
+	function buildDefaultValues(): EditValues {
+		const result: EditValues = {};
+		for (const item of consentItems) {
+			const r = existingConsents.find((c) => c.consentItemId === item.id);
+			result[item.id] = {
 				granted: r?.granted ?? false,
 				grantedAt: r?.grantedAt
 					? new Date(r.grantedAt).toISOString().slice(0, 10)
 					: null,
 				signatureFileUrl: r?.signatureFileUrl ?? null,
 			};
-		};
-		return {
-			OBSERVATION: get("OBSERVATION"),
-			TERMS_AND_CONDITIONS: get("TERMS_AND_CONDITIONS"),
-			PHOTO_VIDEO: get("PHOTO_VIDEO"),
-		};
+		}
+		return result;
 	}
 
-	const form = useForm<EditConsentsValues>({
-		resolver: zodResolver(editConsentsSchema),
+	const form = useForm<EditValues>({
+		resolver: zodResolver(editSchema),
 		defaultValues: buildDefaultValues(),
 	});
 
 	function handleOpenChange(nextOpen: boolean) {
-		if (nextOpen) {
-			form.reset(buildDefaultValues());
-		}
+		if (nextOpen) form.reset(buildDefaultValues());
 		onOpenChange(nextOpen);
 	}
 
-	async function onSubmit(values: EditConsentsValues) {
+	async function onSubmit(values: EditValues) {
 		try {
 			await Promise.all(
-				ALL_CONSENT_TYPES.map((type) =>
+				consentItems.map((item) =>
 					upsertConsent.mutateAsync({
 						personId,
 						academicYearId,
-						consentType: type,
-						granted: values[type].granted,
-						grantedAt: values[type].granted && values[type].grantedAt
-							? new Date(values[type].grantedAt).toISOString()
-							: null,
-						signatureFileUrl: values[type].signatureFileUrl,
+						consentItemId: item.id,
+						granted: values[item.id]?.granted ?? false,
+						grantedAt:
+							values[item.id]?.granted && values[item.id]?.grantedAt
+								? new Date(values[item.id].grantedAt!).toISOString()
+								: null,
+						signatureFileUrl: values[item.id]?.signatureFileUrl ?? null,
 					}),
 				),
 			);
@@ -342,23 +409,18 @@ function EditConsentsDialog({
 					<DialogTitle>Edit Consents</DialogTitle>
 				</DialogHeader>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-					{ALL_CONSENT_TYPES.map((type) => (
+					{consentItems.map((item) => (
 						<ConsentEditRow
-							key={type}
-							consentType={type}
-							label={CONSENT_LABELS[type]}
-							enableFileUpload={enableFileUpload}
+							key={item.id}
+							consentItem={item}
+							organizationId={organizationId}
 							personId={personId}
-							value={formValues[type]}
-							onChange={(val) => form.setValue(type, val)}
+							value={formValues[item.id] ?? { granted: false, grantedAt: null, signatureFileUrl: null }}
+							onChange={(val) => form.setValue(item.id, val)}
 						/>
 					))}
 					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => onOpenChange(false)}
-						>
+						<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
 							Cancel
 						</Button>
 						<Button type="submit" disabled={upsertConsent.isPending}>
@@ -370,6 +432,10 @@ function EditConsentsDialog({
 		</Dialog>
 	);
 }
+
+// ---------------------------------------------------------------------------
+// Previous year
+// ---------------------------------------------------------------------------
 
 interface PreviousYearConsentsProps {
 	personId: string;
@@ -405,11 +471,13 @@ function PreviousYearConsents({ personId, organizationId }: PreviousYearConsents
 			</CardHeader>
 			{!collapsed && (
 				<CardContent className="space-y-2">
-					{ALL_CONSENT_TYPES.map((type) => (
+					{(consents as ConsentRecord[]).map((c) => (
 						<ConsentRow
-							key={type}
-							label={CONSENT_LABELS[type]}
-							record={consents.find((c) => c.consentType === type) as ConsentRecord | undefined}
+							key={c.id}
+							label={c.consentItem?.name ?? c.consentItemId}
+							record={c}
+							consentItem={c.consentItem}
+							organizationId={organizationId}
 						/>
 					))}
 				</CardContent>
@@ -418,32 +486,42 @@ function PreviousYearConsents({ personId, organizationId }: PreviousYearConsents
 	);
 }
 
+// ---------------------------------------------------------------------------
+// Main export
+// ---------------------------------------------------------------------------
+
 interface ConsentsSectionProps {
 	personId: string;
 	organizationId: string;
+	personType: "STUDENT" | "MENTOR" | "PARENT";
 }
 
-export function ConsentsSection({ personId, organizationId }: ConsentsSectionProps) {
+export function ConsentsSection({ personId, organizationId, personType }: ConsentsSectionProps) {
 	const { user } = useSession();
 	const { activeOrganization } = useActiveOrganization();
 	const { data: academicYears = [] } = useAcademicYears(organizationId);
 	const activeYear = academicYears.find((y) => y.isActive);
 	const { data: consents = [] } = usePersonConsents(personId, activeYear?.id);
 
-	const { data: orgSettings } = useQuery(
-		orpc.applications.getOrgSettings.queryOptions({
+	const { data: allConsentItems = [] } = useQuery(
+		orpc.consentItems.list.queryOptions({
 			input: { organizationId },
 			enabled: !!organizationId,
 		}),
 	);
 
+	const consentItems = allConsentItems.filter(
+		(item) => item.applicantType === personType && item.isActive,
+	) as ConsentItem[];
+
 	const [collapsed, setCollapsed] = useState(false);
 	const [dialogOpen, setDialogOpen] = useState(false);
 
 	const isAdmin = isOrganizationAdmin(activeOrganization, user);
-	const enableFileUpload = orgSettings?.enableConsentFileUpload ?? false;
 
-	if (!activeYear) return null;
+	if (!activeYear || consentItems.length === 0) return null;
+
+	const typedConsents = consents as ConsentRecord[];
 
 	return (
 		<>
@@ -459,7 +537,7 @@ export function ConsentsSection({ personId, organizationId }: ConsentsSectionPro
 							)}
 						</div>
 						<div className="flex items-center gap-1">
-							{isAdmin && !collapsed && (
+							{isAdmin && (
 								<Button
 									size="sm"
 									variant="ghost"
@@ -485,11 +563,13 @@ export function ConsentsSection({ personId, organizationId }: ConsentsSectionPro
 				</CardHeader>
 				{!collapsed && (
 					<CardContent className="space-y-2">
-						{ALL_CONSENT_TYPES.map((type) => (
+						{consentItems.map((item) => (
 							<ConsentRow
-								key={type}
-								label={CONSENT_LABELS[type]}
-								record={consents.find((c) => c.consentType === type) as ConsentRecord | undefined}
+								key={item.id}
+								label={item.name}
+								record={typedConsents.find((c) => c.consentItemId === item.id)}
+								consentItem={item}
+								organizationId={organizationId}
 							/>
 						))}
 					</CardContent>
@@ -502,9 +582,10 @@ export function ConsentsSection({ personId, organizationId }: ConsentsSectionPro
 				open={dialogOpen}
 				onOpenChange={setDialogOpen}
 				personId={personId}
+				organizationId={organizationId}
 				academicYearId={activeYear.id}
-				existingConsents={consents as ConsentRecord[]}
-				enableFileUpload={enableFileUpload}
+				existingConsents={typedConsents}
+				consentItems={consentItems}
 			/>
 		</>
 	);

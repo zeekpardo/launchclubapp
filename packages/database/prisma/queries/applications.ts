@@ -145,7 +145,7 @@ export async function migrateApplicationToPeople(
         lastName: application.parentLastName,
         email: application.parentEmail ?? undefined,
         phone: application.parentPhone ?? undefined,
-        isChild: false,
+        personType: "PARENT",
       },
     });
 
@@ -160,7 +160,7 @@ export async function migrateApplicationToPeople(
           lastName: application.spouseLastName ?? application.parentLastName,
           email: application.spouseEmail ?? undefined,
           phone: application.spousePhone ?? undefined,
-          isChild: false,
+          personType: "PARENT",
         },
       });
     }
@@ -175,7 +175,7 @@ export async function migrateApplicationToPeople(
           lastName: child.lastName,
           dateOfBirth: child.birthday ?? undefined,
           grade: child.grade ?? undefined,
-          isChild: true,
+          personType: "STUDENT",
         },
       });
 

@@ -162,6 +162,9 @@ model Organization {
   academicYears       AcademicYear[]                  @relation("OrganizationAcademicYears")
   personNotes         PersonNote[]                    @relation("OrgPersonNotes")
   notifications       Notification[]                  @relation("OrgNotifications")
+  forms               Form[]
+  mentorApplications  MentorApplication[]             @relation("OrganizationMentorApplications")
+  consentItems        ConsentItem[]
 
   @@unique([slug])
   @@map("organization")
@@ -246,7 +249,6 @@ model Area {
   updatedAt      DateTime     @updatedAt
   organization   Organization @relation("OrganizationAreas", fields: [organizationId], references: [id], onDelete: Cascade)
   sites          Site[]
-  formFields     FormField[]
 
   @@index([organizationId])
   @@map("area")
@@ -272,7 +274,8 @@ model Site {
   groups              Group[]
   userSites           UserSite[]
   applications        Application[]
-  formFields          FormField[]
+  formSites           FormSite[]
+  mentorApplications  MentorApplication[]
 
   @@index([areaId])
   @@map("site")
@@ -319,7 +322,7 @@ model Person {
   phone          String?
   dateOfBirth    DateTime?
   gender         String?
-  isChild        Boolean       @default(false)
+  personType     PersonType    @default(STUDENT)
   isActive       Boolean       @default(true)
   grade          String?
   studentId      String?
@@ -635,12 +638,6 @@ model PurchaseRequestItem {
   @@map("purchase_request_item")
 }
 
-enum ConsentType {
-  OBSERVATION
-  TERMS_AND_CONDITIONS
-  PHOTO_VIDEO
-}
-
 enum GpaTerm {
   Q1
   Q2
@@ -664,30 +661,84 @@ enum FormFieldType {
   RADIO
   FILE
   HEADER
+  PROFILE
+  CUSTOM
+  SITE_SELECTOR
+  CONSENT
+}
+
+enum PersonType {
+  STUDENT
+  PARENT
+  MENTOR
+}
+
+enum FormType {
+  STUDENT
+  MENTOR
+}
+
+enum FormStatus {
+  PUBLISHED
+  UNPUBLISHED
+}
+
+model Form {
+  id             String       @id @default(cuid())
+  slug           String
+  name           String
+  description    String?
+  type           FormType
+  status         FormStatus   @default(UNPUBLISHED)
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  fields         FormField[]
+  formSites      FormSite[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("form")
+}
+
+model FormSite {
+  formId String
+  siteId String
+  form   Form   @relation(fields: [formId], references: [id], onDelete: Cascade)
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@id([formId, siteId])
+  @@map("form_site")
 }
 
 model FormField {
-  id          String        @id @default(cuid())
-  label       String
-  fieldKey    String
-  type        FormFieldType
-  placeholder String?
-  helpText    String?
-  required    Boolean       @default(false)
-  order       Int           @default(0)
-  options     Json?
-  validation  Json?
-  areaId      String?
-  siteId      String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  area              Area?         @relation(fields: [areaId], references: [id], onDelete: Cascade)
-  site              Site?         @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  fieldValues       ApplicationFieldValue[]
-  childFieldValues  ApplicationChildFormFieldValue[]
+  id               String        @id @default(cuid())
+  formId           String?
+  label            String
+  fieldKey         String
+  type             FormFieldType
+  placeholder      String?
+  helpText         String?
+  required         Boolean       @default(false)
+  order            Int           @default(0)
+  options          Json?
+  validation       Json?
+  profileFieldKey  String?
+  customFieldId    String?
+  targetPersonType PersonType?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  consentItemId    String?
+  form                          Form?                           @relation(fields: [formId], references: [id], onDelete: Cascade)
+  customField                   CustomField?                    @relation(fields: [customFieldId], references: [id], onDelete: SetNull)
+  consentItem                   ConsentItem?                    @relation(fields: [consentItemId], references: [id], onDelete: SetNull)
+  fieldValues                   ApplicationFieldValue[]
+  childFieldValues              ApplicationChildFormFieldValue[]
+  mentorApplicationFieldValues  MentorApplicationFormFieldValue[]
 
-  @@index([areaId])
-  @@index([siteId])
+  @@index([formId])
   @@map("form_field")
 }
 
@@ -714,15 +765,72 @@ model OrganizationApplicationSettings {
   updatedAt          DateTime     @updatedAt
   organization              Organization @relation("OrganizationApplicationSettings", fields: [organizationId], references: [id], onDelete: Cascade)
   studentIdMode             String       @default("auto")
-  enableConsentFileUpload   Boolean      @default(false)
-  showObservationConsent        Boolean      @default(true)
-  showTermsConsent              Boolean      @default(true)
-  showPhotoVideoConsent         Boolean      @default(true)
-  observationConsentFormUrl     String?
-  termsConsentFormUrl           String?
-  photoVideoConsentFormUrl      String?
+  mentorContractUrl             String?
+  mentorSecurityClearanceUrl    String?
+  showMentorContract            Boolean  @default(false)
+  showMentorSecurityClearance   Boolean  @default(false)
+  enableMentorDocumentUpload    Boolean  @default(false)
 
   @@map("organization_application_settings")
+}
+
+model MentorApplication {
+  id                              String    @id @default(cuid())
+  organizationId                  String
+  siteId                          String?
+  status                          String    @default("PENDING")
+  firstName                       String
+  lastName                        String
+  email                           String
+  phone                           String?
+  addressLine1                    String?
+  city                            String?
+  stateProvince                   String?
+  postalCode                      String?
+  country                         String?
+  mentorContractFileUrl           String?
+  mentorSecurityClearanceFileUrl  String?
+  assignedGroupId                 String?
+  reviewedAt                      DateTime?
+  reviewedBy                      String?
+  createdAt                       DateTime  @default(now())
+  updatedAt                       DateTime  @updatedAt
+  organization                    Organization @relation("OrganizationMentorApplications", fields: [organizationId], references: [id], onDelete: Cascade)
+  site                            Site?     @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  formFieldValues                 MentorApplicationFormFieldValue[]
+  profileFieldValues              MentorApplicationCustomFieldValue[]
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@map("mentor_application")
+}
+
+model MentorApplicationFormFieldValue {
+  id                    String            @id @default(cuid())
+  mentorApplicationId   String
+  formFieldId           String
+  value                 String
+  createdAt             DateTime          @default(now())
+  mentorApplication     MentorApplication @relation(fields: [mentorApplicationId], references: [id], onDelete: Cascade)
+  formField             FormField         @relation(fields: [formFieldId], references: [id], onDelete: Cascade)
+
+  @@unique([mentorApplicationId, formFieldId])
+  @@index([mentorApplicationId])
+  @@map("mentor_application_form_field_value")
+}
+
+model MentorApplicationCustomFieldValue {
+  id                    String            @id @default(cuid())
+  mentorApplicationId   String
+  customFieldId         String
+  value                 String?           @db.Text
+  createdAt             DateTime          @default(now())
+  mentorApplication     MentorApplication @relation(fields: [mentorApplicationId], references: [id], onDelete: Cascade)
+  customField           CustomField       @relation(fields: [customFieldId], references: [id], onDelete: Cascade)
+
+  @@unique([mentorApplicationId, customFieldId])
+  @@index([mentorApplicationId])
+  @@map("mentor_application_custom_field_value")
 }
 
 enum CustomFieldType {
@@ -768,6 +876,8 @@ model CustomField {
   values               CustomFieldValue[]
   applicationValues    ApplicationCustomFieldValue[]
   applicationChildValues ApplicationChildCustomFieldValue[]
+  mentorApplicationValues MentorApplicationCustomFieldValue[]
+  formFields           FormField[]
 
   @@index([organizationId])
   @@map("custom_field")
@@ -844,7 +954,7 @@ model PersonConsent {
   id               String      @id @default(cuid())
   personId         String
   academicYearId   String
-  consentType      ConsentType
+  consentItemId    String
   granted          Boolean
   grantedAt        DateTime?
   signatureFileUrl String?
@@ -853,10 +963,12 @@ model PersonConsent {
 
   person       Person       @relation(fields: [personId], references: [id], onDelete: Cascade)
   academicYear AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  consentItem  ConsentItem  @relation(fields: [consentItemId], references: [id], onDelete: Cascade)
 
-  @@unique([personId, academicYearId, consentType])
+  @@unique([personId, academicYearId, consentItemId])
   @@index([personId])
   @@index([academicYearId])
+  @@index([consentItemId])
   @@map("person_consent")
 }
 
@@ -880,4 +992,24 @@ model Notification {
   @@index([recipientId, isRead])
   @@index([organizationId])
   @@map("notification")
+}
+
+model ConsentItem {
+  id             String     @id @default(cuid())
+  organizationId String
+  name           String
+  nameES         String?
+  pdfKey         String?
+  applicantType  PersonType
+  isActive       Boolean    @default(true)
+  sortOrder      Int        @default(0)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  personConsents PersonConsent[]
+  formFields     FormField[]
+
+  @@index([organizationId])
+  @@map("consent_item")
 }

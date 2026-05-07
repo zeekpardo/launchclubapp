@@ -57,16 +57,16 @@ import {
 } from "../hooks/use-people";
 import { GuardianManager } from "./GuardianManager";
 
-type FilterTab = "all" | "adults" | "kids";
+type FilterTab = "all" | "parents" | "students" | "mentors";
 
 const ALL = "__all__";
 
 function PersonAvatar({
 	firstName,
 	lastName,
-	isChild,
+	personType,
 	avatarUrl,
-}: { firstName: string; lastName: string; isChild: boolean; avatarUrl?: string | null }) {
+}: { firstName: string; lastName: string; personType: string; avatarUrl?: string | null }) {
 	const initials =
 		`${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
 
@@ -83,7 +83,7 @@ function PersonAvatar({
 	return (
 		<div
 			className={`flex size-9 items-center justify-center rounded-full text-xs font-semibold ${
-				isChild
+				personType === "STUDENT"
 					? "bg-cyan-500 text-white"
 					: "bg-muted text-muted-foreground"
 			}`}
@@ -93,17 +93,24 @@ function PersonAvatar({
 	);
 }
 
-function TypeBadge({ isChild, childLabel, adultLabel }: { isChild: boolean; childLabel: string; adultLabel: string }) {
-	if (isChild) {
+function TypeBadge({ personType, studentLabel, parentLabel, mentorLabel }: { personType: string; studentLabel: string; parentLabel: string; mentorLabel: string }) {
+	if (personType === "STUDENT") {
 		return (
 			<span className="inline-flex items-center rounded-full bg-cyan-500 px-2.5 py-0.5 text-xs font-medium text-white">
-				{childLabel}
+				{studentLabel}
+			</span>
+		);
+	}
+	if (personType === "MENTOR") {
+		return (
+			<span className="inline-flex items-center rounded-full bg-violet-500 px-2.5 py-0.5 text-xs font-medium text-white">
+				{mentorLabel}
 			</span>
 		);
 	}
 	return (
 		<span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-			{adultLabel}
+			{parentLabel}
 		</span>
 	);
 }
@@ -227,16 +234,25 @@ export function PeopleTable() {
 
 	const activeFilter = showInactive ? undefined : true;
 	const { data: allPeople, isLoading: allLoading } = usePeople({ query: search, isActive: activeFilter, areaId, siteId });
-	const { data: adults, isLoading: adultsLoading } = usePeople({ query: search, isChild: false, isActive: activeFilter, areaId, siteId });
-	const { data: kids, isLoading: kidsLoading } = usePeople({ query: search, isChild: true, isActive: activeFilter, areaId, siteId });
+	const { data: parents, isLoading: parentsLoading } = usePeople({ query: search, personType: "PARENT", isActive: activeFilter, areaId, siteId });
+	const { data: students, isLoading: studentsLoading } = usePeople({ query: search, personType: "STUDENT", isActive: activeFilter, areaId, siteId });
+	const { data: mentors, isLoading: mentorsLoading } = usePeople({ query: search, personType: "MENTOR", isActive: activeFilter, areaId, siteId });
 
 	const handleAreaChange = (value: string) => {
 		setSelectedAreaId(value);
 		setSelectedSiteId(ALL);
 	};
 
-	const people = tab === "adults" ? adults : tab === "kids" ? kids : allPeople;
-	const isLoading = tab === "adults" ? adultsLoading : tab === "kids" ? kidsLoading : allLoading;
+	const people =
+		tab === "parents" ? parents :
+		tab === "students" ? students :
+		tab === "mentors" ? mentors :
+		allPeople;
+	const isLoading =
+		tab === "parents" ? parentsLoading :
+		tab === "students" ? studentsLoading :
+		tab === "mentors" ? mentorsLoading :
+		allLoading;
 	const deletePerson = useDeletePerson();
 
 	const basePath = `/app/${params.organizationSlug}/people`;
@@ -329,7 +345,7 @@ export function PeopleTable() {
 				{/* Row 3: Type tabs + inactive toggle */}
 				<div className="flex items-center gap-3">
 					<div className="inline-flex rounded-lg border bg-muted p-1 self-start">
-						{(["all", "adults", "kids"] as FilterTab[]).map((filterTab) => (
+						{(["all", "parents", "students", "mentors"] as FilterTab[]).map((filterTab) => (
 							<button
 								key={filterTab}
 								type="button"
@@ -340,7 +356,13 @@ export function PeopleTable() {
 										: "text-muted-foreground hover:text-foreground"
 								}`}
 							>
-								{filterTab === "all" ? t("launchclub.people.tabs.all") : filterTab === "adults" ? t("launchclub.people.tabs.adults") : t("launchclub.people.tabs.kids")}
+								{filterTab === "all"
+									? t("launchclub.people.tabs.all")
+									: filterTab === "parents"
+									? t("launchclub.people.tabs.parents")
+									: filterTab === "students"
+									? t("launchclub.people.tabs.students")
+									: t("launchclub.people.tabs.mentors")}
 							</button>
 						))}
 					</div>
@@ -394,7 +416,7 @@ export function PeopleTable() {
 										<PersonAvatar
 											firstName={person.firstName}
 											lastName={person.lastName}
-											isChild={person.isChild}
+											personType={person.personType}
 											avatarUrl={person.avatarUrl}
 										/>
 									</TableCell>
@@ -407,7 +429,12 @@ export function PeopleTable() {
 										</Link>
 									</TableCell>
 									<TableCell>
-										<TypeBadge isChild={person.isChild} childLabel={t("launchclub.people.type.child")} adultLabel={t("launchclub.people.type.adult")} />
+										<TypeBadge
+										personType={person.personType}
+										studentLabel={t("launchclub.people.personType.STUDENT")}
+										parentLabel={t("launchclub.people.personType.PARENT")}
+										mentorLabel={t("launchclub.people.personType.MENTOR")}
+									/>
 									</TableCell>
 									<TableCell className="text-muted-foreground capitalize">
 										{person.gender ?? "—"}
@@ -432,7 +459,7 @@ export function PeopleTable() {
 									</TableCell>
 									<TableCell>
 										<div className="flex items-center gap-1">
-											{person.isChild && (
+											{person.personType === "STUDENT" && (
 												<Button
 													size="icon"
 													variant="ghost"

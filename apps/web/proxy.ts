@@ -12,7 +12,7 @@ export default async function proxy(req: NextRequest) {
 
 	const sessionCookie = getSessionCookie(req);
 
-	if (pathname.startsWith("/app")) {
+	if (pathname === "/app" || pathname.startsWith("/app/")) {
 		const response = NextResponse.next();
 
 		if (!appConfig.saas.enabled) {
@@ -46,6 +46,7 @@ export default async function proxy(req: NextRequest) {
 		"/new-organization",
 		"/choose-plan",
 		"/organization-invitation",
+		"/apply",
 	];
 
 	if (pathsWithoutLocale.some((path) => pathname.startsWith(path))) {

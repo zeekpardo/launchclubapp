@@ -79,6 +79,13 @@ export async function getCollectInApplicationFieldsBySite(siteSlug: string) {
   });
 }
 
+export async function getCollectInApplicationFieldsByOrg(organizationId: string) {
+  return db.customField.findMany({
+    where: { collectInApplication: true, organizationId },
+    orderBy: { order: "asc" },
+  });
+}
+
 export async function getCustomFieldValues(personId: string) {
   return db.customFieldValue.findMany({
     where: { personId },

@@ -17,6 +17,7 @@ import { useSession } from "@saas/auth/hooks/use-session";
 import { usePendingApplicationCount } from "@saas/applications/hooks/use-applications";
 import { usePendingPurchaseRequestCount } from "@saas/groups/hooks/use-purchase-requests";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
+import { useMyLcRole } from "@saas/organizations/hooks/use-my-lc-role";
 import { OrganizationLogo } from "@saas/organizations/components/OrganizationLogo";
 import { NotificationBell } from "@saas/notifications/components/NotificationBell";
 import { UserMenu } from "@saas/shared/components/UserMenu";
@@ -24,11 +25,13 @@ import {
 	CalendarIcon,
 	ClipboardListIcon,
 	DollarSignIcon,
+	FileTextIcon,
 	HomeIcon,
 	MenuIcon,
 	PanelLeftCloseIcon,
 	PanelLeftOpenIcon,
 	SettingsIcon,
+	UserCheckIcon,
 	UserIcon,
 	UsersIcon,
 } from "lucide-react";
@@ -45,8 +48,9 @@ export function NavBar() {
 	const { data: pendingCount = 0 } = usePendingApplicationCount();
 	const { data: pendingPurchaseRequestCount = 0 } = usePendingPurchaseRequestCount();
 	const { user } = useSession();
-	const { activeOrganization, isOrganizationAdmin, activeOrganizationUserRole } = useActiveOrganization();
-	const isGroupLeader = activeOrganizationUserRole === "member";
+	const { activeOrganization, isOrganizationAdmin } = useActiveOrganization();
+	const lcRole = useMyLcRole();
+	const isGroupLeader = lcRole === "group-leader";
 	const { isCollapsed, toggleCollapsed } = useSidebar();
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -72,12 +76,6 @@ export function NavBar() {
 						isActive: pathname.startsWith(`${basePath}/groups`),
 					},
 					{
-						label: t("app.menu.people"),
-						href: `${basePath}/people`,
-						icon: UserIcon,
-						isActive: pathname.startsWith(`${basePath}/people`),
-					},
-					{
 						label: t("app.menu.events"),
 						href: `${basePath}/events`,
 						icon: CalendarIcon,
@@ -86,11 +84,29 @@ export function NavBar() {
 					...(!isGroupLeader
 					? [
 							{
+								label: t("app.menu.people"),
+								href: `${basePath}/people`,
+								icon: UserIcon,
+								isActive: pathname.startsWith(`${basePath}/people`),
+							},
+							{
 								label: t("app.menu.applications"),
 								href: `${basePath}/applications`,
 								icon: ClipboardListIcon,
 								isActive: pathname.startsWith(`${basePath}/applications`),
 								hasBadge: pendingCount > 0,
+							},
+							{
+								label: "Mentor Applications",
+								href: `${basePath}/mentor-applications`,
+								icon: UserCheckIcon,
+								isActive: pathname.startsWith(`${basePath}/mentor-applications`),
+							},
+							{
+								label: "Forms",
+								href: `${basePath}/forms`,
+								icon: FileTextIcon,
+								isActive: pathname.startsWith(`${basePath}/forms`),
 							},
 							{
 								label: t("app.menu.purchaseRequests"),

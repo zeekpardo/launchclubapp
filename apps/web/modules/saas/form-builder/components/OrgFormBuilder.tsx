@@ -27,15 +27,13 @@ import {
 	useReorderCustomFields,
 	useUpdateCustomField,
 } from "@saas/custom-fields/hooks/use-custom-fields";
-import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
-import { GripVerticalIcon, LockIcon, TrashIcon } from "lucide-react";
-import { useParams } from "next/navigation";
+import { GripVerticalIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import type { z } from "zod";
 import {
 	useAddFormField,
-	useAreaFormFields,
 	useDeleteFormField,
+	useFormFields,
 	useUpdateFormField,
 } from "../hooks/use-form-fields";
 import type { FormFieldItem } from "./FieldCard";
@@ -44,42 +42,15 @@ import { FormBuilderCanvas } from "./FormBuilderCanvas";
 
 type FormFieldType = z.infer<typeof formFieldTypeEnum>;
 
-const DEFAULT_ADULT_FIELDS = [
-	{ label: "First Name", required: true },
-	{ label: "Last Name", required: true },
-	{ label: "Email Address", required: false },
-	{ label: "Phone", required: false },
-	{ label: "Street Address", required: false },
-	{ label: "City", required: false },
-	{ label: "State / Province", required: false },
-	{ label: "Postal Code", required: false },
-	{ label: "Country", required: false },
-	{ label: "Emergency Contact Name", required: false },
-	{ label: "Emergency Contact Phone", required: false },
-] as const;
-
-const DEFAULT_CHILD_FIELDS = [
-	{ label: "First Name", required: true },
-	{ label: "Last Name", required: true },
-	{ label: "Date of Birth", required: false },
-	{ label: "Grade", required: false },
-	{ label: "Part of Church", required: false },
-	{ label: "Observation Consent", required: true },
-	{ label: "Terms & Conditions", required: true },
-	{ label: "Photo / Video Consent", required: true },
-] as const;
-
-function DefaultFieldRow({ label, required }: { label: string; required: boolean }) {
-	return (
-		<div className="flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 opacity-60">
-			<LockIcon className="size-3.5 text-muted-foreground shrink-0" />
-			<p className="text-sm text-muted-foreground flex-1 truncate">{label}</p>
-			{required && (
-				<Badge className="text-xs shrink-0 opacity-70">Required</Badge>
-			)}
-		</div>
-	);
+function slugify(str: string) {
+	return str.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 }
+
+const PRESET_FIELDS = [
+	{ id: "emergency_contact_name", label: "Emergency Contact Name", type: "TEXT" },
+	{ id: "emergency_contact_phone", label: "Emergency Contact Phone", type: "TEXT" },
+	{ id: "emergency_contact_email", label: "Emergency Contact Email", type: "TEXT" },
+] as const;
 
 interface ProfileField {
 	id: string;
@@ -89,13 +60,11 @@ interface ProfileField {
 	collectInApplication: boolean;
 }
 
-interface AreaFormBuilderProps {
-	areaId: string;
-	areaName?: string;
-}
-
-function slugify(str: string) {
-	return str.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+interface OrgFormBuilderProps {
+	organizationId: string;
+	organizationSlug?: string;
+	/** formId is now required; the builder operates on a specific Form object */
+	formId?: string;
 }
 
 function SortableProfileFieldRow({
@@ -144,19 +113,12 @@ function SortableProfileFieldRow({
 	);
 }
 
-export function AreaFormBuilder({ areaId, areaName }: AreaFormBuilderProps) {
-	const { activeOrganization } = useActiveOrganization();
-	const organizationId = activeOrganization?.id ?? "";
-	const params = useParams<{ organizationSlug: string }>();
-	const organizationSlug = params.organizationSlug ?? "";
+export function OrgFormBuilder({ organizationId, organizationSlug, formId = "" }: OrgFormBuilderProps) {
+	const { data: fields = [], isLoading: basicLoading } = useFormFields(formId);
+	const addField = useAddFormField(formId);
+	const deleteField = useDeleteFormField(formId);
+	const updateField = useUpdateFormField(formId);
 
-	// Basic fields (FormField)
-	const { data: basicFields = [], isLoading: basicLoading } = useAreaFormFields(areaId);
-	const addField = useAddFormField(areaId);
-	const deleteField = useDeleteFormField(areaId);
-	const updateField = useUpdateFormField(areaId);
-
-	// Profile fields (CustomField with collectInApplication)
 	const { data: allCustomFields = [], isLoading: profileLoading } = useCustomFields(organizationId);
 	const updateCustomField = useUpdateCustomField(organizationId);
 	const reorderCustomField = useReorderCustomFields(organizationId);
@@ -188,11 +150,31 @@ export function AreaFormBuilder({ areaId, areaName }: AreaFormBuilderProps) {
 		}
 	};
 
+	const currentFieldKeys = new Set((fields as FormFieldItem[]).map((f) => f.fieldKey));
+	const availablePresetFields = PRESET_FIELDS.filter((p) => !currentFieldKeys.has(p.id));
+
+	const handleAddPreset = async (id: string) => {
+		const preset = PRESET_FIELDS.find((p) => p.id === id);
+		if (!preset) return;
+		try {
+			const created = await addField.mutateAsync({
+				formId,
+				label: preset.label,
+				fieldKey: preset.id,
+				type: preset.type as FormFieldType,
+				required: false,
+			});
+			setExpandedId((created as FormFieldItem).id);
+		} catch {
+			toastError("Failed to add field.");
+		}
+	};
+
 	const handleAddBasic = async (type: string) => {
 		const label = `New ${type.charAt(0) + type.slice(1).toLowerCase()} Field`;
 		try {
 			const created = await addField.mutateAsync({
-				areaId,
+				formId,
 				label,
 				fieldKey: slugify(label),
 				type: type as FormFieldType,
@@ -203,7 +185,6 @@ export function AreaFormBuilder({ areaId, areaName }: AreaFormBuilderProps) {
 			toastError("Failed to add field.");
 		}
 	};
-
 
 	const handleAddProfile = async (fieldId: string) => {
 		try {
@@ -221,7 +202,7 @@ export function AreaFormBuilder({ areaId, areaName }: AreaFormBuilderProps) {
 		}
 	};
 
-	const handleDeleteBasic = async (id: string) => {
+	const handleDelete = async (id: string) => {
 		if (expandedId === id) setExpandedId(null);
 		try {
 			await deleteField.mutateAsync({ id });
@@ -246,103 +227,75 @@ export function AreaFormBuilder({ areaId, areaName }: AreaFormBuilderProps) {
 		});
 	};
 
-	const isEmpty =
-		linkedProfileFields.length === 0 && (basicFields as FormFieldItem[]).length === 0;
+	const isEmpty = linkedProfileFields.length === 0 && (fields as FormFieldItem[]).length === 0;
 
 	return (
 		<div className="grid grid-cols-[1fr_260px] gap-4 items-start">
-			{/* Canvas */}
 			<div className="rounded-lg border bg-card overflow-hidden">
 				<div className="px-4 py-3 border-b bg-muted/40">
-					<h3 className="font-semibold text-sm">Application Form Fields</h3>
+					<h3 className="font-semibold text-sm">Mentor Form Questions</h3>
 					<p className="text-xs text-muted-foreground mt-0.5">
-						{areaName ? `Fields for "${areaName}" — ` : ""}
-						These fields appear on the public application form for all sites in this area.
+						These questions appear on the mentor application form for this organization.
 					</p>
 				</div>
-				<div className="divide-y">
-					{/* Adult defaults */}
-					<div className="p-3 space-y-1.5">
-						<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-1 pb-0.5">
-							Adult — always collected
-						</p>
-						{DEFAULT_ADULT_FIELDS.map((f) => (
-							<DefaultFieldRow key={f.label} label={f.label} required={f.required} />
-						))}
-					</div>
-
-					{/* Child defaults + configurable fields */}
-					<div className="p-3 space-y-1.5">
-						<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-1 pb-0.5">
-							Per Child — always collected
-						</p>
-						{DEFAULT_CHILD_FIELDS.map((f) => (
-							<DefaultFieldRow key={f.label} label={f.label} required={f.required} />
-						))}
-					</div>
-
-					{/* Configurable area fields */}
-					<div className="p-3 space-y-2">
-						<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-1 pb-0.5">
-							Per Child — area specific
-						</p>
-						{isLoading ? (
-							<>
-								<Skeleton className="h-11 w-full rounded-lg" />
-								<Skeleton className="h-11 w-full rounded-lg" />
-							</>
-						) : isEmpty ? (
-							<div className="py-6 text-center text-sm text-muted-foreground">
-								No fields yet. Add one from the panel on the right.
-							</div>
-						) : (
-							<>
-								{linkedProfileFields.length > 0 && (
-									<DndContext
-										sensors={sensors}
-										collisionDetection={closestCenter}
-										onDragEnd={handleProfileDragEnd}
+				<div className="p-3">
+					{isLoading ? (
+						<div className="space-y-2">
+							<Skeleton className="h-11 w-full rounded-lg" />
+							<Skeleton className="h-11 w-full rounded-lg" />
+						</div>
+					) : isEmpty ? (
+						<div className="py-6 text-center text-sm text-muted-foreground">
+							No fields yet. Add one from the panel on the right.
+						</div>
+					) : (
+						<div className="space-y-2">
+							{linkedProfileFields.length > 0 && (
+								<DndContext
+									sensors={sensors}
+									collisionDetection={closestCenter}
+									onDragEnd={handleProfileDragEnd}
+								>
+									<SortableContext
+										items={linkedProfileFields.map((f) => f.id)}
+										strategy={verticalListSortingStrategy}
 									>
-										<SortableContext
-											items={linkedProfileFields.map((f) => f.id)}
-											strategy={verticalListSortingStrategy}
-										>
-											<div className="space-y-2">
-												{linkedProfileFields.map((f) => (
-													<SortableProfileFieldRow
-														key={f.id}
-														field={f}
-														onRemove={() => handleRemoveProfile(f.id)}
-													/>
-												))}
-											</div>
-										</SortableContext>
-									</DndContext>
-								)}
+										<div className="space-y-2">
+											{linkedProfileFields.map((f) => (
+												<SortableProfileFieldRow
+													key={f.id}
+													field={f}
+													onRemove={() => handleRemoveProfile(f.id)}
+												/>
+											))}
+										</div>
+									</SortableContext>
+								</DndContext>
+							)}
 
-								{(basicFields as FormFieldItem[]).length > 0 && (
-									<FormBuilderCanvas
-										fields={basicFields as FormFieldItem[]}
-										areaId={areaId}
-										expandedId={expandedId ?? undefined}
-										onToggle={handleToggle}
-										onDelete={handleDeleteBasic}
-										onSave={handleSave}
-									/>
-								)}
-							</>
-						)}
-					</div>
+							{(fields as FormFieldItem[]).length > 0 && (
+								<FormBuilderCanvas
+									fields={fields as FormFieldItem[]}
+									organizationId={organizationId}
+									expandedId={expandedId ?? undefined}
+									onToggle={handleToggle}
+									onDelete={handleDelete}
+									onSave={handleSave}
+								/>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 
-			{/* Field picker */}
 			<div className="sticky top-4">
 				<FieldTypePicker
 					onAddBasic={handleAddBasic}
+					availablePresetFields={availablePresetFields}
+					onAddPreset={handleAddPreset}
 					availableProfileFields={availableProfileFields}
 					onAddProfile={handleAddProfile}
-					organizationSlug={organizationSlug}
+					organizationSlug={organizationSlug ?? ""}
 				/>
 			</div>
 		</div>

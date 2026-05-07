@@ -25,7 +25,7 @@ export const updateOrgApplicationSettingsProcedure = protectedProcedure
       const unassigned = await db.person.findMany({
         where: {
           organizationId: input.organizationId,
-          isChild: true,
+          personType: "STUDENT",
           studentId: null,
         },
         select: { id: true },

@@ -9,7 +9,6 @@ import {
 	ClipboardListIcon,
 	SmileIcon,
 	StarIcon,
-	UserIcon,
 	UsersIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -39,14 +38,14 @@ export function DashboardStats({ areaId, siteId }: DashboardStatsProps) {
 
 	const { data: members, isLoading: membersLoading } = useQuery(
 		orpc.people.list.queryOptions({
-			input: { organizationId, isChild: false, ...peopleFilter },
+			input: { organizationId, personType: "MENTOR" as const, ...peopleFilter },
 			enabled,
 		}),
 	);
 
 	const { data: kids, isLoading: kidsLoading } = useQuery(
 		orpc.people.list.queryOptions({
-			input: { organizationId, isChild: true, ...peopleFilter },
+			input: { organizationId, personType: "STUDENT" as const, ...peopleFilter },
 			enabled,
 		}),
 	);
@@ -120,11 +119,6 @@ export function DashboardStats({ areaId, siteId }: DashboardStatsProps) {
 			icon: <StarIcon className="size-5" />,
 		},
 		{
-			title: t("launchclub.dashboard.stats.members"),
-			value: members?.length ?? 0,
-			icon: <UserIcon className="size-5" />,
-		},
-		{
 			title: t("launchclub.dashboard.stats.kids"),
 			value: kids?.length ?? 0,
 			icon: <SmileIcon className="size-5" />,
@@ -143,9 +137,9 @@ export function DashboardStats({ areaId, siteId }: DashboardStatsProps) {
 
 	return (
 		<div className="@container">
-			<div className="grid grid-cols-2 gap-4 @lg:grid-cols-3 @2xl:grid-cols-6">
+			<div className="grid grid-cols-2 gap-4 @lg:grid-cols-3 @2xl:grid-cols-5">
 				{isLoading
-					? Array.from({ length: 6 }).map((_, i) => (
+					? Array.from({ length: 5 }).map((_, i) => (
 							// biome-ignore lint/suspicious/noArrayIndexKey: <Skeleton>
 							<Skeleton
 								key={i}

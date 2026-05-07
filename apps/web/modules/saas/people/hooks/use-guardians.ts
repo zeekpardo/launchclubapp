@@ -17,7 +17,7 @@ export function useAddGuardian() {
 					orpc.people.list.queryOptions({
 						input: {
 							organizationId: activeOrganization?.id ?? "",
-							isChild: true,
+							personType: "STUDENT" as const,
 						},
 					}),
 				);
@@ -39,7 +39,7 @@ export function useRemoveGuardian() {
 					orpc.people.list.queryOptions({
 						input: {
 							organizationId: activeOrganization?.id ?? "",
-							isChild: true,
+							personType: "STUDENT" as const,
 						},
 					}),
 				);

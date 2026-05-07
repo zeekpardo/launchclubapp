@@ -19,8 +19,8 @@ export const upsertAcademicRecordProcedure = protectedProcedure
 		) {
 			throw new ORPCError("FORBIDDEN");
 		}
-		if (person.isChild !== true) {
-			throw new ORPCError("BAD_REQUEST", { message: "Academic records can only be added to children" });
+		if (person.personType !== "STUDENT") {
+			throw new ORPCError("BAD_REQUEST", { message: "Academic records can only be added to students" });
 		}
 		return upsertAcademicRecord({ ...input, recordedById: context.user.id });
 	});

@@ -136,18 +136,19 @@ export function PersonProfile({ personId }: PersonProfileProps) {
 						householdId={person.householdId}
 					/>
 
-					{/* Consents — children only */}
-					{person.isChild && (
+					{/* Consents — students and mentors */}
+					{(person.personType === "STUDENT" || person.personType === "MENTOR") && (
 						<ConsentsSection
 							personId={personId}
 							organizationId={activeOrganization?.id ?? ""}
+							personType={person.personType}
 						/>
 					)}
 
-					{/* Academic Records — children only */}
+					{/* Academic Records — students only */}
 					<AcademicRecordsSection
 						personId={personId}
-						isChild={person.isChild}
+						isStudent={person.personType === "STUDENT"}
 					/>
 
 					{/* Internal Notes — all people */}

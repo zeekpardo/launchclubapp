@@ -83,7 +83,7 @@
       "kids": "Kids",
       "guardians": "Guardians",
       "events": "Events",
-      "applications": "Applications",
+      "applications": "Student Applications",
       "purchaseRequests": "Purchase Requests"
     },
     "userMenu": {
@@ -1102,7 +1102,7 @@
         "medicalNotes": "Medical Notes",
         "save": "Save",
         "cancel": "Cancel",
-        "isChild": "Is this a child?",
+        "personType": "Person Type",
         "isActive": "Active",
         "grade": "Grade",
         "gradePlaceholder": "Select grade",
@@ -1138,12 +1138,18 @@
       "allSites": "All Sites",
       "tabs": {
         "all": "All",
-        "adults": "Adults",
-        "kids": "Kids"
+        "parents": "Parents",
+        "students": "Students",
+        "mentors": "Mentors"
       },
       "type": {
-        "child": "Child",
-        "adult": "Adult"
+        "child": "Student",
+        "adult": "Parent"
+      },
+      "personType": {
+        "STUDENT": "Student",
+        "PARENT": "Parent",
+        "MENTOR": "Mentor"
       },
       "guardianSheet": {
         "title": "{name}: Guardians",
@@ -1434,9 +1440,8 @@
       "title": "Dashboard",
       "stats": {
         "groups": "Total Groups",
-        "leaders": "Leaders",
-        "members": "Total Adults",
-        "kids": "Total Kids",
+        "leaders": "Mentors",
+        "kids": "Students",
         "events": "Total Events",
         "pendingApplications": "Pending Applications"
       },

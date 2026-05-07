@@ -16,35 +16,55 @@ import {
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { toastError } from "@repo/ui/components/toast";
-import { useReorderFormFields } from "../hooks/use-form-fields";
+import { useEffect, useState } from "react";
+import { useReorderFormFields, useReorderOrgFormFields } from "../hooks/use-form-fields";
 import { FieldCard } from "./FieldCard";
 import type { FormFieldItem } from "./FieldCard";
 
 interface FormBuilderCanvasProps {
 	fields: FormFieldItem[];
-	areaId: string;
+	/** New: formId-scoped reorder (preferred) */
+	formId?: string;
+	/** Legacy: areaId-scoped reorder */
+	areaId?: string;
+	organizationId?: string;
 	locked?: boolean;
 	expandedId?: string;
 	onToggle?: (field: FormFieldItem) => void;
 	onDelete?: (id: string) => void;
 	onSave?: (id: string, data: Partial<FormFieldItem>) => Promise<void>;
 	onReorder?: (ids: string[]) => void;
+	customFieldOptions?: { id: string; name: string }[];
 }
 
 export function FormBuilderCanvas({
 	fields,
+	formId,
 	areaId,
+	organizationId,
 	locked,
 	expandedId,
 	onToggle,
 	onDelete,
 	onSave,
 	onReorder,
+	customFieldOptions,
 }: FormBuilderCanvasProps) {
-	const reorder = useReorderFormFields(areaId);
+	// Local copy for immediate visual reorder — synced from props when fields change externally
+	const [localFields, setLocalFields] = useState(fields);
+	useEffect(() => {
+		setLocalFields(fields);
+	}, [fields]);
+
+	// Prefer formId-scoped reorder, fall back to org/area
+	const reorderForm = useReorderFormFields(formId ?? areaId ?? "");
+	const reorderOrg = useReorderOrgFormFields(organizationId ?? "");
+	const reorder = organizationId && !formId ? reorderOrg : reorderForm;
 
 	const sensors = useSensors(
-		useSensor(PointerSensor),
+		useSensor(PointerSensor, {
+			activationConstraint: { distance: 8 },
+		}),
 		useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
 	);
 
@@ -52,21 +72,25 @@ export function FormBuilderCanvas({
 		const { active, over } = event;
 		if (!over || active.id === over.id) return;
 
-		const oldIndex = fields.findIndex((f) => f.id === active.id);
-		const newIndex = fields.findIndex((f) => f.id === over.id);
-		const reordered = arrayMove(fields, oldIndex, newIndex);
+		const oldIndex = localFields.findIndex((f) => f.id === active.id);
+		const newIndex = localFields.findIndex((f) => f.id === over.id);
+		const reordered = arrayMove(localFields, oldIndex, newIndex);
 		const ids = reordered.map((f) => f.id);
 
+		// Optimistic update — show new order immediately
+		setLocalFields(reordered);
 		onReorder?.(ids);
 
 		try {
 			await reorder.mutateAsync({ ids });
 		} catch {
+			// Rollback on failure
+			setLocalFields(fields);
 			toastError("Failed to reorder fields.");
 		}
 	};
 
-	if (fields.length === 0) {
+	if (localFields.length === 0) {
 		return (
 			<div className="rounded-lg border-2 border-dashed border-muted-foreground/20 py-10 text-center text-sm text-muted-foreground">
 				{locked ? "No fields inherited from area." : "No fields yet. Add one from the panel."}
@@ -77,7 +101,7 @@ export function FormBuilderCanvas({
 	if (locked) {
 		return (
 			<div className="space-y-2">
-				{fields.map((field) => (
+				{localFields.map((field) => (
 					<FieldCard key={field.id} field={field} locked />
 				))}
 			</div>
@@ -86,9 +110,9 @@ export function FormBuilderCanvas({
 
 	return (
 		<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-			<SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+			<SortableContext items={localFields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
 				<div className="space-y-2">
-					{fields.map((field) => (
+					{localFields.map((field) => (
 						<FieldCard
 							key={field.id}
 							field={field}
@@ -96,6 +120,7 @@ export function FormBuilderCanvas({
 							onToggle={onToggle}
 							onDelete={onDelete}
 							onSave={onSave}
+							customFieldOptions={customFieldOptions}
 						/>
 					))}
 				</div>

@@ -24,6 +24,10 @@ export interface FormFieldItem {
 	validation?: unknown;
 	areaId?: string | null;
 	siteId?: string | null;
+	customFieldId?: string | null;
+	profileFieldKey?: string | null;
+	targetPersonType?: string | null;
+	consentItemId?: string | null;
 }
 
 interface FieldOption {
@@ -41,10 +45,17 @@ interface FieldCardProps {
 	expanded?: boolean;
 	onToggle?: (field: FormFieldItem) => void;
 	onDelete?: (id: string) => void;
-	onSave?: (id: string, data: Partial<FormFieldItem & { options: FieldOption[] }>) => Promise<void>;
+	onSave?: (id: string, data: Partial<FormFieldItem & { options: FieldOption[]; customFieldId?: string }>) => Promise<void>;
+	customFieldOptions?: { id: string; name: string }[];
 }
 
-export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave }: FieldCardProps) {
+export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave, customFieldOptions }: FieldCardProps) {
+	const isHeader = field.type === "HEADER";
+	const isCustom = field.type === "CUSTOM";
+	const isConsent = field.type === "CONSENT";
+	const isUnresolvedCustom = isCustom && !field.customFieldId;
+	const needsOptions = ["SELECT", "RADIO"].includes(field.type);
+
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id: field.id,
 		disabled: locked || expanded,
@@ -63,7 +74,9 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave 
 	const [options, setOptions] = useState<FieldOption[]>(
 		Array.isArray(field.options) ? (field.options as FieldOption[]) : [],
 	);
+	const [pendingCustomFieldId, setPendingCustomFieldId] = useState(field.customFieldId ?? "");
 	const [saving, setSaving] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		setLabel(field.label);
@@ -71,22 +84,42 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave 
 		setHelpText(field.helpText ?? "");
 		setRequired(field.required);
 		setOptions(Array.isArray(field.options) ? (field.options as FieldOption[]) : []);
+		setPendingCustomFieldId(field.customFieldId ?? "");
 	}, [field.id]);
 
-	const isHeader = field.type === "HEADER";
-	const needsOptions = ["SELECT", "RADIO"].includes(field.type);
+	const handleCustomFieldSelect = (id: string) => {
+		setPendingCustomFieldId(id);
+		const cf = customFieldOptions?.find((f) => f.id === id);
+		if (cf) setLabel(cf.name);
+	};
 
 	const handleSave = async () => {
 		if (!onSave) return;
+
+		if (!label.trim()) {
+			setError("Field name is required.");
+			return;
+		}
+		if (needsOptions && options.filter((o) => o.label.trim()).length === 0) {
+			setError("Add at least one option.");
+			return;
+		}
+		if (isCustom && !pendingCustomFieldId) {
+			setError("Select a custom field.");
+			return;
+		}
+
+		setError(null);
 		setSaving(true);
 		try {
 			await onSave(field.id, {
 				label,
-				fieldKey: isHeader ? slugify(label) : slugify(label),
+				fieldKey: slugify(label),
 				placeholder: !isHeader ? (placeholder || undefined) : undefined,
 				helpText: helpText || undefined,
 				required: !isHeader ? required : false,
 				options: needsOptions ? options : undefined,
+				customFieldId: isCustom ? (pendingCustomFieldId || undefined) : undefined,
 			});
 			onToggle?.(field);
 		} finally {
@@ -150,6 +183,39 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave 
 						</Button>
 					)}
 				</div>
+			) : isConsent ? (
+				<div className="flex items-center gap-2 px-3 py-2.5">
+					{locked ? (
+						<div className="size-4 shrink-0" />
+					) : (
+						<button
+							type="button"
+							className="cursor-grab text-muted-foreground hover:text-foreground touch-none shrink-0"
+							{...attributes}
+							{...listeners}
+						>
+							<GripVerticalIcon className="size-4" />
+						</button>
+					)}
+
+					<p className="flex-1 min-w-0 text-sm font-medium truncate">
+						{field.label || <span className="italic text-muted-foreground">Consent</span>}
+					</p>
+
+					<div className="flex items-center gap-1.5 shrink-0">
+						<Badge status="info" className="text-xs">consent</Badge>
+						{!locked && (
+							<Button
+								variant="ghost"
+								size="icon"
+								className="size-7 text-muted-foreground hover:text-destructive"
+								onClick={(e) => { e.stopPropagation(); onDelete?.(field.id); }}
+							>
+								<TrashIcon className="size-3.5" />
+							</Button>
+						)}
+					</div>
+				</div>
 			) : (
 				<div className="flex items-center gap-2 px-3 py-2.5">
 					{locked ? (
@@ -171,13 +237,15 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave 
 						onClick={() => !locked && onToggle?.(field)}
 					>
 						<p className="text-sm font-medium truncate">
-							{field.label || <span className="italic text-muted-foreground">Untitled field</span>}
+							{isUnresolvedCustom
+								? <span className="italic text-muted-foreground">Select a custom field…</span>
+								: field.label || <span className="italic text-muted-foreground">Untitled field</span>}
 						</p>
 					</button>
 
 					<div className="flex items-center gap-1.5 shrink-0">
-						<Badge status="info" className="text-xs capitalize">
-							{field.type.toLowerCase()}
+						<Badge status={isUnresolvedCustom ? "warning" : "info"} className="text-xs capitalize">
+							{isUnresolvedCustom ? "pending" : field.type.toLowerCase()}
 						</Badge>
 						{field.required && (
 							<Badge status="error" className="text-xs">Required</Badge>
@@ -196,8 +264,8 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave 
 				</div>
 			)}
 
-			{/* Inline edit form — expanded only */}
-			{expanded && !locked && (
+			{/* Inline edit form — expanded only (not for CONSENT fields) */}
+			{expanded && !locked && !isConsent && (
 				<div className="border-t px-4 py-4 space-y-4 bg-muted/20">
 					{isHeader ? (
 						<>
@@ -223,13 +291,32 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave 
 						</>
 					) : (
 						<>
+							{/* Custom field selector — shown when type is CUSTOM */}
+							{isCustom && customFieldOptions && (
+								<div className="space-y-1.5">
+									<Label htmlFor={`custom-field-${field.id}`}>Custom Field</Label>
+									<select
+										id={`custom-field-${field.id}`}
+										className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+										value={pendingCustomFieldId}
+										onChange={(e) => { handleCustomFieldSelect(e.target.value); setError(null); }}
+									>
+										<option value="">Select a custom field…</option>
+										{customFieldOptions.map((cf) => (
+											<option key={cf.id} value={cf.id}>{cf.name}</option>
+										))}
+									</select>
+								</div>
+							)}
+
 							<div className="grid grid-cols-2 gap-3">
 								<div className="space-y-1.5">
 									<Label htmlFor={`label-${field.id}`}>Label</Label>
 									<Input
 										id={`label-${field.id}`}
 										value={label}
-										onChange={(e) => setLabel(e.target.value)}
+										onChange={(e) => { setLabel(e.target.value); setError(null); }}
+										placeholder="Enter field name…"
 									/>
 								</div>
 								<div className="space-y-1.5">
@@ -286,7 +373,7 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave 
 										variant="outline"
 										size="sm"
 										className="gap-1.5"
-										onClick={() => setOptions((prev) => [...prev, { label: "", value: "" }])}
+										onClick={() => { setOptions((prev) => [...prev, { label: "", value: "" }]); setError(null); }}
 									>
 										<PlusIcon className="size-3.5" />
 										Add option
@@ -307,6 +394,9 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave 
 						</>
 					)}
 
+					{error && (
+						<p className="text-xs text-destructive -mb-1">{error}</p>
+					)}
 					<div className="flex justify-end gap-2 border-t pt-3">
 						<Button variant="ghost" size="sm" onClick={handleCancel}>
 							Cancel
