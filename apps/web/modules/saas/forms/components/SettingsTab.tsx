@@ -28,7 +28,7 @@ interface FormSnapshot {
 
 interface SettingsTabProps {
 	formId: string;
-	form: FormSnapshot & { name: string };
+	form: FormSnapshot;
 	orgSlug: string;
 }
 

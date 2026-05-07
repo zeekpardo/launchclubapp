@@ -167,30 +167,38 @@ export function BuilderTab({ formId, isStudentForm, organizationId, orgSlug }: B
 		});
 	};
 
-	const handleDeleteField = async (id: string) => {
-		if (expandedId === id) setExpandedId(null);
-		try {
-			await deleteField.mutateAsync({ id });
-		} catch {
-			toastError("Failed to delete field.");
-		}
-	};
+	const handleDeleteField = useCallback(
+		async (id: string) => {
+			if (expandedId === id) setExpandedId(null);
+			try {
+				await deleteField.mutateAsync({ id });
+			} catch {
+				toastError("Failed to delete field.");
+			}
+		},
+		[expandedId, deleteField],
+	);
 
-	const handleToggle = (field: FormFieldItem) =>
-		setExpandedId((prev) => (prev === field.id ? null : field.id));
+	const handleToggle = useCallback(
+		(field: FormFieldItem) => setExpandedId((prev) => (prev === field.id ? null : field.id)),
+		[],
+	);
 
-	const handleSave = async (id: string, data: Partial<FormFieldItem>) => {
-		await updateField.mutateAsync({
-			id,
-			label: data.label,
-			fieldKey: data.fieldKey,
-			placeholder: data.placeholder ?? undefined,
-			helpText: data.helpText ?? undefined,
-			required: data.required,
-			options: data.options as { label: string; value: string }[] | undefined,
-			customFieldId: data.customFieldId ?? undefined,
-		});
-	};
+	const handleSave = useCallback(
+		async (id: string, data: Partial<FormFieldItem>) => {
+			await updateField.mutateAsync({
+				id,
+				label: data.label,
+				fieldKey: data.fieldKey,
+				placeholder: data.placeholder ?? undefined,
+				helpText: data.helpText ?? undefined,
+				required: data.required,
+				options: data.options as { label: string; value: string }[] | undefined,
+				customFieldId: data.customFieldId ?? undefined,
+			});
+		},
+		[updateField],
+	);
 
 	const canvasProps = {
 		formId,
