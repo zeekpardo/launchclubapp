@@ -121,75 +121,132 @@ export async function migrateApplicationToPeople(
   if (!application) throw new Error("Application not found");
 
   return db.$transaction(async (tx) => {
-    // 1. Household
-    const household = await tx.household.create({
-      data: {
-        organizationId,
-        name: `${application.parentLastName} Family`,
-        addressLine1: application.parentAddressLine1 ?? undefined,
-        city: application.parentCity ?? undefined,
-        stateProvince: application.parentStateProvince ?? undefined,
-        postalCode: application.parentPostalCode ?? undefined,
-        country: application.parentCountry ?? undefined,
-        phone: application.parentPhone ?? undefined,
-        email: application.parentEmail ?? undefined,
-      },
-    });
+    // Dedup-aware: a form submission may already have created these people on
+    // submit, so reuse existing records (by email / household + name) rather
+    // than creating duplicates. This makes approval-migration idempotent.
 
-    // 2. Parent
-    const parent = await tx.person.create({
-      data: {
-        organizationId,
-        householdId: household.id,
-        firstName: application.parentFirstName,
-        lastName: application.parentLastName,
-        email: application.parentEmail ?? undefined,
-        phone: application.parentPhone ?? undefined,
-        personType: "PARENT",
-      },
-    });
+    // 1. Parent (+ household) — reuse existing parent by email when possible
+    const existingParent = application.parentEmail
+      ? await tx.person.findFirst({
+          where: { organizationId, email: application.parentEmail, personType: "PARENT" },
+        })
+      : null;
 
-    // 3. Spouse (optional)
-    let spouse: { id: string } | null = null;
-    if (application.spouseFirstName) {
-      spouse = await tx.person.create({
+    let parent: { id: string };
+    let householdId: string;
+
+    if (existingParent) {
+      parent = existingParent;
+      if (existingParent.householdId) {
+        householdId = existingParent.householdId;
+      } else {
+        const household = await tx.household.create({
+          data: { organizationId, name: `${application.parentLastName} Family` },
+        });
+        householdId = household.id;
+        await tx.person.update({ where: { id: existingParent.id }, data: { householdId } });
+      }
+    } else {
+      const household = await tx.household.create({
         data: {
           organizationId,
-          householdId: household.id,
-          firstName: application.spouseFirstName,
-          lastName: application.spouseLastName ?? application.parentLastName,
-          email: application.spouseEmail ?? undefined,
-          phone: application.spousePhone ?? undefined,
+          name: `${application.parentLastName} Family`,
+          addressLine1: application.parentAddressLine1 ?? undefined,
+          city: application.parentCity ?? undefined,
+          stateProvince: application.parentStateProvince ?? undefined,
+          postalCode: application.parentPostalCode ?? undefined,
+          country: application.parentCountry ?? undefined,
+          phone: application.parentPhone ?? undefined,
+          email: application.parentEmail ?? undefined,
+        },
+      });
+      householdId = household.id;
+      parent = await tx.person.create({
+        data: {
+          organizationId,
+          householdId,
+          firstName: application.parentFirstName,
+          lastName: application.parentLastName,
+          email: application.parentEmail ?? undefined,
+          phone: application.parentPhone ?? undefined,
           personType: "PARENT",
         },
       });
     }
 
-    // 4. Children + guardian links
+    // 2. Spouse (optional) — reuse by email, else create
+    let spouse: { id: string } | null = null;
+    if (application.spouseFirstName) {
+      const existingSpouse = application.spouseEmail
+        ? await tx.person.findFirst({
+            where: { organizationId, email: application.spouseEmail, personType: "PARENT" },
+          })
+        : null;
+      spouse =
+        existingSpouse ??
+        (await tx.person.create({
+          data: {
+            organizationId,
+            householdId,
+            firstName: application.spouseFirstName,
+            lastName: application.spouseLastName ?? application.parentLastName,
+            email: application.spouseEmail ?? undefined,
+            phone: application.spousePhone ?? undefined,
+            personType: "PARENT",
+          },
+        }));
+    }
+
+    // 3. Children + guardian links — reuse existing student in the household
     for (const child of application.children) {
-      const childPerson = await tx.person.create({
-        data: {
+      const existingChild = await tx.person.findFirst({
+        where: {
           organizationId,
-          householdId: household.id,
-          firstName: child.firstName,
-          lastName: child.lastName,
-          dateOfBirth: child.birthday ?? undefined,
-          grade: child.grade ?? undefined,
+          householdId,
+          firstName: { equals: child.firstName, mode: "insensitive" },
+          lastName: { equals: child.lastName, mode: "insensitive" },
           personType: "STUDENT",
+          ...(child.birthday ? { dateOfBirth: child.birthday } : {}),
         },
       });
 
-      await tx.guardian.create({ data: { personId: parent.id, kidId: childPerson.id } });
+      const childPerson =
+        existingChild ??
+        (await tx.person.create({
+          data: {
+            organizationId,
+            householdId,
+            firstName: child.firstName,
+            lastName: child.lastName,
+            dateOfBirth: child.birthday ?? undefined,
+            grade: child.grade ?? undefined,
+            personType: "STUDENT",
+          },
+        }));
+
+      await tx.guardian.upsert({
+        where: { personId_kidId: { personId: parent.id, kidId: childPerson.id } },
+        create: { personId: parent.id, kidId: childPerson.id },
+        update: {},
+      });
 
       if (spouse) {
-        await tx.guardian.create({ data: { personId: spouse.id, kidId: childPerson.id } });
+        await tx.guardian.upsert({
+          where: { personId_kidId: { personId: spouse.id, kidId: childPerson.id } },
+          create: { personId: spouse.id, kidId: childPerson.id },
+          update: {},
+        });
       }
 
       const childGroupId = groupAssignments?.find(
         (a) => a.applicationChildId === child.id,
       )?.groupId;
       if (childGroupId) {
-        await tx.personGroup.create({ data: { personId: childPerson.id, groupId: childGroupId, role: "MEMBER" } });
+        await tx.personGroup.upsert({
+          where: { personId_groupId: { personId: childPerson.id, groupId: childGroupId } },
+          create: { personId: childPerson.id, groupId: childGroupId, role: "MEMBER" },
+          update: {},
+        });
       }
 
       // Write profile field values to the child's record (per-child values take priority)
@@ -205,7 +262,7 @@ export async function migrateApplicationToPeople(
       }
     }
 
-    return household;
+    return { householdId, parentId: parent.id };
   });
 }
 

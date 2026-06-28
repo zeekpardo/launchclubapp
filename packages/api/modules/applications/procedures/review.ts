@@ -1,7 +1,6 @@
 import { ORPCError } from "@orpc/client";
 import {
   getApplicationById,
-  getOrgApplicationSettings,
   migrateApplicationToPeople,
   reviewApplication,
 } from "@repo/database";
@@ -27,12 +26,12 @@ export const reviewApplicationProcedure = protectedProcedure
 
     const reviewed = await reviewApplication(input.id, input.status, context.user.id);
 
-    // Auto-migrate to household + people on first approval if org setting is enabled
+    // On first approval, migrate the applicant to household + people so the
+    // approved applicant is always findable in People (and assigned to any
+    // selected groups). Children approved with "no group (assign later)" are
+    // still created as people — they just have no group yet.
     if (input.status === "APPROVED" && application.status !== "APPROVED") {
-      const settings = await getOrgApplicationSettings(organizationId);
-      if (settings?.autoMigrate) {
-        await migrateApplicationToPeople(input.id, organizationId, input.groupAssignments);
-      }
+      await migrateApplicationToPeople(input.id, organizationId, input.groupAssignments);
     }
 
     // TODO: send email notification to application.parentEmail when status changes
