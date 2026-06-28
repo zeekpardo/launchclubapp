@@ -11,7 +11,9 @@ export function OrganizationMembersBlock({
 	organizationId: string;
 }) {
 	const t = useTranslations();
-	const [activeTab, setActiveTab] = useState<"members" | "invitations">("members");
+	const [activeTab, setActiveTab] = useState<"members" | "invitations">(
+		"members",
+	);
 
 	return (
 		<Card className="p-4 md:p-6">
@@ -38,8 +40,12 @@ export function OrganizationMembersBlock({
 								}`}
 							>
 								{tab === "members"
-									? t("organizations.settings.members.activeMembers")
-									: t("organizations.settings.members.pendingInvitations")}
+									? t(
+											"organizations.settings.members.activeMembers",
+										)
+									: t(
+											"organizations.settings.members.pendingInvitations",
+										)}
 							</button>
 						))}
 					</div>
@@ -48,7 +54,9 @@ export function OrganizationMembersBlock({
 				{activeTab === "members" ? (
 					<OrganizationMembersList organizationId={organizationId} />
 				) : (
-					<OrganizationInvitationsList organizationId={organizationId} />
+					<OrganizationInvitationsList
+						organizationId={organizationId}
+					/>
 				)}
 			</div>
 		</Card>

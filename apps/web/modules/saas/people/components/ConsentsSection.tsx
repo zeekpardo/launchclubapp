@@ -20,9 +20,12 @@ import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { Switch } from "@repo/ui/components/switch";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
+import {
+	useConsentItems,
+	usePdfDownloadUrl,
+} from "@saas/applications/hooks/use-consent-items";
 import { useSession } from "@saas/auth/hooks/use-session";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
-import { useConsentItems, usePdfDownloadUrl } from "@saas/applications/hooks/use-consent-items";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -66,20 +69,42 @@ interface ConsentRecord {
 // Shared sub-components
 // ---------------------------------------------------------------------------
 
-function CollapseButton({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+function CollapseButton({
+	collapsed,
+	onToggle,
+}: {
+	collapsed: boolean;
+	onToggle: () => void;
+}) {
 	return (
-		<Button size="icon" variant="ghost" className="size-7" onClick={onToggle}>
-			<ChevronDownIcon className={`size-4 transition-transform ${collapsed ? "" : "rotate-180"}`} />
+		<Button
+			size="icon"
+			variant="ghost"
+			className="size-7"
+			onClick={onToggle}
+		>
+			<ChevronDownIcon
+				className={`size-4 transition-transform ${collapsed ? "" : "rotate-180"}`}
+			/>
 		</Button>
 	);
 }
 
-function ViewConsentFormButton({ consentItem, organizationId }: { consentItem: ConsentItem; organizationId: string }) {
+function ViewConsentFormButton({
+	consentItem,
+	organizationId,
+}: {
+	consentItem: ConsentItem;
+	organizationId: string;
+}) {
 	const pdfDownloadUrl = usePdfDownloadUrl();
 	if (!consentItem.pdfKey) return null;
 	async function handleClick() {
 		try {
-			const { downloadUrl } = await pdfDownloadUrl.mutateAsync({ id: consentItem.id, organizationId });
+			const { downloadUrl } = await pdfDownloadUrl.mutateAsync({
+				id: consentItem.id,
+				organizationId,
+			});
 			window.open(downloadUrl, "_blank", "noopener,noreferrer");
 		} catch {
 			toastError("Could not load consent form PDF");
@@ -109,29 +134,51 @@ interface ConsentRowProps {
 	organizationId: string;
 }
 
-function ConsentRow({ label, record, consentItem, organizationId }: ConsentRowProps) {
+function ConsentRow({
+	label,
+	record,
+	consentItem,
+	organizationId,
+}: ConsentRowProps) {
 	if (!record) {
 		return (
 			<div className="flex items-center gap-2 text-sm">
 				<span className="text-muted-foreground">—</span>
 				<span className="text-muted-foreground">{label}</span>
-				<ViewConsentFormButton consentItem={consentItem} organizationId={organizationId} />
-				<span className="text-xs text-muted-foreground ml-auto">Not collected</span>
+				<ViewConsentFormButton
+					consentItem={consentItem}
+					organizationId={organizationId}
+				/>
+				<span className="text-xs text-muted-foreground ml-auto">
+					Not collected
+				</span>
 			</div>
 		);
 	}
 
 	const granted = record.granted;
-	const dateStr = granted && record.grantedAt ? format(new Date(record.grantedAt), "MMM d, yyyy") : null;
+	const dateStr =
+		granted && record.grantedAt
+			? format(new Date(record.grantedAt), "MMM d, yyyy")
+			: null;
 
 	return (
-		<div className={`flex items-center gap-2 text-sm ${granted ? "text-green-600" : "text-muted-foreground"}`}>
-			{granted
-				? <CheckCircle2Icon className="size-4 shrink-0" />
-				: <XCircleIcon className="size-4 shrink-0 text-destructive" />}
+		<div
+			className={`flex items-center gap-2 text-sm ${granted ? "text-green-600" : "text-muted-foreground"}`}
+		>
+			{granted ? (
+				<CheckCircle2Icon className="size-4 shrink-0" />
+			) : (
+				<XCircleIcon className="size-4 shrink-0 text-destructive" />
+			)}
 			<span className={granted ? "font-medium" : ""}>{label}</span>
-			<ViewConsentFormButton consentItem={consentItem} organizationId={organizationId} />
-			{dateStr && <span className="text-xs text-muted-foreground">{dateStr}</span>}
+			<ViewConsentFormButton
+				consentItem={consentItem}
+				organizationId={organizationId}
+			/>
+			{dateStr && (
+				<span className="text-xs text-muted-foreground">{dateStr}</span>
+			)}
 			{granted && record.signatureFileUrl && (
 				<a
 					href={`/image-proxy/consent-signatures/${record.signatureFileUrl}`}
@@ -221,16 +268,27 @@ function ConsentEditRow({
 		<div className="space-y-2 rounded-lg border p-3">
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
-					<Label className="text-sm font-medium">{consentItem.name}</Label>
-					<ViewConsentFormButton consentItem={consentItem} organizationId={organizationId} />
+					<Label className="text-sm font-medium">
+						{consentItem.name}
+					</Label>
+					<ViewConsentFormButton
+						consentItem={consentItem}
+						organizationId={organizationId}
+					/>
 				</div>
-				<Switch checked={value.granted} onCheckedChange={handleToggle} />
+				<Switch
+					checked={value.granted}
+					onCheckedChange={handleToggle}
+				/>
 			</div>
 
 			{value.granted && (
 				<div className="space-y-2 pl-1">
 					<div className="space-y-1">
-						<Label htmlFor={`date-${consentItem.id}`} className="text-xs text-muted-foreground">
+						<Label
+							htmlFor={`date-${consentItem.id}`}
+							className="text-xs text-muted-foreground"
+						>
 							Date granted
 						</Label>
 						<Input
@@ -315,7 +373,9 @@ function EditConsentsDialog({
 			const r = existingConsents.find((c) => c.consentItemId === item.id);
 			result[item.id] = {
 				granted: r?.granted ?? false,
-				grantedAt: r?.grantedAt ? new Date(r.grantedAt).toISOString().slice(0, 10) : null,
+				grantedAt: r?.grantedAt
+					? new Date(r.grantedAt).toISOString().slice(0, 10)
+					: null,
 				signatureFileUrl: r?.signatureFileUrl ?? null,
 			};
 		}
@@ -342,10 +402,14 @@ function EditConsentsDialog({
 						consentItemId: item.id,
 						granted: values[item.id]?.granted ?? false,
 						grantedAt:
-							values[item.id]?.granted && values[item.id]?.grantedAt
-								? new Date(values[item.id].grantedAt!).toISOString()
+							values[item.id]?.granted &&
+							values[item.id]?.grantedAt
+								? new Date(
+										values[item.id].grantedAt!,
+									).toISOString()
 								: null,
-						signatureFileUrl: values[item.id]?.signatureFileUrl ?? null,
+						signatureFileUrl:
+							values[item.id]?.signatureFileUrl ?? null,
 					}),
 				),
 			);
@@ -364,22 +428,38 @@ function EditConsentsDialog({
 				<DialogHeader>
 					<DialogTitle>Edit Consents</DialogTitle>
 				</DialogHeader>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="space-y-3"
+				>
 					{consentItems.map((item) => (
 						<ConsentEditRow
 							key={item.id}
 							consentItem={item}
 							organizationId={organizationId}
 							personId={personId}
-							value={formValues[item.id] ?? { granted: false, grantedAt: null, signatureFileUrl: null }}
+							value={
+								formValues[item.id] ?? {
+									granted: false,
+									grantedAt: null,
+									signatureFileUrl: null,
+								}
+							}
 							onChange={(val) => form.setValue(item.id, val)}
 						/>
 					))}
 					<DialogFooter>
-						<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => onOpenChange(false)}
+						>
 							Cancel
 						</Button>
-						<Button type="submit" disabled={upsertConsent.isPending}>
+						<Button
+							type="submit"
+							disabled={upsertConsent.isPending}
+						>
 							{upsertConsent.isPending ? "Saving..." : "Save"}
 						</Button>
 					</DialogFooter>
@@ -398,8 +478,14 @@ interface PreviousYearConsentsProps {
 	organizationId: string;
 }
 
-function PreviousYearConsents({ personId, organizationId }: PreviousYearConsentsProps) {
-	const { data, isLoading } = usePreviousYearConsents(personId, organizationId);
+function PreviousYearConsents({
+	personId,
+	organizationId,
+}: PreviousYearConsentsProps) {
+	const { data, isLoading } = usePreviousYearConsents(
+		personId,
+		organizationId,
+	);
 	const [collapsed, setCollapsed] = useState(true);
 
 	if (isLoading || !data) return null;
@@ -413,7 +499,10 @@ function PreviousYearConsents({ personId, organizationId }: PreviousYearConsents
 					<CardTitle className="text-sm text-muted-foreground">
 						{academicYear.label} (Previous Year)
 					</CardTitle>
-					<CollapseButton collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
+					<CollapseButton
+						collapsed={collapsed}
+						onToggle={() => setCollapsed((c) => !c)}
+					/>
 				</div>
 			</CardHeader>
 			{!collapsed && (
@@ -443,7 +532,11 @@ interface ConsentsSectionProps {
 	personType: "STUDENT" | "MENTOR" | "PARENT";
 }
 
-export function ConsentsSection({ personId, organizationId, personType }: ConsentsSectionProps) {
+export function ConsentsSection({
+	personId,
+	organizationId,
+	personType,
+}: ConsentsSectionProps) {
 	const { user } = useSession();
 	const { activeOrganization } = useActiveOrganization();
 	const { data: academicYears = [] } = useAcademicYears(organizationId);
@@ -471,7 +564,9 @@ export function ConsentsSection({ personId, organizationId, personType }: Consen
 				<CardHeader className="pb-3">
 					<div className="flex items-center justify-between">
 						<div>
-							<CardTitle className="text-base">Consents</CardTitle>
+							<CardTitle className="text-base">
+								Consents
+							</CardTitle>
 							{activeYear && (
 								<p className="text-xs text-muted-foreground mt-0.5">
 									{activeYear.label}
@@ -490,7 +585,10 @@ export function ConsentsSection({ personId, organizationId, personType }: Consen
 									Edit
 								</Button>
 							)}
-							<CollapseButton collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
+							<CollapseButton
+								collapsed={collapsed}
+								onToggle={() => setCollapsed((c) => !c)}
+							/>
 						</div>
 					</div>
 				</CardHeader>
@@ -500,7 +598,9 @@ export function ConsentsSection({ personId, organizationId, personType }: Consen
 							<ConsentRow
 								key={item.id}
 								label={item.name}
-								record={typedConsents.find((c) => c.consentItemId === item.id)}
+								record={typedConsents.find(
+									(c) => c.consentItemId === item.id,
+								)}
 								consentItem={item}
 								organizationId={organizationId}
 							/>
@@ -509,7 +609,10 @@ export function ConsentsSection({ personId, organizationId, personType }: Consen
 				)}
 			</Card>
 
-			<PreviousYearConsents personId={personId} organizationId={organizationId} />
+			<PreviousYearConsents
+				personId={personId}
+				organizationId={organizationId}
+			/>
 
 			<EditConsentsDialog
 				open={dialogOpen}

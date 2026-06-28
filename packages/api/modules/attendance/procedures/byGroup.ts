@@ -1,38 +1,38 @@
 import { ORPCError } from "@orpc/client";
 import {
-  getAreaById,
-  getAttendanceByGroup,
-  getGroupById,
-  getSiteById,
+	getAreaById,
+	getAttendanceByGroup,
+	getGroupById,
+	getSiteById,
 } from "@repo/database";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc/procedures";
 import { verifyOrganizationMembership } from "../../organizations/lib/membership";
 
 export const attendanceByGroup = protectedProcedure
-  .route({ method: "GET", path: "/attendance/group", tags: ["Attendance"] })
-  .input(
-    z.object({
-      groupId: z.string(),
-      since: z.string().datetime().optional(),
-      until: z.string().datetime().optional(),
-    }),
-  )
-  .handler(async ({ input, context }) => {
-    const group = await getGroupById(input.groupId);
-    if (!group) throw new ORPCError("NOT_FOUND");
-    const site = await getSiteById(group.siteId);
-    if (!site) throw new ORPCError("NOT_FOUND");
-    const area = await getAreaById(site.areaId);
-    if (!area) throw new ORPCError("NOT_FOUND");
-    const membership = await verifyOrganizationMembership(
-      area.organizationId,
-      context.user.id,
-    );
-    if (!membership) throw new ORPCError("FORBIDDEN");
-    return getAttendanceByGroup(
-      input.groupId,
-      input.since ? new Date(input.since) : undefined,
-      input.until ? new Date(input.until) : undefined,
-    );
-  });
+	.route({ method: "GET", path: "/attendance/group", tags: ["Attendance"] })
+	.input(
+		z.object({
+			groupId: z.string(),
+			since: z.string().datetime().optional(),
+			until: z.string().datetime().optional(),
+		}),
+	)
+	.handler(async ({ input, context }) => {
+		const group = await getGroupById(input.groupId);
+		if (!group) throw new ORPCError("NOT_FOUND");
+		const site = await getSiteById(group.siteId);
+		if (!site) throw new ORPCError("NOT_FOUND");
+		const area = await getAreaById(site.areaId);
+		if (!area) throw new ORPCError("NOT_FOUND");
+		const membership = await verifyOrganizationMembership(
+			area.organizationId,
+			context.user.id,
+		);
+		if (!membership) throw new ORPCError("FORBIDDEN");
+		return getAttendanceByGroup(
+			input.groupId,
+			input.since ? new Date(input.since) : undefined,
+			input.until ? new Date(input.until) : undefined,
+		);
+	});

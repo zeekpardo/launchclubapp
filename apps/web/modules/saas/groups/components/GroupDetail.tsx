@@ -1,5 +1,7 @@
 "use client";
 
+import { config as storageConfig } from "@repo/storage/config";
+import { cn } from "@repo/ui";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -12,8 +14,6 @@ import {
 	SelectValue,
 } from "@repo/ui/components/select";
 import { Skeleton } from "@repo/ui/components/skeleton";
-import { cn } from "@repo/ui";
-import { config as storageConfig } from "@repo/storage/config";
 import { useGroup } from "@saas/groups/hooks/use-groups";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useQuery } from "@tanstack/react-query";
@@ -163,7 +163,9 @@ export function GroupDetail({ groupId }: GroupDetailProps) {
 						)}
 						<div className="flex items-center gap-1 text-sm text-muted-foreground shrink-0">
 							<CheckIcon className="h-3.5 w-3.5 text-green-500" />
-							<span>{t("launchclub.groups.acceptingMembers")}</span>
+							<span>
+								{t("launchclub.groups.acceptingMembers")}
+							</span>
 						</div>
 					</div>
 				</div>
@@ -178,7 +180,9 @@ export function GroupDetail({ groupId }: GroupDetailProps) {
 				<div className="md:hidden">
 					<Select
 						value={activeSection}
-						onValueChange={(val) => setActiveSection(val as NavSection)}
+						onValueChange={(val) =>
+							setActiveSection(val as NavSection)
+						}
 					>
 						<SelectTrigger className="w-full">
 							<SelectValue>
@@ -192,30 +196,36 @@ export function GroupDetail({ groupId }: GroupDetailProps) {
 						</SelectTrigger>
 						<SelectContent>
 							<SelectGroup>
-								{navItems.map(({ key, label, icon: Icon, count }) => (
-									<SelectItem key={key} value={key}>
-										<span className="flex items-center gap-2">
-											<Icon className="h-4 w-4" />
-											{label}
-											{count !== undefined && (
-												<span className="ml-auto text-xs text-muted-foreground">
-													{count}
-												</span>
-											)}
-										</span>
-									</SelectItem>
-								))}
+								{navItems.map(
+									({ key, label, icon: Icon, count }) => (
+										<SelectItem key={key} value={key}>
+											<span className="flex items-center gap-2">
+												<Icon className="h-4 w-4" />
+												{label}
+												{count !== undefined && (
+													<span className="ml-auto text-xs text-muted-foreground">
+														{count}
+													</span>
+												)}
+											</span>
+										</SelectItem>
+									),
+								)}
 							</SelectGroup>
 							<SelectGroup>
-								<SelectLabel>{t("launchclub.groups.tabs.reports")}</SelectLabel>
-								{reportItems.map(({ key, label, icon: Icon }) => (
-									<SelectItem key={key} value={key}>
-										<span className="flex items-center gap-2">
-											<Icon className="h-4 w-4" />
-											{label}
-										</span>
-									</SelectItem>
-								))}
+								<SelectLabel>
+									{t("launchclub.groups.tabs.reports")}
+								</SelectLabel>
+								{reportItems.map(
+									({ key, label, icon: Icon }) => (
+										<SelectItem key={key} value={key}>
+											<span className="flex items-center gap-2">
+												<Icon className="h-4 w-4" />
+												{label}
+											</span>
+										</SelectItem>
+									),
+								)}
 							</SelectGroup>
 						</SelectContent>
 					</Select>

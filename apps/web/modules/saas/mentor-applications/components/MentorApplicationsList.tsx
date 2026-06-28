@@ -103,8 +103,8 @@ function ApproveDialog({ applicationId, siteId, onClose }: ApproveDialogProps) {
 
 				<div className="space-y-4 py-2">
 					<p className="text-sm text-muted-foreground">
-						Optionally assign the mentor to a group. You can skip and assign
-						later.
+						Optionally assign the mentor to a group. You can skip
+						and assign later.
 					</p>
 					<Select value={groupId} onValueChange={setGroupId}>
 						<SelectTrigger>
@@ -239,7 +239,8 @@ export function MentorApplicationsList() {
 			? undefined
 			: (statusFilter as "PENDING" | "APPROVED" | "REJECTED");
 
-	const { data: applications, isLoading } = useMentorApplications(queryStatus);
+	const { data: applications, isLoading } =
+		useMentorApplications(queryStatus);
 
 	const { data: sites } = useQuery(
 		orpc.sites.list.queryOptions({
@@ -267,7 +268,10 @@ export function MentorApplicationsList() {
 	return (
 		<div className="space-y-4">
 			<div className="flex flex-wrap items-center gap-3">
-				<Select value={selectedSiteId} onValueChange={setSelectedSiteId}>
+				<Select
+					value={selectedSiteId}
+					onValueChange={setSelectedSiteId}
+				>
 					<SelectTrigger className="w-44">
 						<SelectValue placeholder="All sites" />
 					</SelectTrigger>
@@ -290,18 +294,20 @@ export function MentorApplicationsList() {
 			</div>
 
 			<div className="inline-flex rounded-lg border bg-muted p-1">
-				{(["ALL", "PENDING", "APPROVED", "REJECTED"] as const).map((s) => (
-					<button
-						key={s}
-						type="button"
-						onClick={() => setStatusFilter(s)}
-						className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${statusFilter === s ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-					>
-						{s === "ALL"
-							? "All"
-							: s.charAt(0) + s.slice(1).toLowerCase()}
-					</button>
-				))}
+				{(["ALL", "PENDING", "APPROVED", "REJECTED"] as const).map(
+					(s) => (
+						<button
+							key={s}
+							type="button"
+							onClick={() => setStatusFilter(s)}
+							className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${statusFilter === s ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+						>
+							{s === "ALL"
+								? "All"
+								: s.charAt(0) + s.slice(1).toLowerCase()}
+						</button>
+					),
+				)}
 			</div>
 
 			<div className="rounded-md border">
@@ -319,33 +325,31 @@ export function MentorApplicationsList() {
 					</TableHeader>
 					<TableBody>
 						{isLoading ? (
-							<>
-								{Array.from({ length: 5 }).map((_, i) => (
-									<TableRow key={i}>
-										<TableCell>
-											<Skeleton className="h-4 w-32" />
-										</TableCell>
-										<TableCell>
-											<Skeleton className="h-4 w-40" />
-										</TableCell>
-										<TableCell>
-											<Skeleton className="h-4 w-28" />
-										</TableCell>
-										<TableCell>
-											<Skeleton className="h-4 w-24" />
-										</TableCell>
-										<TableCell>
-											<Skeleton className="h-4 w-24" />
-										</TableCell>
-										<TableCell>
-											<Skeleton className="h-5 w-20 rounded-full" />
-										</TableCell>
-										<TableCell>
-											<Skeleton className="h-8 w-20" />
-										</TableCell>
-									</TableRow>
-								))}
-							</>
+							Array.from({ length: 5 }).map((_, i) => (
+								<TableRow key={i}>
+									<TableCell>
+										<Skeleton className="h-4 w-32" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-40" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-28" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-24" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-24" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-5 w-20 rounded-full" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-8 w-20" />
+									</TableCell>
+								</TableRow>
+							))
 						) : filteredApplications.length > 0 ? (
 							filteredApplications.map((app) => (
 								<TableRow key={app.id}>
@@ -360,9 +364,13 @@ export function MentorApplicationsList() {
 									</TableCell>
 									<TableCell>{app.email}</TableCell>
 									<TableCell>{app.phone ?? "—"}</TableCell>
-									<TableCell>{app.site?.name ?? "—"}</TableCell>
 									<TableCell>
-										{new Date(app.createdAt).toLocaleDateString()}
+										{app.site?.name ?? "—"}
+									</TableCell>
+									<TableCell>
+										{new Date(
+											app.createdAt,
+										).toLocaleDateString()}
 									</TableCell>
 									<TableCell>
 										<StatusBadge status={app.status} />

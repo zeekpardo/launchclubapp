@@ -1,21 +1,31 @@
 import { ORPCError } from "@orpc/client";
-import { removeUserFromSite, getSiteById, getAreaById } from "@repo/database";
+import { getAreaById, getSiteById, removeUserFromSite } from "@repo/database";
 import { z } from "zod";
-import { verifyOrganizationMembership } from "../../organizations/lib/membership";
 import { protectedProcedure } from "../../../orpc/procedures";
+import { verifyOrganizationMembership } from "../../organizations/lib/membership";
 
 export const removeSiteLeader = protectedProcedure
-  .route({ method: "DELETE", path: "/sites/{siteId}/leaders/{userId}", tags: ["Sites"] })
-  .input(z.object({ siteId: z.string(), userId: z.string() }))
-  .handler(async ({ input, context }) => {
-    const site = await getSiteById(input.siteId);
-    if (!site) throw new ORPCError("NOT_FOUND");
-    const area = await getAreaById(site.areaId);
-    if (!area) throw new ORPCError("NOT_FOUND");
-    const membership = await verifyOrganizationMembership(area.organizationId, context.user.id);
-    // Only owner, LC admin, or platform admin can remove site leaders
-    const isOwner = membership?.role === "owner" || membership?.role === "admin" || context.user.role === "admin";
-    if (!isOwner) throw new ORPCError("FORBIDDEN");
-    await removeUserFromSite(input.userId, input.siteId);
-    return { success: true };
-  });
+	.route({
+		method: "DELETE",
+		path: "/sites/{siteId}/leaders/{userId}",
+		tags: ["Sites"],
+	})
+	.input(z.object({ siteId: z.string(), userId: z.string() }))
+	.handler(async ({ input, context }) => {
+		const site = await getSiteById(input.siteId);
+		if (!site) throw new ORPCError("NOT_FOUND");
+		const area = await getAreaById(site.areaId);
+		if (!area) throw new ORPCError("NOT_FOUND");
+		const membership = await verifyOrganizationMembership(
+			area.organizationId,
+			context.user.id,
+		);
+		// Only owner, LC admin, or platform admin can remove site leaders
+		const isOwner =
+			membership?.role === "owner" ||
+			membership?.role === "admin" ||
+			context.user.role === "admin";
+		if (!isOwner) throw new ORPCError("FORBIDDEN");
+		await removeUserFromSite(input.userId, input.siteId);
+		return { success: true };
+	});

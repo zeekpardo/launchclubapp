@@ -1,4 +1,4 @@
-import { getOrganizationBySlug, getFormBySlug } from "@repo/database";
+import { getFormBySlug, getOrganizationBySlug } from "@repo/database";
 import { getSignedUrl } from "@repo/storage";
 import { MentorFormLayout } from "@saas/forms/components/public/MentorFormLayout";
 import { StudentFormLayout } from "@saas/forms/components/public/StudentFormLayout";
@@ -28,7 +28,8 @@ export default async function PublicFormPage({
 	if (!org) return notAvailable;
 
 	const form = await getFormBySlug(org.id, formSlug);
-	if (!form || form.deletedAt || form.status === "UNPUBLISHED") return notAvailable;
+	if (!form || form.deletedAt || form.status === "UNPUBLISHED")
+		return notAvailable;
 
 	const formSites = (form.formSites ?? []) as {
 		siteId: string;
@@ -42,37 +43,51 @@ export default async function PublicFormPage({
 	}));
 
 	const preselectedSiteId = siteSlug
-		? (formSites.find((fs) => fs.site?.slug === siteSlug)?.siteId ?? undefined)
+		? (formSites.find((fs) => fs.site?.slug === siteSlug)?.siteId ??
+			undefined)
 		: undefined;
 
-	const fields = await Promise.all((form.fields ?? []).map(async (f) => {
-		let downloadUrl: string | null = null;
-		if (f.type === "CONSENT" && f.consentItem?.pdfKey) {
-			try {
-				downloadUrl = await getSignedUrl(f.consentItem.pdfKey, { bucket: "consentForms", expiresIn: 3600 });
-			} catch {
-				// no PDF uploaded yet — omit the download link
+	const fields = await Promise.all(
+		(form.fields ?? []).map(async (f) => {
+			let downloadUrl: string | null = null;
+			if (f.type === "CONSENT" && f.consentItem?.pdfKey) {
+				try {
+					downloadUrl = await getSignedUrl(f.consentItem.pdfKey, {
+						bucket: "consentForms",
+						expiresIn: 3600,
+					});
+				} catch {
+					// no PDF uploaded yet — omit the download link
+				}
 			}
-		}
-		return {
-			id: f.id,
-			label: f.label,
-			fieldKey: f.fieldKey,
-			type: f.type,
-			required: f.required,
-			placeholder: f.placeholder,
-			helpText: f.helpText,
-			options: f.options,
-			profileFieldKey: f.profileFieldKey,
-			targetPersonType: f.targetPersonType,
-			customField: f.customField
-				? { type: f.customField.type, options: f.customField.options }
-				: null,
-			consentItem: f.consentItem
-				? { id: f.consentItem.id, name: f.consentItem.name, pdfKey: f.consentItem.pdfKey, downloadUrl }
-				: null,
-		};
-	}));
+			return {
+				id: f.id,
+				label: f.label,
+				fieldKey: f.fieldKey,
+				type: f.type,
+				required: f.required,
+				placeholder: f.placeholder,
+				helpText: f.helpText,
+				options: f.options,
+				profileFieldKey: f.profileFieldKey,
+				targetPersonType: f.targetPersonType,
+				customField: f.customField
+					? {
+							type: f.customField.type,
+							options: f.customField.options,
+						}
+					: null,
+				consentItem: f.consentItem
+					? {
+							id: f.consentItem.id,
+							name: f.consentItem.name,
+							pdfKey: f.consentItem.pdfKey,
+							downloadUrl,
+						}
+					: null,
+			};
+		}),
+	);
 
 	return (
 		<div className="min-h-screen bg-background py-12 px-4">

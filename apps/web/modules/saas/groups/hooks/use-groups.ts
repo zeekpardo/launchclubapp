@@ -2,7 +2,7 @@
 
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { orpc } from "@shared/lib/orpc-query-utils";
-import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export type GroupDetail = NonNullable<ReturnType<typeof useGroup>["data"]>;
 

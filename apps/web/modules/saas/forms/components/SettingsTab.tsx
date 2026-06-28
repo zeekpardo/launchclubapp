@@ -1,10 +1,5 @@
 "use client";
 
-import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
-import { Textarea } from "@repo/ui/components/textarea";
-import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -15,7 +10,16 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@repo/ui/components/alert-dialog";
-import { useAssignSites, useSoftDeleteForm, useUpdateForm } from "@saas/forms/hooks/use-forms";
+import { Button } from "@repo/ui/components/button";
+import { Input } from "@repo/ui/components/input";
+import { Label } from "@repo/ui/components/label";
+import { Textarea } from "@repo/ui/components/textarea";
+import { toastError, toastSuccess } from "@repo/ui/components/toast";
+import {
+	useAssignSites,
+	useSoftDeleteForm,
+	useUpdateForm,
+} from "@saas/forms/hooks/use-forms";
 import { useSites } from "@saas/sites/hooks/use-sites";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -41,7 +45,9 @@ export function SettingsTab({ formId, form, orgSlug }: SettingsTabProps) {
 
 	const [name, setName] = useState(form.name);
 	const [description, setDescription] = useState(form.description ?? "");
-	const [siteIds, setSiteIds] = useState<string[]>(form.formSites.map((fs) => fs.siteId));
+	const [siteIds, setSiteIds] = useState<string[]>(
+		form.formSites.map((fs) => fs.siteId),
+	);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
 	// Re-sync when form reloads (e.g. after a save from another tab)
@@ -53,7 +59,11 @@ export function SettingsTab({ formId, form, orgSlug }: SettingsTabProps) {
 
 	const handleSave = async () => {
 		try {
-			await updateForm.mutateAsync({ formId, name, description: description || undefined });
+			await updateForm.mutateAsync({
+				formId,
+				name,
+				description: description || undefined,
+			});
 			toastSuccess("Settings saved.");
 		} catch {
 			toastError("Failed to save settings.");
@@ -88,7 +98,11 @@ export function SettingsTab({ formId, form, orgSlug }: SettingsTabProps) {
 
 				<div className="space-y-1.5">
 					<Label htmlFor="form-name">Form Name</Label>
-					<Input id="form-name" value={name} onChange={(e) => setName(e.target.value)} />
+					<Input
+						id="form-name"
+						value={name}
+						onChange={(e) => setName(e.target.value)}
+					/>
 				</div>
 
 				<div className="space-y-1.5">
@@ -109,9 +123,13 @@ export function SettingsTab({ formId, form, orgSlug }: SettingsTabProps) {
 
 			<div className="rounded-lg border bg-card p-6 space-y-4">
 				<h3 className="font-semibold">Sites</h3>
-				<p className="text-sm text-muted-foreground">Select which sites this form is assigned to.</p>
+				<p className="text-sm text-muted-foreground">
+					Select which sites this form is assigned to.
+				</p>
 				{sites.length === 0 ? (
-					<p className="text-sm text-muted-foreground">No sites available.</p>
+					<p className="text-sm text-muted-foreground">
+						No sites available.
+					</p>
 				) : (
 					<div className="space-y-2">
 						{sites.map((site: { id: string; name: string }) => (
@@ -134,18 +152,28 @@ export function SettingsTab({ formId, form, orgSlug }: SettingsTabProps) {
 
 			<div className="rounded-lg border border-destructive/40 bg-card p-6 space-y-4">
 				<h3 className="font-semibold text-destructive">Danger Zone</h3>
-				<p className="text-sm text-muted-foreground">Deleting a form is permanent and cannot be undone.</p>
-				<Button variant="destructive" size="sm" onClick={() => setDeleteDialogOpen(true)}>
+				<p className="text-sm text-muted-foreground">
+					Deleting a form is permanent and cannot be undone.
+				</p>
+				<Button
+					variant="destructive"
+					size="sm"
+					onClick={() => setDeleteDialogOpen(true)}
+				>
 					Delete Form
 				</Button>
 			</div>
 
-			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+			<AlertDialog
+				open={deleteDialogOpen}
+				onOpenChange={setDeleteDialogOpen}
+			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Delete Form</AlertDialogTitle>
 						<AlertDialogDescription>
-							Are you sure you want to delete "{form.name}"? This action cannot be undone.
+							Are you sure you want to delete "{form.name}"? This
+							action cannot be undone.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

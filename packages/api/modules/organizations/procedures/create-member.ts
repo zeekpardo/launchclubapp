@@ -1,6 +1,11 @@
 import { ORPCError } from "@orpc/client";
 import { auth } from "@repo/auth";
-import { addUserToGroup, addUserToSite, db, getUserByEmail } from "@repo/database";
+import {
+	addUserToGroup,
+	addUserToSite,
+	db,
+	getUserByEmail,
+} from "@repo/database";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc/procedures";
 import { verifyOrganizationMembership } from "../lib/membership";

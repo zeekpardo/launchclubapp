@@ -2,7 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/card";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@repo/ui/components/card";
 import { Checkbox } from "@repo/ui/components/checkbox";
 import {
 	Form,
@@ -217,7 +222,9 @@ export function MentorApplicationForm({
 	const [submitting, setSubmitting] = useState(false);
 	const [serverError, setServerError] = useState<string | null>(null);
 	const [contractFileUrl, setContractFileUrl] = useState<string | null>(null);
-	const [clearanceFileUrl, setClearanceFileUrl] = useState<string | null>(null);
+	const [clearanceFileUrl, setClearanceFileUrl] = useState<string | null>(
+		null,
+	);
 
 	const form = useForm<MentorFormValues>({
 		resolver: zodResolver(mentorFormSchema),
@@ -276,8 +283,12 @@ export function MentorApplicationForm({
 				country: values.country || undefined,
 				mentorContractFileUrl: contractFileUrl || undefined,
 				mentorSecurityClearanceFileUrl: clearanceFileUrl || undefined,
-				formFieldValues: formFieldValues.length ? formFieldValues : undefined,
-				profileFieldValues: profileFieldValues.length ? profileFieldValues : undefined,
+				formFieldValues: formFieldValues.length
+					? formFieldValues
+					: undefined,
+				profileFieldValues: profileFieldValues.length
+					? profileFieldValues
+					: undefined,
 			});
 			setSubmitted(true);
 		} catch {
@@ -295,10 +306,12 @@ export function MentorApplicationForm({
 				<CardContent className="flex flex-col items-center gap-4 py-16 text-center">
 					<CheckCircleIcon className="size-14 text-green-500" />
 					<div>
-						<h2 className="text-2xl font-bold">Application Submitted</h2>
+						<h2 className="text-2xl font-bold">
+							Application Submitted
+						</h2>
 						<p className="mt-2 text-muted-foreground max-w-sm">
-							Thank you for applying! We will review your application and be in
-							touch soon.
+							Thank you for applying! We will review your
+							application and be in touch soon.
 						</p>
 					</div>
 				</CardContent>
@@ -382,7 +395,10 @@ export function MentorApplicationForm({
 									<FormItem>
 										<FormLabel>Street Address</FormLabel>
 										<FormControl>
-											<Input {...field} placeholder="123 Main St" />
+											<Input
+												{...field}
+												placeholder="123 Main St"
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -407,7 +423,9 @@ export function MentorApplicationForm({
 									name="stateProvince"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>State / Province</FormLabel>
+											<FormLabel>
+												State / Province
+											</FormLabel>
 											<FormControl>
 												<Input {...field} />
 											</FormControl>
@@ -476,49 +494,72 @@ export function MentorApplicationForm({
 										onFileChange: setClearanceFileUrl,
 									},
 								] as const
-							).filter(({ show }) => show).map(({ name, label, downloadUrl, acknowledged, fileValue, onFileChange }) => (
-								<div key={name} className="space-y-2">
-									<FormField
-										control={form.control}
-										name={name}
-										render={({ field }) => (
-											<FormItem className="flex items-start gap-3 space-y-0">
-												<FormControl>
-													<Checkbox
-														checked={field.value as boolean}
-														onCheckedChange={field.onChange}
-													/>
-												</FormControl>
-												<div className="space-y-1">
-													<FormLabel className="font-normal">{label}</FormLabel>
-													{downloadUrl && (
-														<a
-															href={downloadUrl}
-															target="_blank"
-															rel="noopener noreferrer"
-															className="flex items-center gap-1 text-xs text-primary hover:underline w-fit"
-														>
-															<DownloadIcon className="size-3" />
-															Download to sign
-														</a>
-													)}
-													<FormMessage />
-												</div>
-											</FormItem>
-										)}
-									/>
-									{enableMentorDocumentUpload && acknowledged && (
-										<div className="pl-7">
-											<FileUploadField
-												label=""
-												value={fileValue}
-												onChange={onFileChange}
-												orgSlug={orgSlug}
+							)
+								.filter(({ show }) => show)
+								.map(
+									({
+										name,
+										label,
+										downloadUrl,
+										acknowledged,
+										fileValue,
+										onFileChange,
+									}) => (
+										<div key={name} className="space-y-2">
+											<FormField
+												control={form.control}
+												name={name}
+												render={({ field }) => (
+													<FormItem className="flex items-start gap-3 space-y-0">
+														<FormControl>
+															<Checkbox
+																checked={
+																	field.value as boolean
+																}
+																onCheckedChange={
+																	field.onChange
+																}
+															/>
+														</FormControl>
+														<div className="space-y-1">
+															<FormLabel className="font-normal">
+																{label}
+															</FormLabel>
+															{downloadUrl && (
+																<a
+																	href={
+																		downloadUrl
+																	}
+																	target="_blank"
+																	rel="noopener noreferrer"
+																	className="flex items-center gap-1 text-xs text-primary hover:underline w-fit"
+																>
+																	<DownloadIcon className="size-3" />
+																	Download to
+																	sign
+																</a>
+															)}
+															<FormMessage />
+														</div>
+													</FormItem>
+												)}
 											/>
+											{enableMentorDocumentUpload &&
+												acknowledged && (
+													<div className="pl-7">
+														<FileUploadField
+															label=""
+															value={fileValue}
+															onChange={
+																onFileChange
+															}
+															orgSlug={orgSlug}
+														/>
+													</div>
+												)}
 										</div>
-									)}
-								</div>
-							))}
+									),
+								)}
 						</CardContent>
 					</Card>
 				)}
@@ -548,30 +589,70 @@ export function MentorApplicationForm({
 														value={f.value ?? ""}
 														rows={3}
 													/>
-												) : field.type === "SELECT" && field.options.length > 0 ? (
-													<Select value={f.value ?? ""} onValueChange={f.onChange}>
+												) : field.type === "SELECT" &&
+													field.options.length > 0 ? (
+													<Select
+														value={f.value ?? ""}
+														onValueChange={
+															f.onChange
+														}
+													>
 														<SelectTrigger>
 															<SelectValue placeholder="Select…" />
 														</SelectTrigger>
 														<SelectContent>
-															{field.options.map((opt) => (
-																<SelectItem key={opt} value={opt}>{opt}</SelectItem>
-															))}
+															{field.options.map(
+																(opt) => (
+																	<SelectItem
+																		key={
+																			opt
+																		}
+																		value={
+																			opt
+																		}
+																	>
+																		{opt}
+																	</SelectItem>
+																),
+															)}
 														</SelectContent>
 													</Select>
-												) : field.type === "CHECKBOX" ? (
+												) : field.type ===
+													"CHECKBOX" ? (
 													<div className="flex items-center gap-2">
 														<Checkbox
-															checked={f.value === "true"}
-															onCheckedChange={(checked) => f.onChange(checked ? "true" : "false")}
+															checked={
+																f.value ===
+																"true"
+															}
+															onCheckedChange={(
+																checked,
+															) =>
+																f.onChange(
+																	checked
+																		? "true"
+																		: "false",
+																)
+															}
 														/>
 													</div>
 												) : field.type === "DATE" ? (
-													<Input type="date" {...f} value={f.value ?? ""} />
+													<Input
+														type="date"
+														{...f}
+														value={f.value ?? ""}
+													/>
 												) : field.type === "NUMBER" ? (
-													<Input type="number" {...f} value={f.value ?? ""} />
+													<Input
+														type="number"
+														{...f}
+														value={f.value ?? ""}
+													/>
 												) : (
-													<Input {...f} value={f.value ?? ""} />
+													<Input
+														{...f}
+														value={f.value ?? ""}
+													/>
 												)}
 											</FormControl>
 											<FormMessage />
@@ -612,16 +693,26 @@ export function MentorApplicationForm({
 												<FormItem className="flex items-start gap-3 space-y-0">
 													<FormControl>
 														<Checkbox
-															checked={f.value === "true"}
-															onCheckedChange={(checked) =>
-																f.onChange(checked ? "true" : "false")
+															checked={
+																f.value ===
+																"true"
+															}
+															onCheckedChange={(
+																checked,
+															) =>
+																f.onChange(
+																	checked
+																		? "true"
+																		: "false",
+																)
 															}
 														/>
 													</FormControl>
 													<div className="space-y-1 leading-none">
 														<FormLabel>
 															{field.label}
-															{field.required && " *"}
+															{field.required &&
+																" *"}
 														</FormLabel>
 														{field.helpText && (
 															<FormDescription>
@@ -650,13 +741,16 @@ export function MentorApplicationForm({
 													</FormLabel>
 													<Select
 														value={f.value ?? ""}
-														onValueChange={f.onChange}
+														onValueChange={
+															f.onChange
+														}
 													>
 														<FormControl>
 															<SelectTrigger>
 																<SelectValue
 																	placeholder={
-																		field.placeholder ?? "Select…"
+																		field.placeholder ??
+																		"Select…"
 																	}
 																/>
 															</SelectTrigger>
@@ -664,8 +758,12 @@ export function MentorApplicationForm({
 														<SelectContent>
 															{opts.map((opt) => (
 																<SelectItem
-																	key={opt.value}
-																	value={opt.value}
+																	key={
+																		opt.value
+																	}
+																	value={
+																		opt.value
+																	}
 																>
 																	{opt.label}
 																</SelectItem>
@@ -699,7 +797,10 @@ export function MentorApplicationForm({
 													<FormControl>
 														<Textarea
 															{...f}
-															placeholder={field.placeholder ?? ""}
+															placeholder={
+																field.placeholder ??
+																""
+															}
 															rows={3}
 														/>
 													</FormControl>
@@ -730,7 +831,10 @@ export function MentorApplicationForm({
 												<FormControl>
 													<Input
 														{...f}
-														placeholder={field.placeholder ?? ""}
+														placeholder={
+															field.placeholder ??
+															""
+														}
 													/>
 												</FormControl>
 												{field.helpText && (
@@ -749,7 +853,9 @@ export function MentorApplicationForm({
 				)}
 
 				{serverError && (
-					<p className="text-sm text-destructive text-center">{serverError}</p>
+					<p className="text-sm text-destructive text-center">
+						{serverError}
+					</p>
 				)}
 
 				<div className="flex justify-center">

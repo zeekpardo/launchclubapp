@@ -1,8 +1,8 @@
-import { PurchaseRequestsApprovalPage } from "@saas/purchase-requests/components/PurchaseRequestsApprovalPage";
 import { getActiveOrganization, getSession } from "@saas/auth/lib/server";
+import { PurchaseRequestsApprovalPage } from "@saas/purchase-requests/components/PurchaseRequestsApprovalPage";
 import { PageHeader } from "@saas/shared/components/PageHeader";
-import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata() {
 	const t = await getTranslations();

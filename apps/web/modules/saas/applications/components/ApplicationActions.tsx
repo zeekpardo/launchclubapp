@@ -42,11 +42,18 @@ interface ApproveDialogProps {
 	onClose: () => void;
 }
 
-export function ApproveDialog({ applicationId, siteId, children, onClose }: ApproveDialogProps) {
+export function ApproveDialog({
+	applicationId,
+	siteId,
+	children,
+	onClose,
+}: ApproveDialogProps) {
 	const t = useTranslations("launchclub.applications");
 	const { activeOrganization } = useActiveOrganization();
 	const reviewApplication = useReviewApplication();
-	const [groupSelections, setGroupSelections] = useState<Record<string, string>>({});
+	const [groupSelections, setGroupSelections] = useState<
+		Record<string, string>
+	>({});
 
 	const { data: groups } = useQuery(
 		orpc.groups.list.queryOptions({
@@ -64,12 +71,16 @@ export function ApproveDialog({ applicationId, siteId, children, onClose }: Appr
 		try {
 			const groupAssignments = Object.entries(groupSelections)
 				.filter(([, groupId]) => !!groupId)
-				.map(([applicationChildId, groupId]) => ({ applicationChildId, groupId }));
+				.map(([applicationChildId, groupId]) => ({
+					applicationChildId,
+					groupId,
+				}));
 
 			await reviewApplication.mutateAsync({
 				id: applicationId,
 				status: "APPROVED",
-				groupAssignments: groupAssignments.length > 0 ? groupAssignments : undefined,
+				groupAssignments:
+					groupAssignments.length > 0 ? groupAssignments : undefined,
 			});
 			toastSuccess(t("notifications.approved"));
 			onClose();
@@ -102,11 +113,16 @@ export function ApproveDialog({ applicationId, siteId, children, onClose }: Appr
 							<Select
 								value={groupSelections[child.id] ?? ""}
 								onValueChange={(val) =>
-									setGroupSelections((prev) => ({ ...prev, [child.id]: val }))
+									setGroupSelections((prev) => ({
+										...prev,
+										[child.id]: val,
+									}))
 								}
 							>
 								<SelectTrigger>
-									<SelectValue placeholder={t("approveDialog.noGroup")} />
+									<SelectValue
+										placeholder={t("approveDialog.noGroup")}
+									/>
 								</SelectTrigger>
 								<SelectContent>
 									{siteGroups.length === 0 ? (

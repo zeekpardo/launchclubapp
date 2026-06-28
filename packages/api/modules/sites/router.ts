@@ -7,11 +7,11 @@ import { removeSiteLeader } from "./procedures/remove-leader";
 import { updateSiteProcedure } from "./procedures/update";
 
 export const sitesRouter = {
-  list: listSites,
-  get: getSite,
-  create: createSiteProcedure,
-  update: updateSiteProcedure,
-  delete: deleteSiteProcedure,
-  assignLeader: assignSiteLeader,
-  removeLeader: removeSiteLeader,
+	list: listSites,
+	get: getSite,
+	create: createSiteProcedure,
+	update: updateSiteProcedure,
+	delete: deleteSiteProcedure,
+	assignLeader: assignSiteLeader,
+	removeLeader: removeSiteLeader,
 };

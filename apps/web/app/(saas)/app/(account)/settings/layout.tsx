@@ -22,7 +22,8 @@ export default async function SettingsLayout({ children }: PropsWithChildren) {
 	}
 
 	const isGlobalAdmin = session.user.role === "admin";
-	const isOrgOwner = isGlobalAdmin || (await getUserIsOrgOwner(session.user.id));
+	const isOrgOwner =
+		isGlobalAdmin || (await getUserIsOrgOwner(session.user.id));
 
 	const menuItems = [
 		{
@@ -60,7 +61,9 @@ export default async function SettingsLayout({ children }: PropsWithChildren) {
 							{
 								title: t("settings.menu.account.dangerZone"),
 								href: "/app/settings/danger-zone",
-								icon: <TriangleAlertIcon className="size-4 opacity-50" />,
+								icon: (
+									<TriangleAlertIcon className="size-4 opacity-50" />
+								),
 							},
 						]
 					: []),

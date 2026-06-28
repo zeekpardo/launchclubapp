@@ -1,8 +1,8 @@
-import { DeleteOrganizationForm } from "@saas/organizations/components/DeleteOrganizationForm";
 import { getActiveOrganization, getSession } from "@saas/auth/lib/server";
+import { DeleteOrganizationForm } from "@saas/organizations/components/DeleteOrganizationForm";
 import { SettingsList } from "@saas/shared/components/SettingsList";
-import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata() {
 	const t = await getTranslations();

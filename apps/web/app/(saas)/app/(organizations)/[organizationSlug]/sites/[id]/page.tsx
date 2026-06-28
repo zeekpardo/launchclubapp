@@ -21,14 +21,9 @@ export default async function SiteDetailPage({
 
 	return (
 		<div>
-			<PageHeader
-				title={t("launchclub.sites.title")}
-				subtitle={id}
-			/>
+			<PageHeader title={t("launchclub.sites.title")} subtitle={id} />
 			<div className="rounded-xl border bg-card p-6 text-card-foreground shadow-sm">
-				<p className="text-sm text-muted-foreground">
-					Site ID: {id}
-				</p>
+				<p className="text-sm text-muted-foreground">Site ID: {id}</p>
 			</div>
 		</div>
 	);

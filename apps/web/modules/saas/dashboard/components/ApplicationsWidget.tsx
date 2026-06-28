@@ -9,20 +9,16 @@ import {
 	CardTitle,
 } from "@repo/ui/components/card";
 import type { ChartConfig } from "@repo/ui/components/chart";
-import {
-	ChartContainer,
-	ChartTooltip,
-	ChartTooltipContent,
-} from "@repo/ui/components/chart";
+import { ChartContainer } from "@repo/ui/components/chart";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckIcon, XIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Cell, Pie, PieChart, Tooltip } from "recharts";
 
 const statusChartConfig = {
@@ -52,20 +48,29 @@ export function ApplicationsWidget() {
 		...orpc.applications.review.mutationOptions(),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: orpc.applications.list.queryOptions({
-					input: { organizationId: "" },
-				}).queryKey.slice(0, 1),
+				queryKey: orpc.applications.list
+					.queryOptions({
+						input: { organizationId: "" },
+					})
+					.queryKey.slice(0, 1),
 			});
 		},
 	});
 
-	const handleReview = async (id: string, status: "APPROVED" | "REJECTED") => {
+	const handleReview = async (
+		id: string,
+		status: "APPROVED" | "REJECTED",
+	) => {
 		try {
 			await reviewApplication.mutateAsync({ id, status });
 			if (status === "APPROVED") {
-				toastSuccess(t("launchclub.applications.notifications.approved"));
+				toastSuccess(
+					t("launchclub.applications.notifications.approved"),
+				);
 			} else {
-				toastSuccess(t("launchclub.applications.notifications.rejected"));
+				toastSuccess(
+					t("launchclub.applications.notifications.rejected"),
+				);
 			}
 		} catch {
 			toastError(t("launchclub.applications.notifications.error"));
@@ -122,7 +127,9 @@ export function ApplicationsWidget() {
 									{pending.length}
 								</span>
 								<span className="text-xs text-muted-foreground">
-									{t("launchclub.applications.status.PENDING")}
+									{t(
+										"launchclub.applications.status.PENDING",
+									)}
 								</span>
 							</div>
 							<div className="flex flex-col items-center rounded-lg border border-emerald-200 bg-emerald-50 p-2 dark:border-emerald-800 dark:bg-emerald-950">
@@ -130,7 +137,9 @@ export function ApplicationsWidget() {
 									{approved.length}
 								</span>
 								<span className="text-xs text-muted-foreground">
-									{t("launchclub.applications.status.APPROVED")}
+									{t(
+										"launchclub.applications.status.APPROVED",
+									)}
 								</span>
 							</div>
 							<div className="flex flex-col items-center rounded-lg border border-red-200 bg-red-50 p-2 dark:border-red-800 dark:bg-red-950">
@@ -138,14 +147,19 @@ export function ApplicationsWidget() {
 									{rejected.length}
 								</span>
 								<span className="text-xs text-muted-foreground">
-									{t("launchclub.applications.status.REJECTED")}
+									{t(
+										"launchclub.applications.status.REJECTED",
+									)}
 								</span>
 							</div>
 						</div>
 
 						{/* Pie chart */}
 						{total > 0 && (
-							<ChartContainer config={statusChartConfig} className="h-36 w-full">
+							<ChartContainer
+								config={statusChartConfig}
+								className="h-36 w-full"
+							>
 								<PieChart>
 									<Pie
 										data={chartData}
@@ -157,7 +171,10 @@ export function ApplicationsWidget() {
 										outerRadius={60}
 									>
 										{chartData.map((entry) => (
-											<Cell key={entry.name} fill={entry.fill} />
+											<Cell
+												key={entry.name}
+												fill={entry.fill}
+											/>
 										))}
 									</Pie>
 									<Tooltip
@@ -186,7 +203,8 @@ export function ApplicationsWidget() {
 									>
 										<div className="flex min-w-0 flex-1 flex-col">
 											<span className="truncate text-sm font-medium">
-												{app.parentFirstName} {app.parentLastName}
+												{app.parentFirstName}{" "}
+												{app.parentLastName}
 											</span>
 											<span className="truncate text-xs text-muted-foreground">
 												{app.site?.name ?? "—"}
@@ -194,15 +212,26 @@ export function ApplicationsWidget() {
 										</div>
 										<div className="flex shrink-0 items-center gap-2">
 											<Badge status="warning">
-												{t("launchclub.applications.status.PENDING")}
+												{t(
+													"launchclub.applications.status.PENDING",
+												)}
 											</Badge>
 											<Button
 												variant="ghost"
 												size="icon"
 												className="text-green-600 hover:bg-green-50 hover:text-green-700"
-												onClick={() => handleReview(app.id, "APPROVED")}
-												disabled={reviewApplication.isPending}
-												aria-label={t("launchclub.applications.approve")}
+												onClick={() =>
+													handleReview(
+														app.id,
+														"APPROVED",
+													)
+												}
+												disabled={
+													reviewApplication.isPending
+												}
+												aria-label={t(
+													"launchclub.applications.approve",
+												)}
 											>
 												<CheckIcon className="size-4" />
 											</Button>
@@ -210,9 +239,18 @@ export function ApplicationsWidget() {
 												variant="ghost"
 												size="icon"
 												className="text-red-600 hover:bg-red-50 hover:text-red-700"
-												onClick={() => handleReview(app.id, "REJECTED")}
-												disabled={reviewApplication.isPending}
-												aria-label={t("launchclub.applications.reject")}
+												onClick={() =>
+													handleReview(
+														app.id,
+														"REJECTED",
+													)
+												}
+												disabled={
+													reviewApplication.isPending
+												}
+												aria-label={t(
+													"launchclub.applications.reject",
+												)}
 											>
 												<XIcon className="size-4" />
 											</Button>

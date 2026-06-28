@@ -13,8 +13,8 @@ import {
 	DropdownMenuTrigger,
 } from "@repo/ui";
 import { useSession } from "@saas/auth/hooks/use-session";
-import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { OrganizationLogo } from "@saas/organizations/components/OrganizationLogo";
+import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { useOrganizationListQuery } from "@saas/organizations/lib/api";
 import { ColorModeToggle } from "@shared/components/ColorModeToggle";
 import { UserAvatar } from "@shared/components/UserAvatar";
@@ -34,8 +34,9 @@ import { config } from "@/config";
 export function UserMenu({ showUserName }: { showUserName?: boolean }) {
 	const t = useTranslations();
 	const { user } = useSession();
-	const router = useRouter();
-	const { activeOrganization, setActiveOrganization } = useActiveOrganization();
+	const _router = useRouter();
+	const { activeOrganization, setActiveOrganization } =
+		useActiveOrganization();
 	const { data: allOrganizations } = useOrganizationListQuery();
 
 	const onLogout = () => {
@@ -99,7 +100,9 @@ export function UserMenu({ showUserName }: { showUserName?: boolean }) {
 						<>
 							<DropdownMenuSeparator />
 							<DropdownMenuLabel className="text-foreground/60 text-xs font-normal">
-								{t("organizations.organizationSelect.organizations")}
+								{t(
+									"organizations.organizationSelect.organizations",
+								)}
 							</DropdownMenuLabel>
 							<DropdownMenuRadioGroup
 								value={activeOrganization?.slug ?? ""}
@@ -120,7 +123,9 @@ export function UserMenu({ showUserName }: { showUserName?: boolean }) {
 												name={org.name}
 												logoUrl={org.logo}
 											/>
-											<span className="truncate">{org.name}</span>
+											<span className="truncate">
+												{org.name}
+											</span>
 										</div>
 									</DropdownMenuRadioItem>
 								))}

@@ -7,11 +7,11 @@ import { listEventsByOrg } from "./procedures/listByOrg";
 import { updateEventProcedure } from "./procedures/update";
 
 export const eventsRouter = {
-  list: listEvents,
-  listByOrg: listEventsByOrg,
-  get: getEvent,
-  create: createEventProcedure,
-  createSeries: createEventSeriesProcedure,
-  update: updateEventProcedure,
-  delete: deleteEventProcedure,
+	list: listEvents,
+	listByOrg: listEventsByOrg,
+	get: getEvent,
+	create: createEventProcedure,
+	createSeries: createEventSeriesProcedure,
+	update: updateEventProcedure,
+	delete: deleteEventProcedure,
 };

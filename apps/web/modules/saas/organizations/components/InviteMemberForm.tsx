@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authClient } from "@repo/auth/client";
 import { Button } from "@repo/ui/components/button";
+import { Card } from "@repo/ui/components/card";
 import {
 	Form,
 	FormControl,
@@ -18,10 +19,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@repo/ui/components/select";
-import { cn } from "@repo/ui/lib";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
+import { cn } from "@repo/ui/lib";
 import { fullOrganizationQueryKey } from "@saas/organizations/lib/api";
-import { Card } from "@repo/ui/components/card";
 import { GroupPicker } from "@shared/components/GroupPicker";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -61,7 +61,11 @@ function SitePicker({
 	onToggle,
 	error,
 }: {
-	sites: { id: string; name: string; area?: { id: string; name: string } | null }[];
+	sites: {
+		id: string;
+		name: string;
+		area?: { id: string; name: string } | null;
+	}[];
 	selectedSiteIds: string[];
 	onToggle: (siteId: string) => void;
 	error?: string;
@@ -92,7 +96,9 @@ function SitePicker({
 	const visibleSites =
 		selectedAreaIds.length === 0
 			? sites
-			: sites.filter((s) => s.area && selectedAreaIds.includes(s.area.id));
+			: sites.filter(
+					(s) => s.area && selectedAreaIds.includes(s.area.id),
+				);
 
 	return (
 		<div className="space-y-3">
@@ -122,7 +128,9 @@ function SitePicker({
 										type="checkbox"
 										className="sr-only"
 										checked={checked}
-										onChange={() => toggleArea(area.id, sitesInArea)}
+										onChange={() =>
+											toggleArea(area.id, sitesInArea)
+										}
 									/>
 									{area.name}
 								</label>
@@ -153,7 +161,9 @@ function SitePicker({
 						<div>
 							<p className="font-medium text-sm">{site.name}</p>
 							{site.area && (
-								<p className="text-foreground/60 text-xs">{site.area.name}</p>
+								<p className="text-foreground/60 text-xs">
+									{site.area.name}
+								</p>
 							)}
 						</div>
 					</label>
@@ -164,7 +174,6 @@ function SitePicker({
 		</div>
 	);
 }
-
 
 // --- Invite sub-form ---
 
@@ -177,10 +186,18 @@ const inviteSchema = z
 	})
 	.superRefine((d, ctx) => {
 		if (d.lcRole === "site-leader" && d.siteIds.length === 0) {
-			ctx.addIssue({ code: "custom", message: "Select at least one site", path: ["siteIds"] });
+			ctx.addIssue({
+				code: "custom",
+				message: "Select at least one site",
+				path: ["siteIds"],
+			});
 		}
 		if (d.lcRole === "group-leader" && d.groupIds.length === 0) {
-			ctx.addIssue({ code: "custom", message: "Select at least one group", path: ["groupIds"] });
+			ctx.addIssue({
+				code: "custom",
+				message: "Select at least one group",
+				path: ["groupIds"],
+			});
 		}
 	});
 
@@ -218,10 +235,16 @@ function InviteForm({ organizationId }: { organizationId: string }) {
 		orpc.organizations.saveInvitationAssignment.mutationOptions(),
 	);
 
-	const toggleId = (field: "siteIds" | "groupIds", id: string, current: string[]) => {
+	const toggleId = (
+		field: "siteIds" | "groupIds",
+		id: string,
+		current: string[],
+	) => {
 		form.setValue(
 			field,
-			current.includes(id) ? current.filter((x) => x !== id) : [...current, id],
+			current.includes(id)
+				? current.filter((x) => x !== id)
+				: [...current, id],
 			{ shouldValidate: true },
 		);
 	};
@@ -254,11 +277,15 @@ function InviteForm({ organizationId }: { organizationId: string }) {
 				queryKey: fullOrganizationQueryKey(organizationId),
 			});
 			toastSuccess(
-				t("organizations.settings.members.inviteMember.notifications.success.title"),
+				t(
+					"organizations.settings.members.inviteMember.notifications.success.title",
+				),
 			);
 		} catch {
 			toastError(
-				t("organizations.settings.members.inviteMember.notifications.error.title"),
+				t(
+					"organizations.settings.members.inviteMember.notifications.error.title",
+				),
 			);
 		}
 	});
@@ -272,7 +299,9 @@ function InviteForm({ organizationId }: { organizationId: string }) {
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>
-								{t("organizations.settings.members.inviteMember.email")}
+								{t(
+									"organizations.settings.members.inviteMember.email",
+								)}
 							</FormLabel>
 							<FormControl>
 								<Input type="email" {...field} />
@@ -301,7 +330,10 @@ function InviteForm({ organizationId }: { organizationId: string }) {
 									</SelectTrigger>
 									<SelectContent>
 										{LC_ROLES.map((role) => (
-											<SelectItem key={role.value} value={role.value}>
+											<SelectItem
+												key={role.value}
+												value={role.value}
+											>
 												{role.label}
 											</SelectItem>
 										))}
@@ -323,10 +355,15 @@ function InviteForm({ organizationId }: { organizationId: string }) {
 								<SitePicker
 									sites={sites}
 									selectedSiteIds={selectedSiteIds}
-									onToggle={(id) => toggleId("siteIds", id, selectedSiteIds)}
+									onToggle={(id) =>
+										toggleId("siteIds", id, selectedSiteIds)
+									}
 									error={
 										form.formState.errors.siteIds
-											? String(form.formState.errors.siteIds.message)
+											? String(
+													form.formState.errors
+														.siteIds.message,
+												)
 											: undefined
 									}
 								/>
@@ -346,10 +383,19 @@ function InviteForm({ organizationId }: { organizationId: string }) {
 								<GroupPicker
 									groups={groups ?? []}
 									selectedGroupIds={selectedGroupIds}
-									onToggle={(id) => toggleId("groupIds", id, selectedGroupIds)}
+									onToggle={(id) =>
+										toggleId(
+											"groupIds",
+											id,
+											selectedGroupIds,
+										)
+									}
 									error={
 										form.formState.errors.groupIds
-											? String(form.formState.errors.groupIds.message)
+											? String(
+													form.formState.errors
+														.groupIds.message,
+												)
 											: undefined
 									}
 								/>
@@ -360,7 +406,9 @@ function InviteForm({ organizationId }: { organizationId: string }) {
 
 				<div className="flex justify-end">
 					<Button type="submit" loading={form.formState.isSubmitting}>
-						{t("organizations.settings.members.inviteMember.submit")}
+						{t(
+							"organizations.settings.members.inviteMember.submit",
+						)}
 					</Button>
 				</div>
 			</form>
@@ -380,10 +428,18 @@ const addSchema = z
 	})
 	.superRefine((d, ctx) => {
 		if (d.lcRole === "site-leader" && d.siteIds.length === 0) {
-			ctx.addIssue({ code: "custom", message: "Select at least one site", path: ["siteIds"] });
+			ctx.addIssue({
+				code: "custom",
+				message: "Select at least one site",
+				path: ["siteIds"],
+			});
 		}
 		if (d.lcRole === "group-leader" && d.groupIds.length === 0) {
-			ctx.addIssue({ code: "custom", message: "Select at least one group", path: ["groupIds"] });
+			ctx.addIssue({
+				code: "custom",
+				message: "Select at least one group",
+				path: ["groupIds"],
+			});
 		}
 	});
 
@@ -421,10 +477,16 @@ function DirectAddForm({ organizationId }: { organizationId: string }) {
 		orpc.organizations.createMember.mutationOptions(),
 	);
 
-	const toggleId = (field: "siteIds" | "groupIds", id: string, current: string[]) => {
+	const toggleId = (
+		field: "siteIds" | "groupIds",
+		id: string,
+		current: string[],
+	) => {
 		form.setValue(
 			field,
-			current.includes(id) ? current.filter((x) => x !== id) : [...current, id],
+			current.includes(id)
+				? current.filter((x) => x !== id)
+				: [...current, id],
 			{ shouldValidate: true },
 		);
 	};
@@ -436,7 +498,9 @@ function DirectAddForm({ organizationId }: { organizationId: string }) {
 			queryClient.invalidateQueries({
 				queryKey: fullOrganizationQueryKey(organizationId),
 			});
-			toastSuccess("Member added. They will receive a magic link to sign in.");
+			toastSuccess(
+				"Member added. They will receive a magic link to sign in.",
+			);
 		} catch (err: any) {
 			const message =
 				err?.message === "User is already a member of this organization"
@@ -458,7 +522,11 @@ function DirectAddForm({ organizationId }: { organizationId: string }) {
 							<FormItem className="flex-1">
 								<FormLabel>Full Name</FormLabel>
 								<FormControl>
-									<Input type="text" placeholder="Jane Smith" {...field} />
+									<Input
+										type="text"
+										placeholder="Jane Smith"
+										{...field}
+									/>
 								</FormControl>
 							</FormItem>
 						)}
@@ -497,7 +565,10 @@ function DirectAddForm({ organizationId }: { organizationId: string }) {
 									</SelectTrigger>
 									<SelectContent>
 										{LC_ROLES.map((role) => (
-											<SelectItem key={role.value} value={role.value}>
+											<SelectItem
+												key={role.value}
+												value={role.value}
+											>
 												{role.label}
 											</SelectItem>
 										))}
@@ -519,10 +590,15 @@ function DirectAddForm({ organizationId }: { organizationId: string }) {
 								<SitePicker
 									sites={sites}
 									selectedSiteIds={selectedSiteIds}
-									onToggle={(id) => toggleId("siteIds", id, selectedSiteIds)}
+									onToggle={(id) =>
+										toggleId("siteIds", id, selectedSiteIds)
+									}
 									error={
 										form.formState.errors.siteIds
-											? String(form.formState.errors.siteIds.message)
+											? String(
+													form.formState.errors
+														.siteIds.message,
+												)
 											: undefined
 									}
 								/>
@@ -542,10 +618,19 @@ function DirectAddForm({ organizationId }: { organizationId: string }) {
 								<GroupPicker
 									groups={groups ?? []}
 									selectedGroupIds={selectedGroupIds}
-									onToggle={(id) => toggleId("groupIds", id, selectedGroupIds)}
+									onToggle={(id) =>
+										toggleId(
+											"groupIds",
+											id,
+											selectedGroupIds,
+										)
+									}
 									error={
 										form.formState.errors.groupIds
-											? String(form.formState.errors.groupIds.message)
+											? String(
+													form.formState.errors
+														.groupIds.message,
+												)
 											: undefined
 									}
 								/>
@@ -555,7 +640,8 @@ function DirectAddForm({ organizationId }: { organizationId: string }) {
 				)}
 
 				<p className="text-muted-foreground text-xs">
-					The user is added immediately and sent a magic link to sign in.
+					The user is added immediately and sent a magic link to sign
+					in.
 				</p>
 
 				<div className="flex justify-end">
@@ -584,10 +670,14 @@ export function InviteMemberForm({
 				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 					<div className="flex flex-col gap-1.5">
 						<h3 className="m-0 font-semibold leading-tight">
-							{t("organizations.settings.members.inviteMember.title")}
+							{t(
+								"organizations.settings.members.inviteMember.title",
+							)}
 						</h3>
 						<p className="m-0 text-foreground/60 text-xs">
-							{t("organizations.settings.members.inviteMember.description")}
+							{t(
+								"organizations.settings.members.inviteMember.description",
+							)}
 						</p>
 					</div>
 					<div className="flex gap-1 rounded-lg border p-1 self-start sm:self-auto">

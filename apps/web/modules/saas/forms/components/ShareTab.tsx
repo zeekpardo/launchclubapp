@@ -3,8 +3,8 @@
 import { Input } from "@repo/ui/components/input";
 import { Switch } from "@repo/ui/components/switch";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { CopyButton } from "@shared/components/CopyButton";
 import { useUpdateForm } from "@saas/forms/hooks/use-forms";
+import { CopyButton } from "@shared/components/CopyButton";
 
 const origin = typeof window !== "undefined" ? window.location.origin : "";
 
@@ -23,10 +23,15 @@ export function ShareTab({ formId, form, orgSlug }: ShareTabProps) {
 	const updateForm = useUpdateForm(formId);
 
 	const handleTogglePublish = async () => {
-		const newStatus = form.status === "PUBLISHED" ? "UNPUBLISHED" : "PUBLISHED";
+		const newStatus =
+			form.status === "PUBLISHED" ? "UNPUBLISHED" : "PUBLISHED";
 		try {
 			await updateForm.mutateAsync({ formId, status: newStatus });
-			toastSuccess(newStatus === "PUBLISHED" ? "Form published." : "Form unpublished.");
+			toastSuccess(
+				newStatus === "PUBLISHED"
+					? "Form published."
+					: "Form unpublished.",
+			);
 		} catch {
 			toastError("Failed to update form status.");
 		}
@@ -39,7 +44,9 @@ export function ShareTab({ formId, form, orgSlug }: ShareTabProps) {
 				<div className="flex items-center justify-between">
 					<div>
 						<p className="text-sm font-medium">
-							{form.status === "PUBLISHED" ? "Form is published" : "Form is unpublished"}
+							{form.status === "PUBLISHED"
+								? "Form is published"
+								: "Form is unpublished"}
 						</p>
 						<p className="text-xs text-muted-foreground mt-0.5">
 							{form.status === "PUBLISHED"
@@ -74,7 +81,8 @@ function ShareLinksSection({
 			<div>
 				<h3 className="font-semibold">Share Links</h3>
 				<p className="mt-1 text-sm text-muted-foreground">
-					Each assigned site gets its own shareable link. Share the link for the site you want applicants to register at.
+					Each assigned site gets its own shareable link. Share the
+					link for the site you want applicants to register at.
 				</p>
 			</div>
 
@@ -86,7 +94,8 @@ function ShareLinksSection({
 
 			{assignedSites.length === 0 ? (
 				<p className="text-sm text-muted-foreground">
-					No sites assigned yet. Add sites above to generate shareable links.
+					No sites assigned yet. Add sites above to generate shareable
+					links.
 				</p>
 			) : (
 				<div className="space-y-4">
@@ -97,9 +106,15 @@ function ShareLinksSection({
 								: `${origin}/apply/${orgSlug}/forms/${form.slug}?site=${site.slug}`;
 						return (
 							<div key={site.id} className="space-y-1.5">
-								<p className="text-sm font-medium">{site.name}</p>
+								<p className="text-sm font-medium">
+									{site.name}
+								</p>
 								<div className="flex items-center gap-2">
-									<Input readOnly value={url} className="font-mono text-xs" />
+									<Input
+										readOnly
+										value={url}
+										className="font-mono text-xs"
+									/>
 									<CopyButton url={url} />
 								</div>
 							</div>

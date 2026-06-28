@@ -15,8 +15,6 @@ const TABS = [
 	{ key: "people", label: "People" },
 ] as const;
 
-type TabKey = (typeof TABS)[number]["key"];
-
 export function SuperAdminView() {
 	const [activeTab, setActiveTab] = useQueryState(
 		"adminTab",

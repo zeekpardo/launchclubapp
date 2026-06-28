@@ -163,12 +163,16 @@ export function GuardianManager({ kid }: GuardianManagerProps) {
 			<Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>{t("launchclub.guardians.add")}</DialogTitle>
+						<DialogTitle>
+							{t("launchclub.guardians.add")}
+						</DialogTitle>
 					</DialogHeader>
 
 					<div className="space-y-4">
 						<div className="space-y-2">
-							<p className="text-sm font-medium leading-none">Person</p>
+							<p className="text-sm font-medium leading-none">
+								Person
+							</p>
 							{adultsLoading ? (
 								<Skeleton className="h-10 w-full" />
 							) : (
@@ -181,8 +185,12 @@ export function GuardianManager({ kid }: GuardianManagerProps) {
 									</SelectTrigger>
 									<SelectContent>
 										{availableAdults?.map((adult) => (
-											<SelectItem key={adult.id} value={adult.id}>
-												{adult.firstName} {adult.lastName}
+											<SelectItem
+												key={adult.id}
+												value={adult.id}
+											>
+												{adult.firstName}{" "}
+												{adult.lastName}
 											</SelectItem>
 										))}
 									</SelectContent>
@@ -197,7 +205,9 @@ export function GuardianManager({ kid }: GuardianManagerProps) {
 							<Input
 								value={relation}
 								onChange={(e) => setRelation(e.target.value)}
-								placeholder={t("launchclub.guardians.relationPlaceholder")}
+								placeholder={t(
+									"launchclub.guardians.relationPlaceholder",
+								)}
 							/>
 						</div>
 					</div>

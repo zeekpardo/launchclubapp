@@ -4,7 +4,13 @@ import { useActiveOrganization } from "@saas/organizations/hooks/use-active-orga
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export function usePeople(opts?: { personType?: "STUDENT" | "PARENT" | "MENTOR"; isActive?: boolean; query?: string; areaId?: string; siteId?: string }) {
+export function usePeople(opts?: {
+	personType?: "STUDENT" | "PARENT" | "MENTOR";
+	isActive?: boolean;
+	query?: string;
+	areaId?: string;
+	siteId?: string;
+}) {
 	const { activeOrganization } = useActiveOrganization();
 	return useQuery(
 		orpc.people.list.queryOptions({
@@ -60,7 +66,10 @@ export function useUpdatePerson() {
 				);
 				queryClient.invalidateQueries(
 					orpc.people.get.queryOptions({
-						input: { id: variables.id, organizationId: activeOrganization?.id ?? "" },
+						input: {
+							id: variables.id,
+							organizationId: activeOrganization?.id ?? "",
+						},
 					}),
 				);
 			},

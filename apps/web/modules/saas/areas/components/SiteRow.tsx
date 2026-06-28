@@ -68,9 +68,11 @@ export function SiteRow({
 					onClick={() => setCollapsed((c) => !c)}
 					className="text-muted-foreground hover:text-foreground transition-colors"
 				>
-					{collapsed
-						? <ChevronRightIcon className="size-3.5" />
-						: <ChevronDownIcon className="size-3.5" />}
+					{collapsed ? (
+						<ChevronRightIcon className="size-3.5" />
+					) : (
+						<ChevronDownIcon className="size-3.5" />
+					)}
 				</button>
 
 				<button
@@ -81,7 +83,11 @@ export function SiteRow({
 					<p className="text-sm font-medium">{site.name}</p>
 					<div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
 						<UsersIcon className="size-3" />
-						<span>{t("launchclub.sites.groupsCount", { count: groups.length })}</span>
+						<span>
+							{t("launchclub.sites.groupsCount", {
+								count: groups.length,
+							})}
+						</span>
 					</div>
 				</button>
 
@@ -116,22 +122,33 @@ export function SiteRow({
 						</p>
 					) : (
 						groups.map((group) => (
-							<div key={group.id} className="flex items-center gap-3 px-16 py-2.5">
+							<div
+								key={group.id}
+								className="flex items-center gap-3 px-16 py-2.5"
+							>
 								<button
 									type="button"
 									className="flex-1 min-w-0 text-left hover:opacity-70 transition-opacity"
 									onClick={() => onEditGroup(group)}
 								>
 									<p className="text-sm">{group.name}</p>
-									{(group.meetingDay || group.meetingTime) && (
+									{(group.meetingDay ||
+										group.meetingTime) && (
 										<p className="text-xs text-muted-foreground mt-0.5">
-											{[group.meetingDay, group.meetingTime].filter(Boolean).join(" · ")}
+											{[
+												group.meetingDay,
+												group.meetingTime,
+											]
+												.filter(Boolean)
+												.join(" · ")}
 										</p>
 									)}
 								</button>
 								<div className="flex items-center gap-1 text-xs text-muted-foreground">
 									<UsersIcon className="size-3" />
-									<span>{group._count?.personGroups ?? 0}</span>
+									<span>
+										{group._count?.personGroups ?? 0}
+									</span>
 								</div>
 							</div>
 						))

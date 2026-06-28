@@ -9,7 +9,8 @@ export function Footer() {
 				<div>
 					<Logo className="opacity-70 grayscale" />
 					<p className="mt-3 text-sm opacity-70">
-						© {new Date().getFullYear()} {config.appName}. All rights reserved.
+						© {new Date().getFullYear()} {config.appName}. All
+						rights reserved.
 					</p>
 				</div>
 

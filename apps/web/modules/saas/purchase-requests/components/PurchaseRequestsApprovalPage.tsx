@@ -2,7 +2,6 @@
 
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -11,6 +10,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
+import { Input } from "@repo/ui/components/input";
 import {
 	Select,
 	SelectContent,
@@ -20,12 +20,12 @@ import {
 } from "@repo/ui/components/select";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
+import { PurchaseRequestDialog } from "@saas/groups/components/PurchaseRequestDialog";
 import {
+	type PurchaseRequest,
 	useAllPurchaseRequests,
 	useReviewPurchaseRequest,
-	type PurchaseRequest,
 } from "@saas/groups/hooks/use-purchase-requests";
-import { PurchaseRequestDialog } from "@saas/groups/components/PurchaseRequestDialog";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { SearchInput } from "@shared/components/SearchInput";
 import { orpc } from "@shared/lib/orpc-query-utils";
@@ -38,9 +38,9 @@ import {
 	ExternalLinkIcon,
 	XCircleIcon,
 } from "lucide-react";
-import { ReviewDialog } from "./ReviewDialog";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+import { ReviewDialog } from "./ReviewDialog";
 
 const ALL = "__all__";
 
@@ -51,7 +51,9 @@ export function PurchaseRequestsApprovalPage() {
 	const { activeOrganization } = useActiveOrganization();
 	const organizationId = activeOrganization?.id ?? "";
 
-	const [editRequest, setEditRequest] = useState<PurchaseRequest | null>(null);
+	const [editRequest, setEditRequest] = useState<PurchaseRequest | null>(
+		null,
+	);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>("PENDING");
@@ -65,7 +67,9 @@ export function PurchaseRequestsApprovalPage() {
 		`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-01`,
 	);
 	const [dateTo, setDateTo] = useState(
-		new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().slice(0, 10),
+		new Date(today.getFullYear(), today.getMonth() + 1, 0)
+			.toISOString()
+			.slice(0, 10),
 	);
 
 	const { data: requests, isLoading } = useAllPurchaseRequests();
@@ -101,19 +105,31 @@ export function PurchaseRequestsApprovalPage() {
 
 	const visibleGroups = useMemo(() => {
 		let list = groups ?? [];
-		if (selectedAreaId !== ALL) list = list.filter((g) => g.site.area?.id === selectedAreaId);
-		if (selectedSiteId !== ALL) list = list.filter((g) => g.site?.id === selectedSiteId);
+		if (selectedAreaId !== ALL)
+			list = list.filter((g) => g.site.area?.id === selectedAreaId);
+		if (selectedSiteId !== ALL)
+			list = list.filter((g) => g.site?.id === selectedSiteId);
 		return list;
 	}, [groups, selectedAreaId, selectedSiteId]);
 
 	const filteredRequests = useMemo(() => {
 		let list = requests ?? [];
-		if (statusFilter !== "ALL") list = list.filter((r) => r.status === statusFilter);
-		if (selectedAreaId !== ALL) list = list.filter((r) => r.group.site.area?.id === selectedAreaId);
-		if (selectedSiteId !== ALL) list = list.filter((r) => r.group.site.id === selectedSiteId);
-		if (selectedGroupId !== ALL) list = list.filter((r) => r.group.id === selectedGroupId);
-		if (selectedCategory !== ALL) list = list.filter((r) => r.items.some((i) => i.category === selectedCategory));
-		if (dateFrom) list = list.filter((r) => new Date(r.createdAt) >= new Date(dateFrom));
+		if (statusFilter !== "ALL")
+			list = list.filter((r) => r.status === statusFilter);
+		if (selectedAreaId !== ALL)
+			list = list.filter((r) => r.group.site.area?.id === selectedAreaId);
+		if (selectedSiteId !== ALL)
+			list = list.filter((r) => r.group.site.id === selectedSiteId);
+		if (selectedGroupId !== ALL)
+			list = list.filter((r) => r.group.id === selectedGroupId);
+		if (selectedCategory !== ALL)
+			list = list.filter((r) =>
+				r.items.some((i) => i.category === selectedCategory),
+			);
+		if (dateFrom)
+			list = list.filter(
+				(r) => new Date(r.createdAt) >= new Date(dateFrom),
+			);
 		if (dateTo) {
 			const to = new Date(dateTo);
 			to.setHours(23, 59, 59, 999);
@@ -131,12 +147,29 @@ export function PurchaseRequestsApprovalPage() {
 			);
 		}
 		return list;
-	}, [requests, statusFilter, selectedAreaId, selectedSiteId, selectedGroupId, selectedCategory, dateFrom, dateTo, search]);
+	}, [
+		requests,
+		statusFilter,
+		selectedAreaId,
+		selectedSiteId,
+		selectedGroupId,
+		selectedCategory,
+		dateFrom,
+		dateTo,
+		search,
+	]);
 
-	const pendingCount = (requests ?? []).filter((r) => r.status === "PENDING").length;
+	const pendingCount = (requests ?? []).filter(
+		(r) => r.status === "PENDING",
+	).length;
 	const approvedAmount = (requests ?? [])
 		.filter((r) => r.status === "APPROVED")
-		.reduce((sum, r) => sum + r.items.reduce((s, i) => s + Number(i.amount) * i.quantity, 0), 0);
+		.reduce(
+			(sum, r) =>
+				sum +
+				r.items.reduce((s, i) => s + Number(i.amount) * i.quantity, 0),
+			0,
+		);
 
 	const handleAreaChange = (value: string) => {
 		setSelectedAreaId(value);
@@ -164,11 +197,15 @@ export function PurchaseRequestsApprovalPage() {
 			{/* Summary stats */}
 			<div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
 				<span>
-					<span className="font-semibold text-foreground">{pendingCount}</span>{" "}
+					<span className="font-semibold text-foreground">
+						{pendingCount}
+					</span>{" "}
 					{t("pendingReview")}
 				</span>
 				<span>
-					<span className="font-semibold text-green-600">${approvedAmount.toFixed(2)}</span>{" "}
+					<span className="font-semibold text-green-600">
+						${approvedAmount.toFixed(2)}
+					</span>{" "}
 					{t("approvedTotal")}
 				</span>
 			</div>
@@ -203,7 +240,10 @@ export function PurchaseRequestsApprovalPage() {
 					</SelectContent>
 				</Select>
 
-				<Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
+				<Select
+					value={selectedGroupId}
+					onValueChange={setSelectedGroupId}
+				>
 					<SelectTrigger className="w-40">
 						<SelectValue placeholder={t("allGroups")} />
 					</SelectTrigger>
@@ -217,17 +257,24 @@ export function PurchaseRequestsApprovalPage() {
 					</SelectContent>
 				</Select>
 
-				<Select value={selectedCategory} onValueChange={setSelectedCategory}>
+				<Select
+					value={selectedCategory}
+					onValueChange={setSelectedCategory}
+				>
 					<SelectTrigger className="w-40">
 						<SelectValue placeholder={t("allCategories")} />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value={ALL}>{t("allCategories")}</SelectItem>
-						{Object.entries(categoryLabels).map(([value, label]) => (
-							<SelectItem key={value} value={value}>
-								{label}
-							</SelectItem>
-						))}
+						<SelectItem value={ALL}>
+							{t("allCategories")}
+						</SelectItem>
+						{Object.entries(categoryLabels).map(
+							([value, label]) => (
+								<SelectItem key={value} value={value}>
+									{label}
+								</SelectItem>
+							),
+						)}
 					</SelectContent>
 				</Select>
 
@@ -265,8 +312,14 @@ export function PurchaseRequestsApprovalPage() {
 						setSelectedGroupId(ALL);
 						setSelectedCategory(ALL);
 						const now = new Date();
-						setDateFrom(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`);
-						setDateTo(new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10));
+						setDateFrom(
+							`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`,
+						);
+						setDateTo(
+							new Date(now.getFullYear(), now.getMonth() + 1, 0)
+								.toISOString()
+								.slice(0, 10),
+						);
 						setSearch("");
 					}}
 				>
@@ -276,16 +329,22 @@ export function PurchaseRequestsApprovalPage() {
 
 			{/* Status tabs */}
 			<div className="inline-flex rounded-lg border bg-muted p-1">
-				{(["ALL", "PENDING", "APPROVED", "DECLINED"] as const).map((s) => (
-					<button
-						key={s}
-						type="button"
-						onClick={() => setStatusFilter(s)}
-						className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${statusFilter === s ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-					>
-						{s === "ALL" ? t("tabs.all") : t(`tabs.${s.toLowerCase() as "pending" | "approved" | "declined"}`)}
-					</button>
-				))}
+				{(["ALL", "PENDING", "APPROVED", "DECLINED"] as const).map(
+					(s) => (
+						<button
+							key={s}
+							type="button"
+							onClick={() => setStatusFilter(s)}
+							className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${statusFilter === s ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+						>
+							{s === "ALL"
+								? t("tabs.all")
+								: t(
+										`tabs.${s.toLowerCase() as "pending" | "approved" | "declined"}`,
+									)}
+						</button>
+					),
+				)}
 			</div>
 
 			{/* Request list */}
@@ -336,26 +395,47 @@ function ApprovalCard({
 	categoryLabels,
 	onEdit,
 }: {
-	request: NonNullable<ReturnType<typeof useAllPurchaseRequests>["data"]>[number];
+	request: NonNullable<
+		ReturnType<typeof useAllPurchaseRequests>["data"]
+	>[number];
 	categoryLabels: Record<string, string>;
-	onEdit: (request: NonNullable<ReturnType<typeof useAllPurchaseRequests>["data"]>[number]) => void;
+	onEdit: (
+		request: NonNullable<
+			ReturnType<typeof useAllPurchaseRequests>["data"]
+		>[number],
+	) => void;
 }) {
 	const t = useTranslations("launchclub.purchaseRequests");
 	const reviewRequest = useReviewPurchaseRequest();
 
-	const [reviewDialog, setReviewDialog] = useState<"APPROVED" | "DECLINED" | null>(null);
+	const [reviewDialog, setReviewDialog] = useState<
+		"APPROVED" | "DECLINED" | null
+	>(null);
 
-	const statusConfig: Record<string, { label: string; status: "info" | "success" | "error" }> = {
+	const statusConfig: Record<
+		string,
+		{ label: string; status: "info" | "success" | "error" }
+	> = {
 		PENDING: { label: t("status.PENDING"), status: "info" },
 		APPROVED: { label: t("status.APPROVED"), status: "success" },
 		DECLINED: { label: t("status.DECLINED"), status: "error" },
 	};
 
-	const config = statusConfig[request.status] ?? { label: request.status, status: "info" as const };
+	const config = statusConfig[request.status] ?? {
+		label: request.status,
+		status: "info" as const,
+	};
 
-	const handleReview = async (status: "APPROVED" | "DECLINED" | "PENDING", note?: string) => {
+	const handleReview = async (
+		status: "APPROVED" | "DECLINED" | "PENDING",
+		note?: string,
+	) => {
 		try {
-			await reviewRequest.mutateAsync({ id: request.id, status, reviewNote: note || undefined });
+			await reviewRequest.mutateAsync({
+				id: request.id,
+				status,
+				reviewNote: note || undefined,
+			});
 			toastSuccess(
 				status === "APPROVED"
 					? t("notifications.approved")
@@ -369,7 +449,10 @@ function ApprovalCard({
 		}
 	};
 
-	const total = request.items.reduce((s, i) => s + Number(i.amount) * i.quantity, 0);
+	const total = request.items.reduce(
+		(s, i) => s + Number(i.amount) * i.quantity,
+		0,
+	);
 
 	return (
 		<div className="rounded-lg border bg-card p-4">
@@ -390,31 +473,43 @@ function ApprovalCard({
 						</span>
 					</div>
 					{request.description && (
-						<p className="text-sm text-muted-foreground">{request.description}</p>
+						<p className="text-sm text-muted-foreground">
+							{request.description}
+						</p>
 					)}
 
 					{/* Meta row */}
 					<div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
 						<span>
-							<span className="font-medium text-foreground">{t("card.group")} </span>
+							<span className="font-medium text-foreground">
+								{t("card.group")}{" "}
+							</span>
 							{request.group.name}
 						</span>
 						<span>
-							<span className="font-medium text-foreground">{t("card.site")} </span>
+							<span className="font-medium text-foreground">
+								{t("card.site")}{" "}
+							</span>
 							{request.group.site.name}
 						</span>
 						<span>
-							<span className="font-medium text-foreground">{t("card.requestedBy")} </span>
+							<span className="font-medium text-foreground">
+								{t("card.requestedBy")}{" "}
+							</span>
 							{request.requestedBy.name}
 						</span>
 						{request.dueDate && (
 							<span>
-								<span className="font-medium text-foreground">Needed by: </span>
+								<span className="font-medium text-foreground">
+									Needed by:{" "}
+								</span>
 								{new Date(request.dueDate).toLocaleDateString()}
 							</span>
 						)}
 						<span>
-							<span className="font-medium text-foreground">{t("card.date")} </span>
+							<span className="font-medium text-foreground">
+								{t("card.date")}{" "}
+							</span>
 							{new Date(request.createdAt).toLocaleDateString()}
 						</span>
 					</div>
@@ -423,15 +518,26 @@ function ApprovalCard({
 					{request.items.length > 0 && (
 						<div className="rounded-md bg-muted/40 px-3 py-2 text-sm space-y-1">
 							{request.items.map((item) => (
-								<div key={item.id} className="flex items-center gap-2">
-									<span className="flex-1 font-medium">{item.item}</span>
+								<div
+									key={item.id}
+									className="flex items-center gap-2"
+								>
+									<span className="flex-1 font-medium">
+										{item.item}
+									</span>
 									<span className="text-muted-foreground text-xs">
-										{categoryLabels[item.category] ?? item.category}
+										{categoryLabels[item.category] ??
+											item.category}
 									</span>
 									<span className="text-muted-foreground">
-										{item.quantity} × ${Number(item.amount).toFixed(2)} ={" "}
+										{item.quantity} × $
+										{Number(item.amount).toFixed(2)} ={" "}
 										<span className="font-medium text-foreground">
-											${(Number(item.amount) * item.quantity).toFixed(2)}
+											$
+											{(
+												Number(item.amount) *
+												item.quantity
+											).toFixed(2)}
 										</span>
 									</span>
 									{item.url && (
@@ -459,10 +565,14 @@ function ApprovalCard({
 							)}
 							<span>
 								{config.label} by {request.reviewedBy.name} on{" "}
-								{new Date(request.reviewedAt).toLocaleDateString()}
+								{new Date(
+									request.reviewedAt,
+								).toLocaleDateString()}
 							</span>
 							{request.reviewNote && (
-								<span className="italic">— {request.reviewNote}</span>
+								<span className="italic">
+									— {request.reviewNote}
+								</span>
 							)}
 						</div>
 					)}
@@ -476,9 +586,15 @@ function ApprovalCard({
 							className="shrink-0 gap-2"
 							disabled={reviewRequest.isPending}
 						>
-							{request.status === "APPROVED" && <CheckCircle2Icon className="size-3.5 text-green-600" />}
-							{request.status === "DECLINED" && <XCircleIcon className="size-3.5 text-red-600" />}
-							{request.status === "PENDING" && <ClockIcon className="size-3.5 text-yellow-600" />}
+							{request.status === "APPROVED" && (
+								<CheckCircle2Icon className="size-3.5 text-green-600" />
+							)}
+							{request.status === "DECLINED" && (
+								<XCircleIcon className="size-3.5 text-red-600" />
+							)}
+							{request.status === "PENDING" && (
+								<ClockIcon className="size-3.5 text-yellow-600" />
+							)}
 							{config.label}
 							<ChevronDownIcon className="size-3.5" />
 						</Button>
@@ -496,7 +612,9 @@ function ApprovalCard({
 							<CheckCircle2Icon className="size-4 text-green-600" />
 							{t("dropdown.approve")}
 							{request.status === "APPROVED" && (
-								<span className="ml-auto text-xs text-muted-foreground">{t("dropdown.current")}</span>
+								<span className="ml-auto text-xs text-muted-foreground">
+									{t("dropdown.current")}
+								</span>
 							)}
 						</DropdownMenuItem>
 						<DropdownMenuItem
@@ -507,7 +625,9 @@ function ApprovalCard({
 							<XCircleIcon className="size-4 text-red-600" />
 							{t("dropdown.decline")}
 							{request.status === "DECLINED" && (
-								<span className="ml-auto text-xs text-muted-foreground">{t("dropdown.current")}</span>
+								<span className="ml-auto text-xs text-muted-foreground">
+									{t("dropdown.current")}
+								</span>
 							)}
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
@@ -519,7 +639,9 @@ function ApprovalCard({
 							<ClockIcon className="size-4 text-yellow-600" />
 							{t("dropdown.resetToPending")}
 							{request.status === "PENDING" && (
-								<span className="ml-auto text-xs text-muted-foreground">{t("dropdown.current")}</span>
+								<span className="ml-auto text-xs text-muted-foreground">
+									{t("dropdown.current")}
+								</span>
 							)}
 						</DropdownMenuItem>
 					</DropdownMenuContent>
@@ -531,7 +653,9 @@ function ApprovalCard({
 					open={!!reviewDialog}
 					status={reviewDialog}
 					loading={reviewRequest.isPending}
-					onOpenChange={(open) => { if (!open) setReviewDialog(null); }}
+					onOpenChange={(open) => {
+						if (!open) setReviewDialog(null);
+					}}
 					onConfirm={(note) => handleReview(reviewDialog, note)}
 				/>
 			)}

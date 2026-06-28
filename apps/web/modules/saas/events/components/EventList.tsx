@@ -37,7 +37,11 @@ export function EventList({ groupId }: EventListProps) {
 	return (
 		<>
 			<div className="mb-4">
-				<Button variant="primary" onClick={() => setDialogOpen(true)} className="gap-2">
+				<Button
+					variant="primary"
+					onClick={() => setDialogOpen(true)}
+					className="gap-2"
+				>
 					<PlusCircleIcon className="size-4" />
 					{t("launchclub.events.new")}
 				</Button>
@@ -46,7 +50,9 @@ export function EventList({ groupId }: EventListProps) {
 			{events && events.length === 0 ? (
 				<div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
 					<CalendarIcon className="mb-3 size-10 opacity-40" />
-					<p className="text-sm">No events yet. Create one to get started.</p>
+					<p className="text-sm">
+						No events yet. Create one to get started.
+					</p>
 				</div>
 			) : (
 				<div className="space-y-3">

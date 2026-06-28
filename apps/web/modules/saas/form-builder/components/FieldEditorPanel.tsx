@@ -9,8 +9,8 @@ import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { PlusIcon, TrashIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useUpdateFormField } from "../hooks/use-form-fields";
-import type { FormFieldItem } from "./FieldCard";
 import { slugify } from "../lib/slugify";
+import type { FormFieldItem } from "./FieldCard";
 
 interface FieldOption {
 	label: string;
@@ -23,7 +23,11 @@ interface FieldEditorPanelProps {
 	onClose: () => void;
 }
 
-export function FieldEditorPanel({ field, areaId, onClose }: FieldEditorPanelProps) {
+export function FieldEditorPanel({
+	field,
+	areaId,
+	onClose,
+}: FieldEditorPanelProps) {
 	const updateField = useUpdateFormField(areaId);
 
 	const [label, setLabel] = useState(field.label);
@@ -63,10 +67,17 @@ export function FieldEditorPanel({ field, areaId, onClose }: FieldEditorPanelPro
 		}
 	};
 
-	const addOption = () => setOptions((prev) => [...prev, { label: "", value: "" }]);
+	const addOption = () =>
+		setOptions((prev) => [...prev, { label: "", value: "" }]);
 
-	const updateOption = (index: number, key: "label" | "value", val: string) => {
-		setOptions((prev) => prev.map((o, i) => (i === index ? { ...o, [key]: val } : o)));
+	const updateOption = (
+		index: number,
+		key: "label" | "value",
+		val: string,
+	) => {
+		setOptions((prev) =>
+			prev.map((o, i) => (i === index ? { ...o, [key]: val } : o)),
+		);
 	};
 
 	const removeOption = (index: number) => {
@@ -77,7 +88,12 @@ export function FieldEditorPanel({ field, areaId, onClose }: FieldEditorPanelPro
 		<div className="rounded-lg border bg-card p-4 space-y-4">
 			<div className="flex items-center justify-between">
 				<p className="text-sm font-semibold">Edit Field</p>
-				<Button variant="ghost" size="icon" className="size-7" onClick={onClose}>
+				<Button
+					variant="ghost"
+					size="icon"
+					className="size-7"
+					onClick={onClose}
+				>
 					<XIcon className="size-4" />
 				</Button>
 			</div>
@@ -143,12 +159,16 @@ export function FieldEditorPanel({ field, areaId, onClose }: FieldEditorPanelPro
 								<Input
 									placeholder="Label"
 									value={opt.label}
-									onChange={(e) => updateOption(i, "label", e.target.value)}
+									onChange={(e) =>
+										updateOption(i, "label", e.target.value)
+									}
 								/>
 								<Input
 									placeholder="Value"
 									value={opt.value}
-									onChange={(e) => updateOption(i, "value", e.target.value)}
+									onChange={(e) =>
+										updateOption(i, "value", e.target.value)
+									}
 								/>
 								<Button
 									variant="ghost"
@@ -160,7 +180,12 @@ export function FieldEditorPanel({ field, areaId, onClose }: FieldEditorPanelPro
 								</Button>
 							</div>
 						))}
-						<Button variant="outline" size="sm" className="gap-1.5" onClick={addOption}>
+						<Button
+							variant="outline"
+							size="sm"
+							className="gap-1.5"
+							onClick={addOption}
+						>
 							<PlusIcon className="size-3.5" />
 							Add Option
 						</Button>
@@ -172,7 +197,11 @@ export function FieldEditorPanel({ field, areaId, onClose }: FieldEditorPanelPro
 				<Button variant="outline" size="sm" onClick={onClose}>
 					Cancel
 				</Button>
-				<Button size="sm" onClick={handleSave} disabled={updateField.isPending}>
+				<Button
+					size="sm"
+					onClick={handleSave}
+					disabled={updateField.isPending}
+				>
 					{updateField.isPending ? "Saving..." : "Save"}
 				</Button>
 			</div>

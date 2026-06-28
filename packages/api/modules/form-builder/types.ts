@@ -1,48 +1,48 @@
 import { z } from "zod";
 
 export const formFieldTypeEnum = z.enum([
-  "TEXT",
-  "TEXTAREA",
-  "NUMBER",
-  "DATE",
-  "SELECT",
-  "CHECKBOX",
-  "RADIO",
-  "FILE",
-  "HEADER",
-  "PROFILE",
-  "CUSTOM",
-  "SITE_SELECTOR",
-  "CONSENT",
+	"TEXT",
+	"TEXTAREA",
+	"NUMBER",
+	"DATE",
+	"SELECT",
+	"CHECKBOX",
+	"RADIO",
+	"FILE",
+	"HEADER",
+	"PROFILE",
+	"CUSTOM",
+	"SITE_SELECTOR",
+	"CONSENT",
 ]);
 
 export const personTypeEnum = z.enum(["STUDENT", "PARENT", "MENTOR"]);
 
 const fieldOptionSchema = z.object({
-  label: z.string(),
-  value: z.string(),
+	label: z.string(),
+	value: z.string(),
 });
 
 const fieldValidationSchema = z
-  .object({
-    minLength: z.number().optional(),
-    maxLength: z.number().optional(),
-    pattern: z.string().optional(),
-  })
-  .optional();
+	.object({
+		minLength: z.number().optional(),
+		maxLength: z.number().optional(),
+		pattern: z.string().optional(),
+	})
+	.optional();
 
 export const formFieldSchema = z.object({
-  label: z.string(),
-  fieldKey: z.string(),
-  type: formFieldTypeEnum,
-  placeholder: z.string().optional(),
-  helpText: z.string().optional(),
-  required: z.boolean().default(false),
-  options: z.array(fieldOptionSchema).optional(),
-  validation: fieldValidationSchema,
-  profileFieldKey: z.string().optional(),
-  customFieldId: z.string().optional(),
-  targetPersonType: personTypeEnum.optional(),
+	label: z.string(),
+	fieldKey: z.string(),
+	type: formFieldTypeEnum,
+	placeholder: z.string().optional(),
+	helpText: z.string().optional(),
+	required: z.boolean().default(false),
+	options: z.array(fieldOptionSchema).optional(),
+	validation: fieldValidationSchema,
+	profileFieldKey: z.string().optional(),
+	customFieldId: z.string().optional(),
+	targetPersonType: personTypeEnum.optional(),
 });
 
 export const listFormFieldsSchema = z.object({ formId: z.string() });
@@ -55,13 +55,13 @@ export const listSiteFieldsSchema = z.object({ siteId: z.string() });
 export const listOrgFieldsSchema = z.object({ organizationId: z.string() });
 
 export const addFieldSchema = formFieldSchema.extend({
-  formId: z.string(),
-  consentItemId: z.string().optional(),
+	formId: z.string(),
+	consentItemId: z.string().optional(),
 });
 
 export const updateFieldSchema = formFieldSchema.partial().extend({
-  id: z.string(),
-  consentItemId: z.string().optional().nullable(),
+	id: z.string(),
+	consentItemId: z.string().optional().nullable(),
 });
 
 export const deleteFieldSchema = z.object({ id: z.string() });

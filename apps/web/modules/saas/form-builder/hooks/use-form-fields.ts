@@ -20,7 +20,9 @@ export function useAddFormField(formId: string) {
 		orpc.formBuilder.addField.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries(
-					orpc.formBuilder.listFormFields.queryOptions({ input: { formId } }),
+					orpc.formBuilder.listFormFields.queryOptions({
+						input: { formId },
+					}),
 				);
 			},
 		}),
@@ -33,7 +35,9 @@ export function useUpdateFormField(formId: string) {
 		orpc.formBuilder.updateField.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries(
-					orpc.formBuilder.listFormFields.queryOptions({ input: { formId } }),
+					orpc.formBuilder.listFormFields.queryOptions({
+						input: { formId },
+					}),
 				);
 			},
 		}),
@@ -46,7 +50,9 @@ export function useDeleteFormField(formId: string) {
 		orpc.formBuilder.deleteField.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries(
-					orpc.formBuilder.listFormFields.queryOptions({ input: { formId } }),
+					orpc.formBuilder.listFormFields.queryOptions({
+						input: { formId },
+					}),
 				);
 			},
 		}),
@@ -59,7 +65,9 @@ export function useReorderFormFields(formId: string) {
 		orpc.formBuilder.reorderFields.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries(
-					orpc.formBuilder.listFormFields.queryOptions({ input: { formId } }),
+					orpc.formBuilder.listFormFields.queryOptions({
+						input: { formId },
+					}),
 				);
 			},
 		}),
@@ -105,7 +113,9 @@ export function useAddOrgFormField(organizationId: string) {
 		orpc.formBuilder.addField.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries(
-					orpc.formBuilder.listOrgFields.queryOptions({ input: { organizationId } }),
+					orpc.formBuilder.listOrgFields.queryOptions({
+						input: { organizationId },
+					}),
 				);
 			},
 		}),
@@ -119,7 +129,9 @@ export function useUpdateOrgFormField(organizationId: string) {
 		orpc.formBuilder.updateField.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries(
-					orpc.formBuilder.listOrgFields.queryOptions({ input: { organizationId } }),
+					orpc.formBuilder.listOrgFields.queryOptions({
+						input: { organizationId },
+					}),
 				);
 			},
 		}),
@@ -133,7 +145,9 @@ export function useDeleteOrgFormField(organizationId: string) {
 		orpc.formBuilder.deleteField.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries(
-					orpc.formBuilder.listOrgFields.queryOptions({ input: { organizationId } }),
+					orpc.formBuilder.listOrgFields.queryOptions({
+						input: { organizationId },
+					}),
 				);
 			},
 		}),
@@ -147,7 +161,9 @@ export function useReorderOrgFormFields(organizationId: string) {
 		orpc.formBuilder.reorderFields.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries(
-					orpc.formBuilder.listOrgFields.queryOptions({ input: { organizationId } }),
+					orpc.formBuilder.listOrgFields.queryOptions({
+						input: { organizationId },
+					}),
 				);
 			},
 		}),

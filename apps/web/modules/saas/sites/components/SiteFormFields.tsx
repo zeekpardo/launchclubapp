@@ -16,7 +16,7 @@ import {
 	SelectValue,
 } from "@repo/ui/components/select";
 import { useTranslations } from "next-intl";
-import { type Control } from "react-hook-form";
+import type { Control } from "react-hook-form";
 
 interface Area {
 	id: string;
@@ -80,10 +80,17 @@ export function SiteFormFields({ control, areas }: SiteFormFieldsProps) {
 				render={({ field }) => (
 					<FormItem>
 						<FormLabel>{t("launchclub.sites.form.area")}</FormLabel>
-						<Select onValueChange={field.onChange} defaultValue={field.value}>
+						<Select
+							onValueChange={field.onChange}
+							defaultValue={field.value}
+						>
 							<FormControl>
 								<SelectTrigger>
-									<SelectValue placeholder={t("launchclub.sites.form.area")} />
+									<SelectValue
+										placeholder={t(
+											"launchclub.sites.form.area",
+										)}
+									/>
 								</SelectTrigger>
 							</FormControl>
 							<SelectContent>
@@ -104,7 +111,9 @@ export function SiteFormFields({ control, areas }: SiteFormFieldsProps) {
 				name="addressLine1"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>{t("launchclub.sites.form.address")}</FormLabel>
+						<FormLabel>
+							{t("launchclub.sites.form.address")}
+						</FormLabel>
 						<FormControl>
 							<Input {...field} />
 						</FormControl>
@@ -119,7 +128,9 @@ export function SiteFormFields({ control, areas }: SiteFormFieldsProps) {
 					name="city"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>{t("launchclub.sites.form.city")}</FormLabel>
+							<FormLabel>
+								{t("launchclub.sites.form.city")}
+							</FormLabel>
 							<FormControl>
 								<Input {...field} />
 							</FormControl>
@@ -133,7 +144,9 @@ export function SiteFormFields({ control, areas }: SiteFormFieldsProps) {
 					name="stateProvince"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>{t("launchclub.sites.form.state")}</FormLabel>
+							<FormLabel>
+								{t("launchclub.sites.form.state")}
+							</FormLabel>
 							<FormControl>
 								<Input {...field} />
 							</FormControl>
@@ -149,7 +162,9 @@ export function SiteFormFields({ control, areas }: SiteFormFieldsProps) {
 					name="postalCode"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>{t("launchclub.sites.form.zipCode")}</FormLabel>
+							<FormLabel>
+								{t("launchclub.sites.form.zipCode")}
+							</FormLabel>
 							<FormControl>
 								<Input {...field} />
 							</FormControl>
@@ -178,7 +193,9 @@ export function SiteFormFields({ control, areas }: SiteFormFieldsProps) {
 				name="phone"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>{t("launchclub.sites.form.phone")}</FormLabel>
+						<FormLabel>
+							{t("launchclub.sites.form.phone")}
+						</FormLabel>
 						<FormControl>
 							<Input {...field} type="tel" />
 						</FormControl>
@@ -192,7 +209,9 @@ export function SiteFormFields({ control, areas }: SiteFormFieldsProps) {
 				name="email"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>{t("launchclub.sites.form.email")}</FormLabel>
+						<FormLabel>
+							{t("launchclub.sites.form.email")}
+						</FormLabel>
 						<FormControl>
 							<Input {...field} type="email" />
 						</FormControl>

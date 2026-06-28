@@ -1,9 +1,9 @@
 "use client";
 
+import { cn } from "@repo/ui";
 import { Button } from "@repo/ui/components/button";
 import { Switch } from "@repo/ui/components/switch";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { cn } from "@repo/ui";
 import {
 	useOrgApplicationSettings,
 	useUpdateOrgApplicationSettings,
@@ -21,13 +21,18 @@ export function OrgApplicationSettings() {
 
 	const [autoMigrate, setAutoMigrate] = useState(false);
 	const [emailNotifications, setEmailNotifications] = useState(false);
-	const [studentIdMode, setStudentIdMode] = useState<"manual" | "auto">("auto");
+	const [studentIdMode, setStudentIdMode] = useState<"manual" | "auto">(
+		"auto",
+	);
 
 	useEffect(() => {
 		if (orgSettings) {
 			setAutoMigrate(orgSettings.autoMigrate);
 			setEmailNotifications(orgSettings.emailNotifications);
-			if (orgSettings?.studentIdMode) setStudentIdMode(orgSettings.studentIdMode as "manual" | "auto");
+			if (orgSettings?.studentIdMode)
+				setStudentIdMode(
+					orgSettings.studentIdMode as "manual" | "auto",
+				);
 		}
 	}, [orgSettings]);
 
@@ -40,33 +45,58 @@ export function OrgApplicationSettings() {
 				emailNotifications,
 				studentIdMode,
 			});
-			toastSuccess(t("launchclub.applications.settings.notifications.saved"));
+			toastSuccess(
+				t("launchclub.applications.settings.notifications.saved"),
+			);
 		} catch {
-			toastError(t("launchclub.applications.settings.notifications.error"));
+			toastError(
+				t("launchclub.applications.settings.notifications.error"),
+			);
 		}
 	}
 
 	if (isLoading) {
-		return <div className="text-sm text-muted-foreground">{t("launchclub.applications.settings.loading")}</div>;
+		return (
+			<div className="text-sm text-muted-foreground">
+				{t("launchclub.applications.settings.loading")}
+			</div>
+		);
 	}
 
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
 				<div>
-					<p className="text-sm font-medium">{t("launchclub.applications.settings.autoMigrate")}</p>
-					<p className="text-xs text-muted-foreground mt-0.5">{t("launchclub.applications.settings.autoMigrateDesc")}</p>
+					<p className="text-sm font-medium">
+						{t("launchclub.applications.settings.autoMigrate")}
+					</p>
+					<p className="text-xs text-muted-foreground mt-0.5">
+						{t("launchclub.applications.settings.autoMigrateDesc")}
+					</p>
 				</div>
-				<Switch checked={autoMigrate} onCheckedChange={setAutoMigrate} />
+				<Switch
+					checked={autoMigrate}
+					onCheckedChange={setAutoMigrate}
+				/>
 			</div>
 
 			<div className="flex items-center justify-between opacity-50">
 				<div>
 					<div className="flex items-center gap-2">
-						<p className="text-sm font-medium">{t("launchclub.applications.settings.emailNotifications")}</p>
-						<span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">Coming soon</span>
+						<p className="text-sm font-medium">
+							{t(
+								"launchclub.applications.settings.emailNotifications",
+							)}
+						</p>
+						<span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+							Coming soon
+						</span>
 					</div>
-					<p className="text-xs text-muted-foreground mt-0.5">{t("launchclub.applications.settings.emailNotificationsDesc")}</p>
+					<p className="text-xs text-muted-foreground mt-0.5">
+						{t(
+							"launchclub.applications.settings.emailNotificationsDesc",
+						)}
+					</p>
 				</div>
 				<Switch checked={false} disabled />
 			</div>
@@ -76,20 +106,33 @@ export function OrgApplicationSettings() {
 				<div className="flex items-center justify-between">
 					<div>
 						<p className="text-sm font-medium">ID Generation</p>
-						<p className="text-xs text-muted-foreground mt-0.5">Automatically assign a unique 6-digit ID to each child</p>
+						<p className="text-xs text-muted-foreground mt-0.5">
+							Automatically assign a unique 6-digit ID to each
+							child
+						</p>
 					</div>
 					<div className="flex rounded-md border overflow-hidden">
 						<button
 							type="button"
 							onClick={() => setStudentIdMode("auto")}
-							className={cn("px-3 py-1 text-sm", studentIdMode === "auto" ? "bg-primary text-primary-foreground" : "text-muted-foreground")}
+							className={cn(
+								"px-3 py-1 text-sm",
+								studentIdMode === "auto"
+									? "bg-primary text-primary-foreground"
+									: "text-muted-foreground",
+							)}
 						>
 							Auto
 						</button>
 						<button
 							type="button"
 							onClick={() => setStudentIdMode("manual")}
-							className={cn("px-3 py-1 text-sm border-l", studentIdMode === "manual" ? "bg-primary text-primary-foreground" : "text-muted-foreground")}
+							className={cn(
+								"px-3 py-1 text-sm border-l",
+								studentIdMode === "manual"
+									? "bg-primary text-primary-foreground"
+									: "text-muted-foreground",
+							)}
 						>
 							Manual
 						</button>
@@ -106,7 +149,9 @@ export function OrgApplicationSettings() {
 					variant="primary"
 					onClick={handleSave}
 					loading={updateOrgSettings.isPending}
-				>{t("launchclub.applications.settings.save")}</Button>
+				>
+					{t("launchclub.applications.settings.save")}
+				</Button>
 			</div>
 		</div>
 	);

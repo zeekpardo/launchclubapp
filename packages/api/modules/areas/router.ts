@@ -5,9 +5,9 @@ import { listAreas } from "./procedures/list";
 import { updateAreaProcedure } from "./procedures/update";
 
 export const areasRouter = {
-  list: listAreas,
-  get: getArea,
-  create: createAreaProcedure,
-  update: updateAreaProcedure,
-  delete: deleteAreaProcedure,
+	list: listAreas,
+	get: getArea,
+	create: createAreaProcedure,
+	update: updateAreaProcedure,
+	delete: deleteAreaProcedure,
 };

@@ -16,8 +16,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
-	type ResourceFormValues,
 	ResourceDialogFields,
+	type ResourceFormValues,
 } from "./ResourceDialogFields";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -119,7 +119,10 @@ export function ResourceDialog({
 
 				<Form {...form}>
 					<form onSubmit={handleSubmit} className="space-y-4">
-						<ResourceDialogFields control={form.control} events={events} />
+						<ResourceDialogFields
+							control={form.control}
+							events={events}
+						/>
 
 						<DialogFooter>
 							<Button
@@ -129,7 +132,10 @@ export function ResourceDialog({
 							>
 								Cancel
 							</Button>
-							<Button type="submit" loading={form.formState.isSubmitting}>
+							<Button
+								type="submit"
+								loading={form.formState.isSubmitting}
+							>
 								{isEdit ? "Save Changes" : "Add Resource"}
 							</Button>
 						</DialogFooter>

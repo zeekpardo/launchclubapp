@@ -1,9 +1,13 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/card";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@repo/ui/components/card";
 import {
 	Dialog,
 	DialogContent,
@@ -44,6 +48,7 @@ import {
 	XIcon,
 } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 
 interface MentorApplicationDetailProps {
@@ -82,7 +87,9 @@ function ApproveDialog({ applicationId, siteId, onClose }: ApproveDialogProps) {
 				status: "APPROVED",
 				assignedGroupId: groupId || undefined,
 			});
-			toastSuccess("Mentor approved. A login link has been sent to their email.");
+			toastSuccess(
+				"Mentor approved. A login link has been sent to their email.",
+			);
 			onClose();
 		} catch {
 			toastError("Failed to approve application.");
@@ -98,8 +105,8 @@ function ApproveDialog({ applicationId, siteId, onClose }: ApproveDialogProps) {
 
 				<div className="space-y-4 py-2">
 					<p className="text-sm text-muted-foreground">
-						The mentor will be added as a group leader and sent a login link.
-						Optionally assign them to a group now.
+						The mentor will be added as a group leader and sent a
+						login link. Optionally assign them to a group now.
 					</p>
 					<Select value={groupId} onValueChange={setGroupId}>
 						<SelectTrigger>
@@ -144,7 +151,8 @@ function ApproveDialog({ applicationId, siteId, onClose }: ApproveDialogProps) {
 export function MentorApplicationDetail({
 	applicationId,
 }: MentorApplicationDetailProps) {
-	const { data: application, isLoading } = useMentorApplication(applicationId);
+	const { data: application, isLoading } =
+		useMentorApplication(applicationId);
 	const reviewApplication = useReviewMentorApplication();
 	const [approveDialogOpen, setApproveDialogOpen] = useState(false);
 
@@ -213,7 +221,10 @@ export function MentorApplicationDetail({
 				<CardContent className="space-y-4">
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 						<DetailRow label="Email" value={application.email} />
-						<DetailRow label="Phone" value={application.phone ?? "—"} />
+						<DetailRow
+							label="Phone"
+							value={application.phone ?? "—"}
+						/>
 						<DetailRow
 							label="Site"
 							value={application.site?.name ?? "—"}
@@ -224,7 +235,9 @@ export function MentorApplicationDetail({
 						/>
 						<DetailRow
 							label="Submitted"
-							value={new Date(application.createdAt).toLocaleDateString()}
+							value={new Date(
+								application.createdAt,
+							).toLocaleDateString()}
 						/>
 						<DetailRow label="Status" value={statusBadge()} />
 					</div>
@@ -243,7 +256,10 @@ export function MentorApplicationDetail({
 								/>
 							)}
 							{application.city && (
-								<DetailRow label="City" value={application.city} />
+								<DetailRow
+									label="City"
+									value={application.city}
+								/>
 							)}
 							{application.stateProvince && (
 								<DetailRow
@@ -258,7 +274,10 @@ export function MentorApplicationDetail({
 								/>
 							)}
 							{application.country && (
-								<DetailRow label="Country" value={application.country} />
+								<DetailRow
+									label="Country"
+									value={application.country}
+								/>
 							)}
 						</div>
 					)}
@@ -273,7 +292,9 @@ export function MentorApplicationDetail({
 								{application.mentorContractFileUrl && (
 									<div className="flex items-center gap-1.5 text-sm text-primary">
 										<FileTextIcon className="size-4" />
-										<span className="font-medium">Mentor Contract</span>
+										<span className="font-medium">
+											Mentor Contract
+										</span>
 										<span className="text-xs text-muted-foreground">
 											(uploaded)
 										</span>
@@ -282,7 +303,9 @@ export function MentorApplicationDetail({
 								{application.mentorSecurityClearanceFileUrl && (
 									<div className="flex items-center gap-1.5 text-sm text-primary">
 										<FileTextIcon className="size-4" />
-										<span className="font-medium">Security Clearance</span>
+										<span className="font-medium">
+											Security Clearance
+										</span>
 										<span className="text-xs text-muted-foreground">
 											(uploaded)
 										</span>
@@ -299,7 +322,10 @@ export function MentorApplicationDetail({
 									Form Responses
 								</p>
 								{application.formFieldValues
-									.filter((ffv) => ffv.formField.type !== "HEADER")
+									.filter(
+										(ffv) =>
+											ffv.formField.type !== "HEADER",
+									)
 									.map((ffv) => (
 										<DetailRow
 											key={ffv.id}
@@ -360,7 +386,9 @@ export function MentorApplicationDetail({
 								<DropdownMenuItem
 									className="gap-2"
 									disabled={application.status === "REJECTED"}
-									onClick={() => handleStatusChange("REJECTED")}
+									onClick={() =>
+										handleStatusChange("REJECTED")
+									}
 								>
 									<XIcon className="size-4 text-red-600" />
 									Reject
@@ -374,7 +402,9 @@ export function MentorApplicationDetail({
 								<DropdownMenuItem
 									className="gap-2"
 									disabled={application.status === "PENDING"}
-									onClick={() => handleStatusChange("PENDING")}
+									onClick={() =>
+										handleStatusChange("PENDING")
+									}
 								>
 									<ClockIcon className="size-4 text-yellow-600" />
 									Reset to Pending

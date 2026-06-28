@@ -115,8 +115,12 @@ export function GroupDialog({
 	const onSubmit = form.handleSubmit(async (values) => {
 		const payload = {
 			...values,
-			startDate: values.startDate ? new Date(values.startDate).toISOString() : undefined,
-			endDate: values.endDate ? new Date(values.endDate).toISOString() : undefined,
+			startDate: values.startDate
+				? new Date(values.startDate).toISOString()
+				: undefined,
+			endDate: values.endDate
+				? new Date(values.endDate).toISOString()
+				: undefined,
 		};
 		try {
 			if (group) {
@@ -137,7 +141,9 @@ export function GroupDialog({
 			<DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
 				<DialogHeader>
 					<DialogTitle>
-						{group ? t("launchclub.groups.edit") : t("launchclub.groups.new")}
+						{group
+							? t("launchclub.groups.edit")
+							: t("launchclub.groups.new")}
 					</DialogTitle>
 				</DialogHeader>
 
@@ -171,7 +177,10 @@ export function GroupDialog({
 							>
 								Cancel
 							</Button>
-							<Button type="submit" loading={form.formState.isSubmitting}>
+							<Button
+								type="submit"
+								loading={form.formState.isSubmitting}
+							>
 								{t("launchclub.groups.form.save")}
 							</Button>
 						</DialogFooter>

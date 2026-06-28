@@ -39,15 +39,23 @@ export function GroupDangerZone({ groupId }: GroupDangerZoneProps) {
 	return (
 		<>
 			<div className="rounded-lg border border-destructive/40 p-4">
-				<h3 className="mb-4 font-semibold text-destructive text-lg">Danger Zone</h3>
+				<h3 className="mb-4 font-semibold text-destructive text-lg">
+					Danger Zone
+				</h3>
 				<div className="flex items-center justify-between">
 					<div>
-						<p className="font-medium text-sm">{t("launchclub.groups.delete")}</p>
+						<p className="font-medium text-sm">
+							{t("launchclub.groups.delete")}
+						</p>
 						<p className="text-muted-foreground text-sm">
 							{t("launchclub.groups.confirmDelete.message")}
 						</p>
 					</div>
-					<Button variant="destructive" size="sm" onClick={() => setOpen(true)}>
+					<Button
+						variant="destructive"
+						size="sm"
+						onClick={() => setOpen(true)}
+					>
 						<TrashIcon className="mr-2 h-4 w-4" />
 						{t("launchclub.groups.delete")}
 					</Button>
@@ -57,8 +65,12 @@ export function GroupDangerZone({ groupId }: GroupDangerZoneProps) {
 			<AlertDialog open={open} onOpenChange={setOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>{t("launchclub.groups.confirmDelete.title")}</AlertDialogTitle>
-						<AlertDialogDescription>{t("launchclub.groups.confirmDelete.message")}</AlertDialogDescription>
+						<AlertDialogTitle>
+							{t("launchclub.groups.confirmDelete.title")}
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							{t("launchclub.groups.confirmDelete.message")}
+						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>

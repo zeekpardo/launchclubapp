@@ -1,8 +1,8 @@
 "use client";
 
+import { config as storageConfig } from "@repo/storage/config";
 import { Spinner } from "@repo/ui";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { config as storageConfig } from "@repo/storage/config";
 import { useUpdateGroup } from "@saas/groups/hooks/use-groups";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,11 +17,17 @@ interface GroupImageUploadProps {
 	image: string | null;
 }
 
-export function GroupImageUpload({ groupId, name, image }: GroupImageUploadProps) {
+export function GroupImageUpload({
+	groupId,
+	name,
+	image,
+}: GroupImageUploadProps) {
 	const t = useTranslations();
 	const queryClient = useQueryClient();
 	const updateGroup = useUpdateGroup();
-	const getImageUploadUrl = useMutation(orpc.groups.imageUploadUrl.mutationOptions());
+	const getImageUploadUrl = useMutation(
+		orpc.groups.imageUploadUrl.mutationOptions(),
+	);
 
 	const [uploading, setUploading] = useState(false);
 	const [cropDialogOpen, setCropDialogOpen] = useState(false);
@@ -42,7 +48,8 @@ export function GroupImageUpload({ groupId, name, image }: GroupImageUploadProps
 		if (!croppedImageData) return;
 		setUploading(true);
 		try {
-			const { signedUploadUrl, path } = await getImageUploadUrl.mutateAsync({ groupId });
+			const { signedUploadUrl, path } =
+				await getImageUploadUrl.mutateAsync({ groupId });
 			const response = await fetch(signedUploadUrl, {
 				method: "PUT",
 				body: croppedImageData,
@@ -86,7 +93,9 @@ export function GroupImageUpload({ groupId, name, image }: GroupImageUploadProps
 					</div>
 				)}
 			</div>
-			<p className="text-xs text-muted-foreground">Click or drop an image to upload</p>
+			<p className="text-xs text-muted-foreground">
+				Click or drop an image to upload
+			</p>
 
 			<CropImageDialog
 				image={pendingFile}

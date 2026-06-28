@@ -73,7 +73,9 @@ function ApproveDialog({
 }) {
 	const { activeOrganization } = useActiveOrganization();
 	const reviewApplication = useReviewApplication();
-	const [groupSelections, setGroupSelections] = useState<Record<string, string>>({});
+	const [groupSelections, setGroupSelections] = useState<
+		Record<string, string>
+	>({});
 
 	const { data: groups } = useQuery(
 		orpc.groups.list.queryOptions({
@@ -91,12 +93,16 @@ function ApproveDialog({
 		try {
 			const groupAssignments = Object.entries(groupSelections)
 				.filter(([, groupId]) => !!groupId)
-				.map(([applicationChildId, groupId]) => ({ applicationChildId, groupId }));
+				.map(([applicationChildId, groupId]) => ({
+					applicationChildId,
+					groupId,
+				}));
 
 			await reviewApplication.mutateAsync({
 				id: applicationId,
 				status: "APPROVED",
-				groupAssignments: groupAssignments.length > 0 ? groupAssignments : undefined,
+				groupAssignments:
+					groupAssignments.length > 0 ? groupAssignments : undefined,
 			});
 			toastSuccess("Application approved.");
 			onClose();
@@ -113,7 +119,8 @@ function ApproveDialog({
 				</DialogHeader>
 				<div className="space-y-4 py-2">
 					<p className="text-sm text-muted-foreground">
-						Optionally assign each child to a group. You can skip any or all and assign later.
+						Optionally assign each child to a group. You can skip
+						any or all and assign later.
 					</p>
 					{children.map((child) => (
 						<div key={child.id} className="space-y-1.5">
@@ -123,7 +130,10 @@ function ApproveDialog({
 							<Select
 								value={groupSelections[child.id] ?? ""}
 								onValueChange={(val) =>
-									setGroupSelections((prev) => ({ ...prev, [child.id]: val }))
+									setGroupSelections((prev) => ({
+										...prev,
+										[child.id]: val,
+									}))
 								}
 							>
 								<SelectTrigger>
@@ -147,7 +157,9 @@ function ApproveDialog({
 					))}
 				</div>
 				<DialogFooter>
-					<Button variant="outline" onClick={onClose}>Cancel</Button>
+					<Button variant="outline" onClick={onClose}>
+						Cancel
+					</Button>
 					<Button
 						className="bg-green-600 hover:bg-green-700 text-white"
 						onClick={handleApprove}
@@ -179,8 +191,15 @@ function RowActions({
 
 	const changeStatus = async (s: "REJECTED" | "PENDING") => {
 		try {
-			await reviewApplication.mutateAsync({ id: applicationId, status: s });
-			toastSuccess(s === "REJECTED" ? "Application rejected." : "Reset to pending.");
+			await reviewApplication.mutateAsync({
+				id: applicationId,
+				status: s,
+			});
+			toastSuccess(
+				s === "REJECTED"
+					? "Application rejected."
+					: "Reset to pending.",
+			);
 		} catch {
 			toastError("Failed to update application.");
 		}
@@ -248,17 +267,21 @@ export function AreaSubmissionsTab({ areaId }: AreaSubmissionsTabProps) {
 		children: { id: string; firstName: string; lastName: string }[];
 	} | null>(null);
 
-	const queryStatus = statusFilter === "ALL" ? undefined : statusFilter as "PENDING" | "APPROVED" | "REJECTED";
+	const queryStatus =
+		statusFilter === "ALL"
+			? undefined
+			: (statusFilter as "PENDING" | "APPROVED" | "REJECTED");
 	const { data: applications = [], isLoading } = useApplications(queryStatus);
 
 	// Sites within this area for the filter dropdown
 	const areaSites = useMemo(
-		() =>
-			[...new Map(
+		() => [
+			...new Map(
 				(applications as typeof applications)
 					.filter((a) => a.site?.area?.id === areaId && a.site)
 					.map((a) => [a.site!.id, a.site!]),
-			).values()],
+			).values(),
+		],
 		[applications, areaId],
 	);
 
@@ -317,7 +340,10 @@ export function AreaSubmissionsTab({ areaId }: AreaSubmissionsTabProps) {
 				</div>
 
 				{areaSites.length > 1 && (
-					<Select value={selectedSiteId} onValueChange={setSelectedSiteId}>
+					<Select
+						value={selectedSiteId}
+						onValueChange={setSelectedSiteId}
+					>
 						<SelectTrigger className="w-40">
 							<SelectValue placeholder="All Sites" />
 						</SelectTrigger>
@@ -360,7 +386,10 @@ export function AreaSubmissionsTab({ areaId }: AreaSubmissionsTabProps) {
 							))
 						) : filtered.length === 0 ? (
 							<TableRow>
-								<TableCell colSpan={7} className="py-10 text-center text-sm text-muted-foreground">
+								<TableCell
+									colSpan={7}
+									className="py-10 text-center text-sm text-muted-foreground"
+								>
 									No submissions yet.
 								</TableCell>
 							</TableRow>
@@ -372,7 +401,8 @@ export function AreaSubmissionsTab({ areaId }: AreaSubmissionsTabProps) {
 											href={`/app/${orgSlug}/applications/${app.id}`}
 											className="hover:underline flex items-center gap-1"
 										>
-											{app.parentFirstName} {app.parentLastName}
+											{app.parentFirstName}{" "}
+											{app.parentLastName}
 											<ExternalLinkIcon className="size-3 text-muted-foreground" />
 										</Link>
 									</TableCell>
@@ -386,7 +416,9 @@ export function AreaSubmissionsTab({ areaId }: AreaSubmissionsTabProps) {
 										{app.site?.name ?? "—"}
 									</TableCell>
 									<TableCell className="text-muted-foreground">
-										{new Date(app.createdAt).toLocaleDateString()}
+										{new Date(
+											app.createdAt,
+										).toLocaleDateString()}
 									</TableCell>
 									<TableCell>
 										<StatusBadge status={app.status} />
@@ -400,7 +432,8 @@ export function AreaSubmissionsTab({ areaId }: AreaSubmissionsTabProps) {
 												setApproveTarget({
 													id: app.id,
 													siteId: app.site?.id ?? "",
-													children: app.children ?? [],
+													children:
+														app.children ?? [],
 												})
 											}
 										/>

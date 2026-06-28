@@ -13,14 +13,14 @@ import { Form } from "@repo/ui/components/form";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import {
 	EventDialogFields,
-	RECURRENCE_OPTIONS,
 	type EventFormValues,
+	RECURRENCE_OPTIONS,
 } from "@saas/groups/components/EventDialogFields";
 import { GroupPicker } from "@shared/components/GroupPicker";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useForm, useWatch } from "react-hook-form";
 import { useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -49,7 +49,6 @@ const createSchema = z
 		path: ["endDate"],
 	});
 
-
 // ─── Series count (mirrors server logic) ─────────────────────────────────────
 
 function getMonthlyWeekdayDate(from: Date): Date {
@@ -67,7 +66,7 @@ function countSeriesEvents(values: Partial<EventFormValues>): number {
 	if (recurrence === "never") return 1;
 
 	const [sy, sm, sd] = startDate.split("-").map(Number);
-	const endLimit = new Date(endDate + "T23:59:59");
+	const endLimit = new Date(`${endDate}T23:59:59`);
 	let count = 0;
 	let current = new Date(sy, sm - 1, sd);
 
@@ -77,7 +76,9 @@ function countSeriesEvents(values: Partial<EventFormValues>): number {
 		if (recurrence === "daily") {
 			next.setDate(next.getDate() + 1);
 		} else if (recurrence === "weekday") {
-			do { next.setDate(next.getDate() + 1); } while (next.getDay() === 0 || next.getDay() === 6);
+			do {
+				next.setDate(next.getDate() + 1);
+			} while (next.getDay() === 0 || next.getDay() === 6);
 		} else if (recurrence === "weekly") {
 			next.setDate(next.getDate() + 7);
 		} else if (recurrence === "biweekly") {
@@ -149,7 +150,9 @@ function EditEventForm({
 	const toggleGroup = (groupId: string) => {
 		setGroupError(undefined);
 		setSelectedGroupIds((prev) =>
-			prev.includes(groupId) ? prev.filter((x) => x !== groupId) : [...prev, groupId],
+			prev.includes(groupId)
+				? prev.filter((x) => x !== groupId)
+				: [...prev, groupId],
 		);
 	};
 
@@ -194,13 +197,21 @@ function EditEventForm({
 				guestName: values.guestName || undefined,
 				guestCompany: values.guestCompany || undefined,
 				guestIndustry: values.guestIndustry || undefined,
-				startsAt: new Date(`${values.startDate}T${values.startTime}`).toISOString(),
+				startsAt: new Date(
+					`${values.startDate}T${values.startTime}`,
+				).toISOString(),
 				endsAt: values.endTime
-					? new Date(`${values.startDate}T${values.endTime}`).toISOString()
+					? new Date(
+							`${values.startDate}T${values.endTime}`,
+						).toISOString()
 					: undefined,
 			});
-			await queryClient.invalidateQueries({ queryKey: orpc.events.listByOrg.key() });
-			await queryClient.invalidateQueries({ queryKey: orpc.events.list.key() });
+			await queryClient.invalidateQueries({
+				queryKey: orpc.events.listByOrg.key(),
+			});
+			await queryClient.invalidateQueries({
+				queryKey: orpc.events.list.key(),
+			});
 			toastSuccess("Event updated.");
 			onClose();
 		} catch {
@@ -231,8 +242,12 @@ function EditEventForm({
 				</div>
 
 				<DialogFooter>
-					<Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-					<Button type="submit" loading={form.formState.isSubmitting}>Save</Button>
+					<Button type="button" variant="outline" onClick={onClose}>
+						Cancel
+					</Button>
+					<Button type="submit" loading={form.formState.isSubmitting}>
+						Save
+					</Button>
 				</DialogFooter>
 			</form>
 		</Form>
@@ -251,7 +266,9 @@ function CreateEventForm({
 	onClose: () => void;
 }) {
 	const queryClient = useQueryClient();
-	const createSeries = useMutation(orpc.events.createSeries.mutationOptions());
+	const createSeries = useMutation(
+		orpc.events.createSeries.mutationOptions(),
+	);
 	const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>(
 		defaultGroupId ? [defaultGroupId] : [],
 	);
@@ -292,7 +309,9 @@ function CreateEventForm({
 	const toggleGroup = (groupId: string) => {
 		setGroupError(undefined);
 		setSelectedGroupIds((prev) =>
-			prev.includes(groupId) ? prev.filter((x) => x !== groupId) : [...prev, groupId],
+			prev.includes(groupId)
+				? prev.filter((x) => x !== groupId)
+				: [...prev, groupId],
 		);
 	};
 
@@ -316,9 +335,17 @@ function CreateEventForm({
 				endTime: values.endTime || undefined,
 				recurrence: values.recurrence,
 			});
-			await queryClient.invalidateQueries({ queryKey: orpc.events.listByOrg.key() });
-			await queryClient.invalidateQueries({ queryKey: orpc.events.list.key() });
-			toastSuccess(result.count === 1 ? "Event created." : `${result.count} events created.`);
+			await queryClient.invalidateQueries({
+				queryKey: orpc.events.listByOrg.key(),
+			});
+			await queryClient.invalidateQueries({
+				queryKey: orpc.events.list.key(),
+			});
+			toastSuccess(
+				result.count === 1
+					? "Event created."
+					: `${result.count} events created.`,
+			);
 			form.reset();
 			setSelectedGroupIds(defaultGroupId ? [defaultGroupId] : []);
 			onClose();
@@ -353,16 +380,22 @@ function CreateEventForm({
 				<DialogFooter className="flex items-center gap-3 pt-2">
 					{eventCount > 0 && (
 						<p className="mr-auto text-sm text-muted-foreground">
-							{eventCount === 1 ? "1 event will be created" : `${eventCount} events will be created`}
+							{eventCount === 1
+								? "1 event will be created"
+								: `${eventCount} events will be created`}
 						</p>
 					)}
-					<Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+					<Button type="button" variant="outline" onClick={onClose}>
+						Cancel
+					</Button>
 					<Button
 						type="submit"
 						disabled={eventCount === 0}
 						loading={form.formState.isSubmitting}
 					>
-						{eventCount <= 1 ? "Save Event" : `Create ${eventCount} Events`}
+						{eventCount <= 1
+							? "Save Event"
+							: `Create ${eventCount} Events`}
 					</Button>
 				</DialogFooter>
 			</form>
@@ -385,11 +418,17 @@ export function EventDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
 				<DialogHeader>
-					<DialogTitle>{isEditing ? "Edit Event" : "Create Event"}</DialogTitle>
+					<DialogTitle>
+						{isEditing ? "Edit Event" : "Create Event"}
+					</DialogTitle>
 				</DialogHeader>
 
 				{isEditing && event ? (
-					<EditEventForm event={event} organizationId={organizationId} onClose={() => onOpenChange(false)} />
+					<EditEventForm
+						event={event}
+						organizationId={organizationId}
+						onClose={() => onOpenChange(false)}
+					/>
 				) : (
 					<CreateEventForm
 						organizationId={organizationId}

@@ -4,9 +4,6 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
 jobs:
   lint:
     name: Lint code
@@ -21,18 +18,55 @@ jobs:
         run: biome ci .
   e2e:
     name: Run e2e tests
-    timeout-minutes: 60
+    timeout-minutes: 30
     runs-on: ubuntu-latest
+    # Run inside the official Playwright image so the browsers are pre-installed
+    # — the runner→cdn.playwright.dev browser download was hanging for 10+ min.
+    # Tag MUST match the resolved @playwright/test version (currently 1.57.0);
+    # if Playwright is upgraded, bump this tag to match.
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: launchclub_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      # Self-contained CI database. Inside a job container, services are reached
+      # by their label ("postgres"), not localhost. Throwaway CI creds.
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/launchclub_test
+      DIRECT_URL: postgresql://postgres:postgres@postgres:5432/launchclub_test
+      BETTER_AUTH_SECRET: ci-e2e-secret-not-for-production
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      # Dummy mail config so the Resend client doesn't throw at module load
+      # during `next build` page-data collection (it isn't used in e2e).
+      RESEND_API_KEY: re_ci_dummy_not_used
+      MAIL_FROM: ci@example.com
+      # Don't let pnpm install trigger a browser download — the image has them.
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 22
       - uses: pnpm/action-setup@v4
       - name: Install dependencies
-        run: pnpm install && pnpm --filter database generate
+        run: pnpm install
+      - name: Generate Prisma client
+        run: pnpm --filter database generate
+      - name: Apply database schema
+        run: pnpm --filter database migrate:deploy
       - name: Run Playwright tests
-        run: pnpm --filter web e2e:ci
+        # Browsers are pre-installed in the image, so skip `playwright install`
+        # (the step that was hanging) and run the tests directly.
+        run: pnpm --filter web exec playwright test
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

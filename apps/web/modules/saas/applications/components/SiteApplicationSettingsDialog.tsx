@@ -34,7 +34,9 @@ export function SiteApplicationSettingsDialog({
 }: SiteApplicationSettingsDialogProps) {
 	const updateSite = useUpdateSiteApplicationSettings();
 
-	const [acceptApplications, setAcceptApplications] = useState(site.acceptApplications);
+	const [acceptApplications, setAcceptApplications] = useState(
+		site.acceptApplications,
+	);
 	const [deadline, setDeadline] = useState(
 		site.applicationDeadline ? site.applicationDeadline.slice(0, 10) : "",
 	);
@@ -43,7 +45,11 @@ export function SiteApplicationSettingsDialog({
 
 	useEffect(() => {
 		setAcceptApplications(site.acceptApplications);
-		setDeadline(site.applicationDeadline ? site.applicationDeadline.slice(0, 10) : "");
+		setDeadline(
+			site.applicationDeadline
+				? site.applicationDeadline.slice(0, 10)
+				: "",
+		);
 	}, [site]);
 
 	async function handleSave() {
@@ -51,7 +57,9 @@ export function SiteApplicationSettingsDialog({
 			await updateSite.mutateAsync({
 				id: site.id,
 				acceptApplications,
-				applicationDeadline: deadline ? new Date(deadline).toISOString() : null,
+				applicationDeadline: deadline
+					? new Date(deadline).toISOString()
+					: null,
 			});
 			toastSuccess("Site application settings saved.");
 		} catch {
@@ -63,15 +71,20 @@ export function SiteApplicationSettingsDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-w-lg">
 				<DialogHeader>
-					<DialogTitle>Application Settings — {site.name}</DialogTitle>
+					<DialogTitle>
+						Application Settings — {site.name}
+					</DialogTitle>
 				</DialogHeader>
 
 				<div className="space-y-5 pt-1">
 					<div className="flex items-center justify-between">
 						<div>
-							<p className="text-sm font-medium">Accept applications</p>
+							<p className="text-sm font-medium">
+								Accept applications
+							</p>
 							<p className="text-xs text-muted-foreground">
-								Allow new applications to be submitted for this site
+								Allow new applications to be submitted for this
+								site
 							</p>
 						</div>
 						<Switch
@@ -99,10 +112,14 @@ export function SiteApplicationSettingsDialog({
 							<div className="flex-1 rounded-md border bg-muted px-3 py-2 text-sm font-mono overflow-x-auto whitespace-nowrap">
 								{appUrl}
 							</div>
-							<CopyButton url={appUrl} title="Copy application URL" />
+							<CopyButton
+								url={appUrl}
+								title="Copy application URL"
+							/>
 						</div>
 						<p className="text-xs text-muted-foreground">
-							Share this URL with parents to accept applications for this site
+							Share this URL with parents to accept applications
+							for this site
 						</p>
 					</div>
 

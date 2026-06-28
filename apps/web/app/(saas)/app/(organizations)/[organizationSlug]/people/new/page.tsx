@@ -1,6 +1,6 @@
 import { getActiveOrganization } from "@saas/auth/lib/server";
-import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { NewPersonClient } from "./NewPersonClient";
 
 export async function generateMetadata() {
@@ -14,7 +14,7 @@ export default async function NewPersonPage({
 	params: Promise<{ organizationSlug: string }>;
 }) {
 	const { organizationSlug } = await params;
-	const t = await getTranslations();
+	const _t = await getTranslations();
 	const organization = await getActiveOrganization(organizationSlug);
 
 	if (!organization) {

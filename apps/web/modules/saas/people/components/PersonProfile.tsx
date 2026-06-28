@@ -9,12 +9,12 @@ import {
 	CardTitle,
 } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
+import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { ArrowLeftIcon, ChevronDownIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { usePerson } from "../hooks/use-people";
 import { AcademicRecordsSection } from "./AcademicRecordsSection";
 import { ConsentsSection } from "./ConsentsSection";
@@ -56,7 +56,11 @@ export function PersonProfile({ personId }: PersonProfileProps) {
 	}
 
 	if (!person) {
-		return <div className="text-muted-foreground">{t("launchclub.people.notFound")}</div>;
+		return (
+			<div className="text-muted-foreground">
+				{t("launchclub.people.notFound")}
+			</div>
+		);
 	}
 
 	return (
@@ -98,16 +102,30 @@ export function PersonProfile({ personId }: PersonProfileProps) {
 					<Card>
 						<CardHeader className="pb-3">
 							<div className="flex items-center justify-between">
-								<CardTitle className="text-base">{t("launchclub.people.groups")}</CardTitle>
-								<Button size="icon" variant="ghost" className="size-7" onClick={() => setGroupsCollapsed((c) => !c)}>
-									<ChevronDownIcon className={`size-4 transition-transform ${groupsCollapsed ? "" : "rotate-180"}`} />
+								<CardTitle className="text-base">
+									{t("launchclub.people.groups")}
+								</CardTitle>
+								<Button
+									size="icon"
+									variant="ghost"
+									className="size-7"
+									onClick={() =>
+										setGroupsCollapsed((c) => !c)
+									}
+								>
+									<ChevronDownIcon
+										className={`size-4 transition-transform ${groupsCollapsed ? "" : "rotate-180"}`}
+									/>
 								</Button>
 							</div>
 						</CardHeader>
 						{!groupsCollapsed && (
 							<CardContent>
-								{!person.personGroups || person.personGroups.length === 0 ? (
-									<p className="text-sm text-muted-foreground">{t("launchclub.people.noGroups")}</p>
+								{!person.personGroups ||
+								person.personGroups.length === 0 ? (
+									<p className="text-sm text-muted-foreground">
+										{t("launchclub.people.noGroups")}
+									</p>
 								) : (
 									<div className="space-y-2 max-h-48 overflow-y-auto">
 										{person.personGroups.map((pg) => (
@@ -115,13 +133,21 @@ export function PersonProfile({ personId }: PersonProfileProps) {
 												key={pg.groupId}
 												className="rounded-lg border p-2 space-y-1"
 											>
-												<div className="font-medium text-sm">{pg.group.name}</div>
+												<div className="font-medium text-sm">
+													{pg.group.name}
+												</div>
 												{pg.group.site && (
 													<div className="text-xs text-muted-foreground">
 														{pg.group.site.name}
 													</div>
 												)}
-												<Badge status="info">{t(`launchclub.groups.members.role.${pg.role}` as Parameters<typeof t>[0])}</Badge>
+												<Badge status="info">
+													{t(
+														`launchclub.groups.members.role.${pg.role}` as Parameters<
+															typeof t
+														>[0],
+													)}
+												</Badge>
 											</div>
 										))}
 									</div>
@@ -137,7 +163,8 @@ export function PersonProfile({ personId }: PersonProfileProps) {
 					/>
 
 					{/* Consents — students and mentors */}
-					{(person.personType === "STUDENT" || person.personType === "MENTOR") && (
+					{(person.personType === "STUDENT" ||
+						person.personType === "MENTOR") && (
 						<ConsentsSection
 							personId={personId}
 							organizationId={activeOrganization?.id ?? ""}
@@ -158,4 +185,3 @@ export function PersonProfile({ personId }: PersonProfileProps) {
 		</div>
 	);
 }
-

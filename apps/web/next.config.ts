@@ -14,7 +14,8 @@ const withNextIntl = nextIntlPlugin("./modules/i18n/request.ts");
 const TURNSTILE_ORIGIN = "https://challenges.cloudflare.com";
 
 // Allow local MinIO (http) uploads in dev; prod only allows https.
-const DEV_CONNECT = process.env.NODE_ENV === "development" ? " http://localhost:*" : "";
+const DEV_CONNECT =
+	process.env.NODE_ENV === "development" ? " http://localhost:*" : "";
 
 const ContentSecurityPolicy = `
 	default-src 'self';
@@ -40,7 +41,10 @@ const securityHeaders = [
 	// modern browsers; X-Frame-Options covers older ones.
 	{ key: "X-Frame-Options", value: "DENY" },
 	{ key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-	{ key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+	{
+		key: "Permissions-Policy",
+		value: "camera=(), microphone=(), geolocation=()",
+	},
 	{
 		key: "Strict-Transport-Security",
 		value: "max-age=63072000; includeSubDomains; preload",

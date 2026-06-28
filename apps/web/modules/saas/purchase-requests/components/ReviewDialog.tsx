@@ -59,7 +59,9 @@ export function ReviewDialog({
 				<div className="space-y-2">
 					<Label htmlFor="review-note">
 						Comment{" "}
-						<span className="text-muted-foreground font-normal">(optional)</span>
+						<span className="text-muted-foreground font-normal">
+							(optional)
+						</span>
 					</Label>
 					<Textarea
 						id="review-note"
@@ -75,7 +77,10 @@ export function ReviewDialog({
 				</div>
 
 				<DialogFooter>
-					<Button variant="outline" onClick={() => handleOpenChange(false)}>
+					<Button
+						variant="outline"
+						onClick={() => handleOpenChange(false)}
+					>
 						Cancel
 					</Button>
 					<Button

@@ -15,10 +15,10 @@ import { Button } from "@repo/ui/components/button";
 import { Card } from "@repo/ui/components/card";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useDeleteGroup } from "@saas/groups/hooks/use-groups";
-import { CalendarIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { formatMeetingDays } from "@saas/groups/lib/day-utils";
-import { useLocale, useTranslations } from "next-intl";
+import { CalendarIcon, PencilIcon, TrashIcon } from "lucide-react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { GroupDialog } from "./GroupDialog";
 
@@ -89,7 +89,10 @@ export function GroupCard({
 					<div className="flex items-center gap-1.5 text-muted-foreground text-sm">
 						<CalendarIcon className="size-3.5 shrink-0" />
 						<span>
-							{[formatMeetingDays(group.meetingDay, locale, ""), group.meetingTime]
+							{[
+								formatMeetingDays(group.meetingDay, locale, ""),
+								group.meetingTime,
+							]
 								.filter(Boolean)
 								.join(" · ")}
 						</span>

@@ -71,7 +71,9 @@ export function AreaSettingsTab({ area }: AreaSettingsTabProps) {
 						name="name"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>{t("launchclub.areas.form.name")}</FormLabel>
+								<FormLabel>
+									{t("launchclub.areas.form.name")}
+								</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -84,7 +86,9 @@ export function AreaSettingsTab({ area }: AreaSettingsTabProps) {
 						name="description"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>{t("launchclub.areas.form.description")}</FormLabel>
+								<FormLabel>
+									{t("launchclub.areas.form.description")}
+								</FormLabel>
 								<FormControl>
 									<Textarea {...field} rows={3} />
 								</FormControl>

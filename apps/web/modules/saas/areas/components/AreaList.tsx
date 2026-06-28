@@ -15,8 +15,8 @@ import { Button } from "@repo/ui/components/button";
 import { Card } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { useDeleteArea, useAreas } from "@saas/areas/hooks/use-areas";
 import { AreaDialog } from "@saas/areas/components/AreaDialog";
+import { useAreas, useDeleteArea } from "@saas/areas/hooks/use-areas";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { PencilIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -120,9 +120,7 @@ export function AreaList() {
 								<Button
 									variant="ghost"
 									size="icon"
-									onClick={() =>
-										setDeletingAreaId(area.id)
-									}
+									onClick={() => setDeletingAreaId(area.id)}
 									aria-label={t("launchclub.areas.delete")}
 								>
 									<TrashIcon className="size-4 text-destructive" />

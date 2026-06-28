@@ -81,7 +81,10 @@ export function AllPeopleList() {
 					<TableBody>
 						{isLoading ? (
 							<TableRow>
-								<TableCell colSpan={5} className="h-24 text-center">
+								<TableCell
+									colSpan={5}
+									className="h-24 text-center"
+								>
 									<div className="flex h-full items-center justify-center">
 										<Spinner className="mr-2 size-4 text-primary" />
 										Loading…
@@ -101,18 +104,32 @@ export function AllPeopleList() {
 										{person.phone ?? "—"}
 									</TableCell>
 									<TableCell className="text-sm">
-										{person.household?.organization?.name ?? "—"}
+										{person.household?.organization?.name ??
+											"—"}
 									</TableCell>
 									<TableCell>
-										<Badge status={person.personType === "STUDENT" ? "info" : "success"}>
-											{person.personType === "STUDENT" ? "Student" : person.personType === "MENTOR" ? "Mentor" : "Parent"}
+										<Badge
+											status={
+												person.personType === "STUDENT"
+													? "info"
+													: "success"
+											}
+										>
+											{person.personType === "STUDENT"
+												? "Student"
+												: person.personType === "MENTOR"
+													? "Mentor"
+													: "Parent"}
 										</Badge>
 									</TableCell>
 								</TableRow>
 							))
 						) : (
 							<TableRow>
-								<TableCell colSpan={5} className="h-24 text-center">
+								<TableCell
+									colSpan={5}
+									className="h-24 text-center"
+								>
 									No people found.
 								</TableCell>
 							</TableRow>

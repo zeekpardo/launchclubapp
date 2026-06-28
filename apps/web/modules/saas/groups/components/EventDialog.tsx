@@ -16,8 +16,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import {
-	type EventFormValues,
 	EventDialogFields,
+	type EventFormValues,
 	RECURRENCE_OPTIONS,
 } from "./EventDialogFields";
 
@@ -64,7 +64,7 @@ function countSeriesEvents(values: Partial<EventFormValues>): number {
 	if (recurrence === "never") return 1;
 
 	const [sy, sm, sd] = startDate.split("-").map(Number);
-	const endLimit = new Date(endDate + "T23:59:59");
+	const endLimit = new Date(`${endDate}T23:59:59`);
 	let count = 0;
 	let current = new Date(sy, sm - 1, sd);
 
@@ -74,7 +74,9 @@ function countSeriesEvents(values: Partial<EventFormValues>): number {
 		if (recurrence === "daily") {
 			next.setDate(next.getDate() + 1);
 		} else if (recurrence === "weekday") {
-			do { next.setDate(next.getDate() + 1); } while (next.getDay() === 0 || next.getDay() === 6);
+			do {
+				next.setDate(next.getDate() + 1);
+			} while (next.getDay() === 0 || next.getDay() === 6);
 		} else if (recurrence === "weekly") {
 			next.setDate(next.getDate() + 7);
 		} else if (recurrence === "biweekly") {
@@ -113,7 +115,9 @@ export function EventDialog({
 	defaultRecurrence = "never",
 }: EventDialogProps) {
 	const queryClient = useQueryClient();
-	const createSeries = useMutation(orpc.events.createSeries.mutationOptions());
+	const createSeries = useMutation(
+		orpc.events.createSeries.mutationOptions(),
+	);
 
 	const today = new Date().toISOString().slice(0, 10);
 
@@ -162,7 +166,9 @@ export function EventDialog({
 				);
 			}
 			toastSuccess(
-				result.count === 1 ? "Event created." : `${result.count} events created.`,
+				result.count === 1
+					? "Event created."
+					: `${result.count} events created.`,
 			);
 			form.reset();
 			onOpenChange(false);
@@ -208,7 +214,9 @@ export function EventDialog({
 								disabled={eventCount === 0}
 								loading={form.formState.isSubmitting}
 							>
-								{eventCount <= 1 ? "Save Event" : `Create ${eventCount} Events`}
+								{eventCount <= 1
+									? "Save Event"
+									: `Create ${eventCount} Events`}
 							</Button>
 						</DialogFooter>
 					</form>

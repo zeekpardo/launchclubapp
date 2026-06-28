@@ -28,8 +28,8 @@ export function Hero() {
 
 				<p className="mt-2 text-foreground/60 text-sm sm:text-lg max-w-3xl">
 					Manage every area, site, group, and person in one place.
-					Track attendance, approve purchase requests, and process
-					new applications. No spreadsheets.
+					Track attendance, approve purchase requests, and process new
+					applications. No spreadsheets.
 				</p>
 
 				<div className="mt-4 flex items-center justify-start gap-2">
