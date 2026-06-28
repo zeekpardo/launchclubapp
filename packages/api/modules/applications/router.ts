@@ -2,6 +2,7 @@ import { createChildPhotoUploadUrl } from "./procedures/create-child-photo-uploa
 import { createConsentSignatureUploadUrlProcedure } from "./procedures/create-consent-signature-upload-url";
 import { createConsentFormUploadUrlProcedure } from "./procedures/create-consent-form-upload-url";
 import { getConsentFormDownloadUrlProcedure } from "./procedures/get-consent-form-download-url";
+import { getApplicationFileDownloadUrlProcedure } from "./procedures/get-file-download-url";
 import { createFormFieldFileUploadUrl } from "./procedures/create-form-field-file-upload-url";
 import { createMentorDocUploadUrlProcedure } from "./procedures/create-mentor-doc-upload-url";
 import { submitApplication } from "./procedures/submit";
@@ -23,5 +24,6 @@ export const applicationsRouter = {
   consentSignatureUploadUrl: createConsentSignatureUploadUrlProcedure,
   consentFormUploadUrl: createConsentFormUploadUrlProcedure,
   consentFormDownloadUrl: getConsentFormDownloadUrlProcedure,
+  fileFieldDownloadUrl: getApplicationFileDownloadUrlProcedure,
   mentorDocUploadUrl: createMentorDocUploadUrlProcedure,
 };

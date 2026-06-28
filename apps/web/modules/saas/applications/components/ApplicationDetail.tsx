@@ -6,9 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ca
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { ApplicationStatusActions } from "@saas/applications/components/ApplicationActions";
 import { useApplication } from "@saas/applications/hooks/use-applications";
-import { ArrowLeftIcon, CheckCircle2Icon, XCircleIcon } from "lucide-react";
+import { orpcClient } from "@shared/lib/orpc-client";
+import { toastError } from "@repo/ui/components/toast";
+import { ArrowLeftIcon, CheckCircle2Icon, FileIcon, XCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 interface ApplicationDetailProps {
 	applicationId: string;
@@ -198,13 +201,22 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 											<p className="col-span-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
 												Form Responses
 											</p>
-											{child.formFieldValues.filter((ffv) => ffv.formField.type !== "HEADER").map((ffv) => (
-												<DetailRow
-													key={ffv.id}
-													label={ffv.formField.label}
-													value={ffv.value}
-												/>
-											))}
+											{child.formFieldValues.filter((ffv) => ffv.formField.type !== "HEADER").map((ffv) =>
+												ffv.formField.type === "FILE" ? (
+													<FileFieldRow
+														key={ffv.id}
+														applicationId={applicationId}
+														label={ffv.formField.label}
+														path={ffv.value}
+													/>
+												) : (
+													<DetailRow
+														key={ffv.id}
+														label={ffv.formField.label}
+														value={ffv.value}
+													/>
+												),
+											)}
 										</div>
 									)}
 								</div>
@@ -213,6 +225,54 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 					)}
 				</CardContent>
 			</Card>
+		</div>
+	);
+}
+
+function FileFieldRow({
+	applicationId,
+	label,
+	path,
+}: {
+	applicationId: string;
+	label: string;
+	path: string;
+}) {
+	const [loading, setLoading] = useState(false);
+
+	if (!path) {
+		return <DetailRow label={label} value="—" />;
+	}
+
+	const openFile = async () => {
+		setLoading(true);
+		try {
+			const { downloadUrl } = await orpcClient.applications.fileFieldDownloadUrl({
+				applicationId,
+				path,
+			});
+			window.open(downloadUrl, "_blank", "noopener,noreferrer");
+		} catch {
+			toastError("Could not open the file. Please try again.");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	return (
+		<div>
+			<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+				{label}
+			</p>
+			<button
+				type="button"
+				onClick={openFile}
+				disabled={loading}
+				className="mt-1 inline-flex items-center gap-1.5 text-sm text-primary hover:underline disabled:opacity-50"
+			>
+				<FileIcon className="size-3.5" />
+				{loading ? "Opening…" : "View file"}
+			</button>
 		</div>
 	);
 }

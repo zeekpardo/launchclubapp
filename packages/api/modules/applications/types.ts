@@ -92,6 +92,11 @@ export const getConsentFormDownloadUrlSchema = z.object({
   consentType: z.enum(["observation", "terms", "photoVideo"]),
 });
 
+export const getApplicationFileDownloadUrlSchema = z.object({
+  applicationId: z.string(),
+  path: z.string().max(500),
+});
+
 export const getOrgApplicationSettingsSchema = z.object({
   organizationId: z.string(),
 });
