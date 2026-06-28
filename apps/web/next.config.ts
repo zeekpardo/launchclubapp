@@ -6,8 +6,11 @@ import nextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = nextIntlPlugin("./modules/i18n/request.ts");
 
-// Cloudflare Turnstile is used on the public application form.
-// All Turnstile assets (script, iframe, verification) live on this origin.
+// CSP allow-list for Cloudflare Turnstile. NOTE: Turnstile is NOT currently
+// wired up (no client widget, no server-side token verification) — abuse
+// protection on public endpoints is handled by rate limiting in
+// packages/api/orpc/rate-limit.ts. This origin is kept allow-listed so a future
+// CAPTCHA integration (client widget + /siteverify) works without a CSP change.
 const TURNSTILE_ORIGIN = "https://challenges.cloudflare.com";
 
 // Allow local MinIO (http) uploads in dev; prod only allows https.
