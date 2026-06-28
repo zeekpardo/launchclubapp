@@ -1416,8 +1416,9 @@
         "resetToPending": "Reset to Pending"
       },
       "approveDialog": {
-        "title": "Approve Application",
-        "assignChildren": "Optionally assign each child to a group. You can skip any or all and assign later.",
+        "title": "Approve student(s)",
+        "assignChildren": "Approving admits the student(s) below. The parent/guardian is kept only as their contact — they are not enrolled. Optionally assign each student to a group; you can skip and assign later.",
+        "studentsHeading": "Students to admit",
         "noGroup": "No group (assign later)",
         "noGroupsForSite": "No groups for this site.",
         "cancel": "Cancel",
