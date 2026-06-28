@@ -75,11 +75,14 @@ export async function getEventsByOrganization(
   organizationId: string,
   filters?: { areaId?: string; siteId?: string; groupIds?: string[]; siteIds?: string[] },
 ) {
-  const groupWhere = filters?.groupIds
+  // Caller scope (a leader's groups/sites) and the UI area/site filter are
+  // independent and must BOTH apply — previously a scope dropped the UI filter,
+  // so a site leader's chosen area/site filter was ignored.
+  const scopeWhere = filters?.groupIds
     ? { id: { in: filters.groupIds } }
     : filters?.siteIds
       ? { siteId: { in: filters.siteIds } }
-      : undefined;
+      : {};
 
   const siteWhere = filters?.siteId
     ? { id: filters.siteId }
@@ -91,9 +94,7 @@ export async function getEventsByOrganization(
     where: {
       eventGroups: {
         some: {
-          group: groupWhere
-            ? { ...groupWhere }
-            : { site: siteWhere },
+          group: { ...scopeWhere, site: siteWhere },
         },
       },
     },

@@ -50,10 +50,13 @@ export async function batchUpsertAttendance(
 }
 
 export async function getAttendanceRateByGroup(groupId: string, since?: Date): Promise<number> { // returns 0–1 fraction
+  // Only past/today events count — future events have no attendance yet and
+  // would otherwise drag the rate toward zero (e.g. a recurring series created
+  // for the whole term).
   const events = await db.event.findMany({
     where: {
       eventGroups: { some: { groupId } },
-      ...(since ? { startsAt: { gte: since } } : {}),
+      startsAt: { ...(since ? { gte: since } : {}), lte: new Date() },
     },
     include: {
       attendance: true,
