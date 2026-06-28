@@ -19,26 +19,26 @@ Ordered **bugs → essential features → nice-to-haves**, with bugs ranked by s
 1. [ ] 🐞 **Applications attributed to the wrong site** — both NTCC and GBBC links file everything under GBBC. *(§6.6)* — corrupts which site a child belongs to.
 2. [ ] 🐞 **"No group (assign later)" applications disappear** — approved record can't be found anywhere. *(§6.5)* — effective data loss.
 3. [x] 🐞 **Invite members is broken** — inconsistent, and accepting an invite spins up a *new* organization + forces area/site/group setup instead of joining the inviter's org. *(§1)* — blocks all team onboarding. **✅ FIXED (dev + prod)** — two changes: (a) `SignupForm.tsx` now signs invited new users in and routes them to the invitation modal to join the existing org; (b) `auth.ts` `databaseHooks.user.create.before` marks an invited user's email verified at signup, so production's `requireEmailVerification` no longer forces a verification round-trip that dropped the `invitationId` and pushed them into creating a new org. Verified end-to-end (membership = existing org, `emailVerified: true`, invitation `accepted`).
-4. [ ] 🐞 **Site leader gets 404 on "People"** *(§2.1)* — blocks a core role.
-5. [ ] 🐞 **Group leader can't see "People"** for their own groups *(§2.2)* — blocks a core role.
+4. [x] 🐞 **Site leader gets 404 on "People"** *(§2.1)* — **✅ FIXED** (People page now allows site- and group-scoped members; residual 404 was the pre-§1 invite assignment bug).
+5. [x] 🐞 **Group leader can't see "People"** for their own groups *(§2.2)* — **✅ FIXED** (nav shows People to group leaders; page allows group-scoped access; verified).
 
 ## 🟠 P1 — High-impact bugs (core feature broken)
 > Feature exists but doesn't work.
 
-6. [ ] 🐞 **Can't edit anything in an application** *(§6.7)*.
-7. [ ] 🐞 **Uploaded PDF can't be opened/viewed** *(§6.1)*.
+6. [x] 🐞 **Can't edit anything in an application** *(§6.7)* — **✅ FIXED** (Edit dialog for parent + child core fields; new `applications.update` procedure; verified).
+7. [x] 🐞 **Uploaded PDF can't be opened/viewed** *(§6.1)* — **✅ FIXED** (file fields render as signed-URL "View file" links).
 8. [x] 🐞 **Group end time won't save** *(§8.1)*. **✅ VERIFIED RESOLVED** — the full chain (settings form + dialog bindings, update schema/procedure, `updateGroup` query, `getGroupById` read) correctly persists `meetingEndTime`; data round-trip confirms it saves and reads back. Already fixed in current code (no change needed).
-9. [ ] 🐞 **Attendance report doesn't show** after attendance is taken *(§8.6a)*.
+9. [x] 🐞 **Attendance report doesn't show** after attendance is taken *(§8.6a)* — **✅ FIXED** (`getAttendanceByGroup` now matches events via the EventGroup join table instead of the always-null `event.groupId`; verified records appear).
 10. [x] 🐞 **Parents not showing up in People** *(§9.1)*. **✅ RESOLVED via §6.5** — the People "parents" tab query (`getPeopleByOrganization` with `personType: PARENT`) correctly returns all parents for an admin/owner; the empty list was a downstream effect of approval never migrating applicants to people (autoMigrate gated off). With §6.5 fixed, approving an application creates the parent records and they appear. Verified the owner parents-tab query returns the created parents. (Scoped site/group leaders still only see students in their scope — guardian visibility for leaders is a separate enhancement, not this bug.)
 
 ## 🟡 P2 — Medium bugs (correctness / filtering / display)
 > Wrong or confusing data, but not blocking.
 
-11. [ ] 🐞 **Approval doesn't distinguish parent vs child** — should only approve *children*, not parents *(§6.8)*.
-12. [ ] 🐞 **"Add member" lists everyone who applied** — no filtering by the location they applied to *(§8.5)*.
-13. [ ] 🐞 **"Add member" shows no role distinction** between parents, children, admins *(§8.4)*.
-14. [ ] 🐞 **Group details missing the site** (shows name + area only) *(§8.2)*.
-15. [ ] 🐞 **Settings: site name doesn't show up** *(§8.3)*.
+11. [x] 🐞 **Approval doesn't distinguish parent vs child** *(§6.8)* — **✅ FIXED** (approve dialog copy clarifies students are admitted, parent kept as contact; "Students to admit" heading).
+12. [x] 🐞 **"Add member" lists everyone who applied** *(§8.5)* — **✅ FIXED** (person-type + site filters, default Students + group's site).
+13. [x] 🐞 **"Add member" shows no role distinction** *(§8.4)* — **✅ FIXED** (each candidate shows type + current groups; already-in-group excluded).
+14. [x] 🐞 **Group details missing the site** *(§8.2)* — **✅ FIXED** (site badge added to the group header).
+15. [x] 🐞 **Settings: site name doesn't show up** *(§8.3)* — **✅ FIXED** (site selector falls back to the current site name).
 
 ## ✨ Essential feature requests
 > Needed to run the program well; several directly reduce the bugs above.
