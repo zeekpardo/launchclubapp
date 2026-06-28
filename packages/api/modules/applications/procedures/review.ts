@@ -1,43 +1,62 @@
 import { ORPCError } from "@orpc/client";
 import {
-  getApplicationById,
-  migrateApplicationToPeople,
-  reviewApplication,
+	getApplicationById,
+	migrateApplicationToPeople,
+	reviewApplication,
 } from "@repo/database";
+import { protectedProcedure } from "../../../orpc/procedures";
 import { verifyOrganizationMembership } from "../../organizations/lib/membership";
 import { canAccessSite } from "../../organizations/lib/site-access";
-import { protectedProcedure } from "../../../orpc/procedures";
 import { reviewApplicationSchema } from "../types";
 
 export const reviewApplicationProcedure = protectedProcedure
-  .route({ method: "PATCH", path: "/applications/{id}/review", tags: ["Applications"] })
-  .input(reviewApplicationSchema)
-  .handler(async ({ input, context }) => {
-    const application = await getApplicationById(input.id);
-    if (!application) throw new ORPCError("NOT_FOUND");
-    const organizationId = application.site.area.organizationId;
-    const membership = await verifyOrganizationMembership(organizationId, context.user.id);
-    if (!membership) throw new ORPCError("FORBIDDEN");
-    const isOwner = membership.role === "owner" || membership.role === "admin" || context.user.role === "admin";
-    if (!isOwner) {
-      // Site leaders can review applications for their assigned sites
-      if (!(await canAccessSite(context.user.id, application.siteId))) throw new ORPCError("FORBIDDEN");
-    }
+	.route({
+		method: "PATCH",
+		path: "/applications/{id}/review",
+		tags: ["Applications"],
+	})
+	.input(reviewApplicationSchema)
+	.handler(async ({ input, context }) => {
+		const application = await getApplicationById(input.id);
+		if (!application) throw new ORPCError("NOT_FOUND");
+		const organizationId = application.site.area.organizationId;
+		const membership = await verifyOrganizationMembership(
+			organizationId,
+			context.user.id,
+		);
+		if (!membership) throw new ORPCError("FORBIDDEN");
+		const isOwner =
+			membership.role === "owner" ||
+			membership.role === "admin" ||
+			context.user.role === "admin";
+		if (!isOwner) {
+			// Site leaders can review applications for their assigned sites
+			if (!(await canAccessSite(context.user.id, application.siteId)))
+				throw new ORPCError("FORBIDDEN");
+		}
 
-    // On first approval, migrate the applicant to household + people FIRST, then
-    // mark the application approved. If migration fails, the status stays as-is
-    // so the approval can be retried (migration is idempotent). Doing it the
-    // other way round could leave an APPROVED application with no people that
-    // would never re-migrate. Children approved with "no group (assign later)"
-    // are still created as people — they just have no group yet.
-    if (input.status === "APPROVED" && application.status !== "APPROVED") {
-      await migrateApplicationToPeople(input.id, organizationId, input.groupAssignments);
-    }
+		// On first approval, migrate the applicant to household + people FIRST, then
+		// mark the application approved. If migration fails, the status stays as-is
+		// so the approval can be retried (migration is idempotent). Doing it the
+		// other way round could leave an APPROVED application with no people that
+		// would never re-migrate. Children approved with "no group (assign later)"
+		// are still created as people — they just have no group yet.
+		if (input.status === "APPROVED" && application.status !== "APPROVED") {
+			await migrateApplicationToPeople(
+				input.id,
+				organizationId,
+				input.groupAssignments,
+			);
+		}
 
-    const reviewed = await reviewApplication(input.id, input.status, context.user.id);
+		const reviewed = await reviewApplication(
+			input.id,
+			input.status,
+			context.user.id,
+		);
 
-    // TODO: send email notification to application.parentEmail when status changes
-    // Use @repo/mail and the OrganizationApplicationSettings.emailNotifications flag
+		// TODO: send email notification to application.parentEmail when status changes
+		// Use @repo/mail and the OrganizationApplicationSettings.emailNotifications flag
 
-    return reviewed;
-  });
+		return reviewed;
+	});

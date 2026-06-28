@@ -56,13 +56,19 @@ export const GET = async (
 		orgIdInKey = segments[0];
 	}
 	if (orgIdInKey) {
-		const membership = await getOrganizationMembership(orgIdInKey, session.user.id);
+		const membership = await getOrganizationMembership(
+			orgIdInKey,
+			session.user.id,
+		);
 		if (!membership) {
 			return new Response("Forbidden", { status: 403 });
 		}
 	}
 
-	const signedUrl = await getSignedUrl(filePath, { bucket: bucketKey, expiresIn: 60 * 60 });
+	const signedUrl = await getSignedUrl(filePath, {
+		bucket: bucketKey,
+		expiresIn: 60 * 60,
+	});
 	const s3Response = await fetch(signedUrl, { cache: "no-store" });
 	if (!s3Response.ok) {
 		return new Response("Not found", { status: 404 });

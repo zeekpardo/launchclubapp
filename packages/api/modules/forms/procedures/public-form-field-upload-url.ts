@@ -21,7 +21,11 @@ export const publicFormFieldUploadUrl = publicProcedure
 	.input(publicFormFieldUploadUrlSchema)
 	.handler(async ({ input, context }) => {
 		// Throttle unauthenticated upload-URL minting per IP.
-		enforceRateLimit(`upload-url:${getClientIp(context.headers)}`, 30, 10 * 60 * 1000);
+		enforceRateLimit(
+			`upload-url:${getClientIp(context.headers)}`,
+			30,
+			10 * 60 * 1000,
+		);
 		// Same bucket/key shape as applications.formFieldFileUploadUrl so the admin
 		// file viewer (applications.fileFieldDownloadUrl) can resolve it.
 		const ext = EXT[input.contentType];

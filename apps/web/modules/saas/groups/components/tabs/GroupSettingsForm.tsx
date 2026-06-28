@@ -20,7 +20,10 @@ import {
 } from "@repo/ui/components/select";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { type GroupDetail, useUpdateGroup } from "@saas/groups/hooks/use-groups";
+import {
+	type GroupDetail,
+	useUpdateGroup,
+} from "@saas/groups/hooks/use-groups";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -63,9 +66,16 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 	const form = useForm<SettingsValues>({
 		resolver: zodResolver(settingsSchema),
 		defaultValues: {
-			name: "", siteId: "", description: "", gradeLevel: "",
-			startDate: "", endDate: "", meetingDay: "", meetingTime: "",
-			meetingEndTime: "", meetingRecurrence: "",
+			name: "",
+			siteId: "",
+			description: "",
+			gradeLevel: "",
+			startDate: "",
+			endDate: "",
+			meetingDay: "",
+			meetingTime: "",
+			meetingEndTime: "",
+			meetingRecurrence: "",
 		},
 	});
 
@@ -76,8 +86,12 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 				siteId: group.siteId,
 				description: group.description ?? "",
 				gradeLevel: group.gradeLevel ?? "",
-				startDate: group.startDate ? new Date(group.startDate).toISOString().slice(0, 10) : "",
-				endDate: group.endDate ? new Date(group.endDate).toISOString().slice(0, 10) : "",
+				startDate: group.startDate
+					? new Date(group.startDate).toISOString().slice(0, 10)
+					: "",
+				endDate: group.endDate
+					? new Date(group.endDate).toISOString().slice(0, 10)
+					: "",
 				meetingDay: group.meetingDay ?? "",
 				meetingTime: group.meetingTime ?? "",
 				meetingEndTime: group.meetingEndTime ?? "",
@@ -91,8 +105,12 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 			await updateGroup.mutateAsync({
 				id: groupId,
 				...values,
-				startDate: values.startDate ? new Date(values.startDate).toISOString() : undefined,
-				endDate: values.endDate ? new Date(values.endDate).toISOString() : undefined,
+				startDate: values.startDate
+					? new Date(values.startDate).toISOString()
+					: undefined,
+				endDate: values.endDate
+					? new Date(values.endDate).toISOString()
+					: undefined,
 			});
 			await queryClient.invalidateQueries(
 				orpc.groups.get.queryOptions({ input: { id: groupId } }),
@@ -111,8 +129,12 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 					name="name"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>{t("launchclub.groups.form.name")}</FormLabel>
-							<FormControl><Input {...field} /></FormControl>
+							<FormLabel>
+								{t("launchclub.groups.form.name")}
+							</FormLabel>
+							<FormControl>
+								<Input {...field} />
+							</FormControl>
 							<FormMessage />
 						</FormItem>
 					)}
@@ -123,16 +145,31 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 					name="siteId"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>{t("launchclub.groups.form.site")}</FormLabel>
+							<FormLabel>
+								{t("launchclub.groups.form.site")}
+							</FormLabel>
 							<FormControl>
 								{sitesLoading ? (
 									<Skeleton className="h-10 w-full" />
 								) : (
-									<Select value={field.value} onValueChange={field.onChange}>
-										<SelectTrigger><SelectValue placeholder={group.site?.name ?? "Select a site"} /></SelectTrigger>
+									<Select
+										value={field.value}
+										onValueChange={field.onChange}
+									>
+										<SelectTrigger>
+											<SelectValue
+												placeholder={
+													group.site?.name ??
+													"Select a site"
+												}
+											/>
+										</SelectTrigger>
 										<SelectContent>
 											{sites?.map((site) => (
-												<SelectItem key={site.id} value={site.id}>
+												<SelectItem
+													key={site.id}
+													value={site.id}
+												>
 													{site.name}
 												</SelectItem>
 											))}
@@ -153,7 +190,11 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 							<FormItem>
 								<FormLabel>Start date</FormLabel>
 								<FormControl>
-									<Input type="date" {...field} value={field.value ?? ""} />
+									<Input
+										type="date"
+										{...field}
+										value={field.value ?? ""}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -166,7 +207,11 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 							<FormItem>
 								<FormLabel>End date</FormLabel>
 								<FormControl>
-									<Input type="date" {...field} value={field.value ?? ""} />
+									<Input
+										type="date"
+										{...field}
+										value={field.value ?? ""}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -179,9 +224,14 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 					name="gradeLevel"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>{t("launchclub.groups.columns.gradeLevel")}</FormLabel>
+							<FormLabel>
+								{t("launchclub.groups.columns.gradeLevel")}
+							</FormLabel>
 							<FormControl>
-								<GradePicker value={field.value ?? ""} onChange={field.onChange} />
+								<GradePicker
+									value={field.value ?? ""}
+									onChange={field.onChange}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -193,9 +243,14 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 					name="meetingDay"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>{t("launchclub.groups.columns.meetingDays")}</FormLabel>
+							<FormLabel>
+								{t("launchclub.groups.columns.meetingDays")}
+							</FormLabel>
 							<FormControl>
-								<DayPicker value={field.value ?? ""} onChange={field.onChange} />
+								<DayPicker
+									value={field.value ?? ""}
+									onChange={field.onChange}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -210,7 +265,11 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 							<FormItem>
 								<FormLabel>Start time</FormLabel>
 								<FormControl>
-									<Input type="time" {...field} value={field.value ?? ""} />
+									<Input
+										type="time"
+										{...field}
+										value={field.value ?? ""}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -223,7 +282,11 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 							<FormItem>
 								<FormLabel>End time</FormLabel>
 								<FormControl>
-									<Input type="time" {...field} value={field.value ?? ""} />
+									<Input
+										type="time"
+										{...field}
+										value={field.value ?? ""}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -234,9 +297,16 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 						name="meetingRecurrence"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>{t("launchclub.groups.form.meetingRecurrence")}</FormLabel>
+								<FormLabel>
+									{t(
+										"launchclub.groups.form.meetingRecurrence",
+									)}
+								</FormLabel>
 								<FormControl>
-									<RecurrenceSelect value={field.value ?? ""} onChange={field.onChange} />
+									<RecurrenceSelect
+										value={field.value ?? ""}
+										onChange={field.onChange}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>

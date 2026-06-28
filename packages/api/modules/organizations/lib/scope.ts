@@ -1,11 +1,17 @@
 import { ORPCError } from "@orpc/client";
-import { getGroupsByOrganization, getSitesByOrganization } from "@repo/database";
+import {
+	getGroupsByOrganization,
+	getSitesByOrganization,
+} from "@repo/database";
 
 /**
  * Ensure every site id belongs to the organization. Prevents an admin of one
  * org from granting a user access to another org's sites by passing foreign ids.
  */
-export async function assertSitesInOrg(siteIds: string[], organizationId: string) {
+export async function assertSitesInOrg(
+	siteIds: string[],
+	organizationId: string,
+) {
 	if (siteIds.length === 0) {
 		return;
 	}
@@ -19,7 +25,10 @@ export async function assertSitesInOrg(siteIds: string[], organizationId: string
 }
 
 /** Ensure every group id belongs to the organization. */
-export async function assertGroupsInOrg(groupIds: string[], organizationId: string) {
+export async function assertGroupsInOrg(
+	groupIds: string[],
+	organizationId: string,
+) {
 	if (groupIds.length === 0) {
 		return;
 	}

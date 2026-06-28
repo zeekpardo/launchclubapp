@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { Textarea } from "@repo/ui/components/textarea";
 import { orpcClient } from "@shared/lib/orpc-client";
 import { DownloadIcon } from "lucide-react";
+import { useRef, useState } from "react";
 
 const GRADES = [
 	"Pre-K",
@@ -41,7 +41,12 @@ export interface PublicFormField {
 	profileFieldKey?: string | null;
 	targetPersonType?: string | null;
 	customField?: { type: string; options: string[] } | null;
-	consentItem?: { id: string; name: string; pdfKey?: string | null; downloadUrl?: string | null } | null;
+	consentItem?: {
+		id: string;
+		name: string;
+		pdfKey?: string | null;
+		downloadUrl?: string | null;
+	} | null;
 }
 
 interface FormFieldRendererProps {
@@ -64,12 +69,16 @@ function FieldWrapper({
 			{!hideLabel && (
 				<Label htmlFor={`field-${field.id}`}>
 					{field.label}
-					{field.required && <span className="ml-1 text-destructive">*</span>}
+					{field.required && (
+						<span className="ml-1 text-destructive">*</span>
+					)}
 				</Label>
 			)}
 			{children}
 			{field.helpText && (
-				<p className="text-xs text-muted-foreground">{field.helpText}</p>
+				<p className="text-xs text-muted-foreground">
+					{field.helpText}
+				</p>
 			)}
 		</div>
 	);
@@ -112,7 +121,9 @@ function renderProfileField(
 					<NativeSelect id={id} value={value} onChange={onChange}>
 						<option value="">Select a grade…</option>
 						{GRADES.map((g) => (
-							<option key={g} value={g}>{g}</option>
+							<option key={g} value={g}>
+								{g}
+							</option>
 						))}
 					</NativeSelect>
 				</FieldWrapper>
@@ -121,14 +132,25 @@ function renderProfileField(
 		case "dateOfBirth":
 			return (
 				<FieldWrapper field={field}>
-					<Input id={id} type="date" value={value} onChange={(e) => onChange(e.target.value)} />
+					<Input
+						id={id}
+						type="date"
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+					/>
 				</FieldWrapper>
 			);
 
 		case "email":
 			return (
 				<FieldWrapper field={field}>
-					<Input id={id} type="email" value={value} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder ?? undefined} />
+					<Input
+						id={id}
+						type="email"
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+						placeholder={field.placeholder ?? undefined}
+					/>
 				</FieldWrapper>
 			);
 
@@ -140,7 +162,11 @@ function renderProfileField(
 						id={id}
 						type="tel"
 						value={value}
-						onChange={(e) => onChange(e.target.value.replace(/[^\d\s\-()+.]/g, ""))}
+						onChange={(e) =>
+							onChange(
+								e.target.value.replace(/[^\d\s\-()+.]/g, ""),
+							)
+						}
 						placeholder={field.placeholder ?? undefined}
 					/>
 				</FieldWrapper>
@@ -151,7 +177,13 @@ function renderProfileField(
 		case "medicalNotes":
 			return (
 				<FieldWrapper field={field}>
-					<Textarea id={id} value={value} onChange={(e) => onChange(e.target.value)} rows={3} placeholder={field.placeholder ?? undefined} />
+					<Textarea
+						id={id}
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+						rows={3}
+						placeholder={field.placeholder ?? undefined}
+					/>
 				</FieldWrapper>
 			);
 
@@ -159,7 +191,12 @@ function renderProfileField(
 			// addressLine1, emergency_contact_name, studentId, etc.
 			return (
 				<FieldWrapper field={field}>
-					<Input id={id} value={value} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder ?? undefined} />
+					<Input
+						id={id}
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+						placeholder={field.placeholder ?? undefined}
+					/>
 				</FieldWrapper>
 			);
 	}
@@ -178,14 +215,26 @@ function renderCustomField(
 		case "TEXTAREA":
 			return (
 				<FieldWrapper field={field}>
-					<Textarea id={id} value={value} onChange={(e) => onChange(e.target.value)} rows={3} placeholder={field.placeholder ?? undefined} />
+					<Textarea
+						id={id}
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+						rows={3}
+						placeholder={field.placeholder ?? undefined}
+					/>
 				</FieldWrapper>
 			);
 
 		case "NUMBER":
 			return (
 				<FieldWrapper field={field}>
-					<Input id={id} type="number" value={value} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder ?? undefined} />
+					<Input
+						id={id}
+						type="number"
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+						placeholder={field.placeholder ?? undefined}
+					/>
 				</FieldWrapper>
 			);
 
@@ -196,16 +245,25 @@ function renderCustomField(
 						id={id}
 						type="checkbox"
 						checked={value === "true"}
-						onChange={(e) => onChange(e.target.checked ? "true" : "false")}
+						onChange={(e) =>
+							onChange(e.target.checked ? "true" : "false")
+						}
 						className="mt-0.5 size-4 rounded border-border"
 					/>
 					<div className="space-y-0.5">
-						<Label htmlFor={id} className="font-normal cursor-pointer">
+						<Label
+							htmlFor={id}
+							className="font-normal cursor-pointer"
+						>
 							{field.label}
-							{field.required && <span className="ml-1 text-destructive">*</span>}
+							{field.required && (
+								<span className="ml-1 text-destructive">*</span>
+							)}
 						</Label>
 						{field.helpText && (
-							<p className="text-xs text-muted-foreground">{field.helpText}</p>
+							<p className="text-xs text-muted-foreground">
+								{field.helpText}
+							</p>
 						)}
 					</div>
 				</div>
@@ -217,7 +275,9 @@ function renderCustomField(
 					<NativeSelect id={id} value={value} onChange={onChange}>
 						<option value="">Select an option…</option>
 						{cf.options.map((opt) => (
-							<option key={opt} value={opt}>{opt}</option>
+							<option key={opt} value={opt}>
+								{opt}
+							</option>
 						))}
 					</NativeSelect>
 				</FieldWrapper>
@@ -226,7 +286,12 @@ function renderCustomField(
 		case "DATE":
 			return (
 				<FieldWrapper field={field}>
-					<Input id={id} type="date" value={value} onChange={(e) => onChange(e.target.value)} />
+					<Input
+						id={id}
+						type="date"
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+					/>
 				</FieldWrapper>
 			);
 
@@ -240,14 +305,25 @@ function renderCustomField(
 		default:
 			return (
 				<FieldWrapper field={field}>
-					<Input id={id} value={value} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder ?? undefined} />
+					<Input
+						id={id}
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+						placeholder={field.placeholder ?? undefined}
+					/>
 				</FieldWrapper>
 			);
 	}
 }
 
-export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererProps) {
-	const options = Array.isArray(field.options) ? (field.options as FieldOption[]) : [];
+export function FormFieldRenderer({
+	field,
+	value,
+	onChange,
+}: FormFieldRendererProps) {
+	const options = Array.isArray(field.options)
+		? (field.options as FieldOption[])
+		: [];
 	const id = `field-${field.id}`;
 
 	if (field.type === "HEADER") {
@@ -255,7 +331,9 @@ export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererP
 			<div className="border-b pb-3 pt-2">
 				<p className="font-semibold text-base">{field.label}</p>
 				{field.helpText && (
-					<p className="text-sm text-muted-foreground mt-0.5">{field.helpText}</p>
+					<p className="text-sm text-muted-foreground mt-0.5">
+						{field.helpText}
+					</p>
 				)}
 			</div>
 		);
@@ -299,7 +377,13 @@ export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererP
 			return (
 				<div className="space-y-1.5">
 					{label}
-					<Textarea id={id} value={value} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder ?? undefined} rows={4} />
+					<Textarea
+						id={id}
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+						placeholder={field.placeholder ?? undefined}
+						rows={4}
+					/>
 					{helpText}
 				</div>
 			);
@@ -311,7 +395,9 @@ export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererP
 					<NativeSelect id={id} value={value} onChange={onChange}>
 						<option value="">Select an option…</option>
 						{options.map((opt) => (
-							<option key={opt.value} value={opt.value}>{opt.label}</option>
+							<option key={opt.value} value={opt.value}>
+								{opt.label}
+							</option>
 						))}
 					</NativeSelect>
 					{helpText}
@@ -325,13 +411,20 @@ export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererP
 						id={id}
 						type="checkbox"
 						checked={value === "true"}
-						onChange={(e) => onChange(e.target.checked ? "true" : "false")}
+						onChange={(e) =>
+							onChange(e.target.checked ? "true" : "false")
+						}
 						className="mt-0.5 size-4 rounded border-border"
 					/>
 					<div className="space-y-0.5">
-						<Label htmlFor={id} className="font-normal cursor-pointer">
+						<Label
+							htmlFor={id}
+							className="font-normal cursor-pointer"
+						>
 							{field.label}
-							{field.required && <span className="ml-1 text-destructive">*</span>}
+							{field.required && (
+								<span className="ml-1 text-destructive">*</span>
+							)}
 						</Label>
 						{helpText}
 					</div>
@@ -342,7 +435,12 @@ export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererP
 			return (
 				<div className="space-y-1.5">
 					{label}
-					<Input id={id} type="date" value={value} onChange={(e) => onChange(e.target.value)} />
+					<Input
+						id={id}
+						type="date"
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+					/>
 					{helpText}
 				</div>
 			);
@@ -351,7 +449,13 @@ export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererP
 			return (
 				<div className="space-y-1.5">
 					{label}
-					<Input id={id} type="number" value={value} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder ?? undefined} />
+					<Input
+						id={id}
+						type="number"
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+						placeholder={field.placeholder ?? undefined}
+					/>
 					{helpText}
 				</div>
 			);
@@ -371,7 +475,10 @@ export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererP
 					{label}
 					<div className="space-y-2">
 						{options.map((opt) => (
-							<label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+							<label
+								key={opt.value}
+								className="flex items-center gap-2 cursor-pointer"
+							>
 								<input
 									type="radio"
 									name={`field-${field.id}`}
@@ -392,7 +499,12 @@ export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererP
 			return (
 				<div className="space-y-1.5">
 					{label}
-					<Input id={id} value={value} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder ?? undefined} />
+					<Input
+						id={id}
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+						placeholder={field.placeholder ?? undefined}
+					/>
 					{helpText}
 				</div>
 			);
@@ -418,7 +530,12 @@ function FileField({
 		const file = e.target.files?.[0];
 		if (!file) return;
 		const contentType = file.type;
-		const allowed = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+		const allowed = [
+			"image/jpeg",
+			"image/jpg",
+			"image/png",
+			"application/pdf",
+		];
 		if (!allowed.includes(contentType)) {
 			setError("Please upload a JPG, PNG, or PDF.");
 			if (fileInputRef.current) fileInputRef.current.value = "";
@@ -427,9 +544,14 @@ function FileField({
 		setUploading(true);
 		setError(null);
 		try {
-			const { uploadUrl, path } = await orpcClient.forms.publicFormFieldUploadUrl({
-				contentType: contentType as "image/jpeg" | "image/jpg" | "image/png" | "application/pdf",
-			});
+			const { uploadUrl, path } =
+				await orpcClient.forms.publicFormFieldUploadUrl({
+					contentType: contentType as
+						| "image/jpeg"
+						| "image/jpg"
+						| "image/png"
+						| "application/pdf",
+				});
 			const upload = await fetch(uploadUrl, {
 				method: "PUT",
 				headers: { "Content-Type": contentType },
@@ -457,7 +579,9 @@ function FileField({
 				onChange={handleFileChange}
 				className="block w-full text-sm text-foreground file:mr-3 file:rounded-md file:border file:border-input file:bg-background file:px-3 file:py-1.5 file:text-sm file:font-medium hover:file:bg-muted disabled:opacity-50"
 			/>
-			{uploading && <p className="text-xs text-muted-foreground">Uploading…</p>}
+			{uploading && (
+				<p className="text-xs text-muted-foreground">Uploading…</p>
+			)}
 			{!uploading && value && (
 				<p className="text-xs text-green-600">File uploaded.</p>
 			)}
@@ -482,7 +606,9 @@ function ConsentField({
 	const consentItemId = field.consentItem?.id;
 
 	const isChecked = value === "true" || value.startsWith("agreed:");
-	const uploadedFileKey = value.startsWith("agreed:") ? value.slice("agreed:".length) : null;
+	const uploadedFileKey = value.startsWith("agreed:")
+		? value.slice("agreed:".length)
+		: null;
 
 	const [uploading, setUploading] = useState(false);
 	const [uploadError, setUploadError] = useState<string | null>(null);
@@ -504,7 +630,10 @@ function ConsentField({
 		setUploadError(null);
 
 		try {
-			const { uploadUrl, fileKey } = await orpcClient.forms.publicConsentUploadUrl({ consentItemId });
+			const { uploadUrl, fileKey } =
+				await orpcClient.forms.publicConsentUploadUrl({
+					consentItemId,
+				});
 
 			const upload = await fetch(uploadUrl, {
 				method: "PUT",
@@ -539,12 +668,19 @@ function ConsentField({
 						className="mt-0.5 size-4 shrink-0 rounded border-border accent-primary"
 					/>
 					<div className="space-y-1 min-w-0">
-						<Label htmlFor={id} className="cursor-pointer leading-snug">
+						<Label
+							htmlFor={id}
+							className="cursor-pointer leading-snug"
+						>
 							{consentName}
-							{field.required && <span className="ml-1 text-destructive">*</span>}
+							{field.required && (
+								<span className="ml-1 text-destructive">*</span>
+							)}
 						</Label>
 						{field.helpText && (
-							<p className="text-xs text-muted-foreground">{field.helpText}</p>
+							<p className="text-xs text-muted-foreground">
+								{field.helpText}
+							</p>
 						)}
 					</div>
 				</div>
@@ -567,7 +703,9 @@ function ConsentField({
 				<div className="ml-7 space-y-2">
 					{uploadedFileKey ? (
 						<div className="flex items-center gap-2 text-sm">
-							<span className="text-green-600 dark:text-green-400 font-medium">✓ Signed form uploaded</span>
+							<span className="text-green-600 dark:text-green-400 font-medium">
+								✓ Signed form uploaded
+							</span>
 							<button
 								type="button"
 								onClick={handleRemoveFile}
@@ -579,7 +717,8 @@ function ConsentField({
 					) : (
 						<div className="space-y-1">
 							<p className="text-xs text-muted-foreground">
-								Upload your signed copy <span className="opacity-60">(optional)</span>
+								Upload your signed copy{" "}
+								<span className="opacity-60">(optional)</span>
 							</p>
 							<label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-xs hover:bg-muted transition-colors">
 								{uploading ? "Uploading…" : "Choose PDF file"}
@@ -593,7 +732,9 @@ function ConsentField({
 								/>
 							</label>
 							{uploadError && (
-								<p className="text-xs text-destructive">{uploadError}</p>
+								<p className="text-xs text-destructive">
+									{uploadError}
+								</p>
 							)}
 						</div>
 					)}

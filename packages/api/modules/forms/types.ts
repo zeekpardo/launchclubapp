@@ -42,7 +42,12 @@ export const publicConsentUploadUrlSchema = z.object({
 });
 
 export const publicFormFieldUploadUrlSchema = z.object({
-  contentType: z.enum(["image/jpeg", "image/jpg", "image/png", "application/pdf"]),
+	contentType: z.enum([
+		"image/jpeg",
+		"image/jpg",
+		"image/png",
+		"application/pdf",
+	]),
 });
 
 export const publicSubmitFormSchema = z.object({

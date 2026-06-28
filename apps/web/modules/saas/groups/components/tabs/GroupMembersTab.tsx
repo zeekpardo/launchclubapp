@@ -450,7 +450,9 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 					groupName={group.name}
 					organizationId={organizationId}
 					siteId={group.site?.id}
-					existingMemberIds={group.personGroups.map(({ person }) => person.id)}
+					existingMemberIds={group.personGroups.map(
+						({ person }) => person.id,
+					)}
 					open={addMemberOpen}
 					onOpenChange={setAddMemberOpen}
 					onSuccess={invalidateGroup}

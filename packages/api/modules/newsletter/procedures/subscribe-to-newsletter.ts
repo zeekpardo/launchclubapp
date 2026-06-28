@@ -20,7 +20,11 @@ export const subscribeToNewsletter = publicProcedure
 	)
 	.use(localeMiddleware)
 	.handler(async ({ input, context }) => {
-		enforceRateLimit(`newsletter:${getClientIp(context.headers)}`, 5, 60 * 60 * 1000);
+		enforceRateLimit(
+			`newsletter:${getClientIp(context.headers)}`,
+			5,
+			60 * 60 * 1000,
+		);
 		const { email } = input;
 
 		try {
