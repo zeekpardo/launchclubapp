@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/client";
-import { addPersonToGroup, getGroupById, getSiteById, getAreaById } from "@repo/database";
+import { addPersonToGroup, getGroupById, getSiteById, getAreaById, getUserSiteIds } from "@repo/database";
 import { verifyOrganizationMembership } from "../../organizations/lib/membership";
-import { canAccessSite } from "../../organizations/lib/site-access";
+import { canAccessSite, canManageGroup } from "../../organizations/lib/site-access";
 import { protectedProcedure } from "../../../orpc/procedures";
 import { addMemberSchema } from "../types";
 
@@ -19,7 +19,14 @@ export const addMember = protectedProcedure
     if (!membership) throw new ORPCError("FORBIDDEN");
     const isOwner = membership.role === "owner" || membership.role === "admin" || context.user.role === "admin";
     if (!isOwner) {
-      if (!(await canAccessSite(context.user.id, group.siteId))) throw new ORPCError("FORBIDDEN");
+      // Site leaders (UserSite) gate on site access; group leaders (UserGroup,
+      // no UserSite) gate on managing this specific group.
+      const userSiteIds = await getUserSiteIds(context.user.id);
+      if (userSiteIds.length > 0) {
+        if (!(await canAccessSite(context.user.id, group.siteId))) throw new ORPCError("FORBIDDEN");
+      } else if (!(await canManageGroup(context.user.id, input.groupId))) {
+        throw new ORPCError("FORBIDDEN");
+      }
     }
     return addPersonToGroup(input.personId, input.groupId, input.role);
   });
