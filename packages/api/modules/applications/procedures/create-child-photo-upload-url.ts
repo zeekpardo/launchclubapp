@@ -3,6 +3,7 @@ import { getSiteBySlug } from "@repo/database";
 import { getSignedUploadUrl } from "@repo/storage";
 import { z } from "zod";
 import { publicProcedure } from "../../../orpc/procedures";
+import { enforceRateLimit, getClientIp } from "../../../orpc/rate-limit";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/jpg", "image/png"] as const;
 const EXT_MAP: Record<string, string> = {
@@ -25,7 +26,8 @@ export const createChildPhotoUploadUrl = publicProcedure
     contentType: z.enum(ALLOWED_MIME_TYPES),
     siteSlug: z.string().max(200),
   }))
-  .handler(async ({ input }) => {
+  .handler(async ({ input, context }) => {
+    enforceRateLimit(`upload-url:${getClientIp(context.headers)}`, 30, 10 * 60 * 1000);
     // Verify the site exists and is accepting applications before issuing a URL
     const site = await getSiteBySlug(input.siteSlug);
     if (!site || !site.acceptApplications) {

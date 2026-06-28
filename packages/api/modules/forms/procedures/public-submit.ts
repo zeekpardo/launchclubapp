@@ -8,10 +8,20 @@ import {
   updatePerson,
   addGuardian,
   createHousehold,
+  countRecentApplicationsByEmail,
+  countRecentApplicationsBySite,
+  countRecentMentorApplicationsByEmail,
   db,
 } from "@repo/database";
 import { publicProcedure } from "../../../orpc/procedures";
+import { enforceRateLimit, getClientIp } from "../../../orpc/rate-limit";
 import { publicSubmitFormSchema } from "../types";
+
+const ONE_HOUR_MS = 60 * 60 * 1000;
+// Per email address: max submissions per rolling hour (matches applications.submit).
+const EMAIL_LIMIT = 5;
+// Per site: cap submissions per rolling hour to prevent flooding one site.
+const SITE_LIMIT = 200;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -144,7 +154,10 @@ export const publicSubmitForm = publicProcedure
     summary: "Submit a public form",
   })
   .input(publicSubmitFormSchema)
-  .handler(async ({ input }) => {
+  .handler(async ({ input, context }) => {
+    // Per-IP throttle covering both form types before any DB work.
+    enforceRateLimit(`forms-submit:${getClientIp(context.headers)}`, 20, 10 * 60 * 1000);
+
     const org = await getOrganizationBySlug(input.orgSlug);
     if (!org) throw new ORPCError("NOT_FOUND");
 
@@ -189,6 +202,14 @@ export const publicSubmitForm = publicProcedure
 
       if (!email) {
         throw new ORPCError("BAD_REQUEST", { message: "Email is required for mentor applications." });
+      }
+
+      // Rate limit per email address.
+      const emailCount = await countRecentMentorApplicationsByEmail(email, ONE_HOUR_MS);
+      if (emailCount >= EMAIL_LIMIT) {
+        throw new ORPCError("TOO_MANY_REQUESTS", {
+          message: "Too many submissions from this email address. Please try again later.",
+        });
       }
 
       const mentorAppFieldValues = buildAppFieldValues(submittedFields, allFields);
@@ -261,6 +282,22 @@ export const publicSubmitForm = publicProcedure
 
     if (!parentFirstName || !parentLastName) {
       throw new ORPCError("BAD_REQUEST", { message: "Parent first name and last name are required." });
+    }
+
+    // Rate limit: per email address and per site (matches applications.submit).
+    if (parentEmail) {
+      const emailCount = await countRecentApplicationsByEmail(parentEmail, ONE_HOUR_MS);
+      if (emailCount >= EMAIL_LIMIT) {
+        throw new ORPCError("TOO_MANY_REQUESTS", {
+          message: "Too many submissions from this email address. Please try again later.",
+        });
+      }
+    }
+    const siteCount = await countRecentApplicationsBySite(targetSiteId, ONE_HOUR_MS);
+    if (siteCount >= SITE_LIMIT) {
+      throw new ORPCError("TOO_MANY_REQUESTS", {
+        message: "This site is temporarily unavailable for new applications. Please try again later.",
+      });
     }
 
     // Build field value arrays for the Application record
