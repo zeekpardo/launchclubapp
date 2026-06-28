@@ -81,14 +81,16 @@ export function NavBar() {
 						icon: CalendarIcon,
 						isActive: pathname.startsWith(`${basePath}/events`),
 					},
+					{
+						// People is visible to group leaders too (scoped to the
+						// people in their groups); the page enforces the scope.
+						label: t("app.menu.people"),
+						href: `${basePath}/people`,
+						icon: UserIcon,
+						isActive: pathname.startsWith(`${basePath}/people`),
+					},
 					...(!isGroupLeader
 					? [
-							{
-								label: t("app.menu.people"),
-								href: `${basePath}/people`,
-								icon: UserIcon,
-								isActive: pathname.startsWith(`${basePath}/people`),
-							},
 							{
 								label: t("app.menu.applications"),
 								href: `${basePath}/applications`,
