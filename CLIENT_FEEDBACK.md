@@ -29,7 +29,7 @@ Ordered **bugs → essential features → nice-to-haves**, with bugs ranked by s
 7. [ ] 🐞 **Uploaded PDF can't be opened/viewed** *(§6.1)*.
 8. [x] 🐞 **Group end time won't save** *(§8.1)*. **✅ VERIFIED RESOLVED** — the full chain (settings form + dialog bindings, update schema/procedure, `updateGroup` query, `getGroupById` read) correctly persists `meetingEndTime`; data round-trip confirms it saves and reads back. Already fixed in current code (no change needed).
 9. [ ] 🐞 **Attendance report doesn't show** after attendance is taken *(§8.6a)*.
-10. [ ] 🐞 **Parents not showing up in People** *(§9.1)*.
+10. [x] 🐞 **Parents not showing up in People** *(§9.1)*. **✅ RESOLVED via §6.5** — the People "parents" tab query (`getPeopleByOrganization` with `personType: PARENT`) correctly returns all parents for an admin/owner; the empty list was a downstream effect of approval never migrating applicants to people (autoMigrate gated off). With §6.5 fixed, approving an application creates the parent records and they appear. Verified the owner parents-tab query returns the created parents. (Scoped site/group leaders still only see students in their scope — guardian visibility for leaders is a separate enhancement, not this bug.)
 
 ## 🟡 P2 — Medium bugs (correctness / filtering / display)
 > Wrong or confusing data, but not blocking.
