@@ -105,7 +105,7 @@ export function MentorFormLayout({
 				orgSlug={orgSlug}
 				formSlug={formSlug}
 				fields={values}
-				siteId={hasSiteSelector && selectedSiteId ? selectedSiteId : undefined}
+				siteId={selectedSiteId || undefined}
 				onSuccess={() => setSubmitted(true)}
 			/>
 		</div>

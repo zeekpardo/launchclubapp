@@ -281,7 +281,7 @@ export function StudentFormLayout({
 				formSlug={formSlug}
 				parentFields={parentValues}
 				students={getStudentsPayload()}
-				siteId={hasSiteSelector && selectedSiteId ? selectedSiteId : undefined}
+				siteId={selectedSiteId || undefined}
 				onSuccess={() => setSubmitted(true)}
 			/>
 		</div>
