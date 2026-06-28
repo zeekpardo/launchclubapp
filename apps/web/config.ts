@@ -33,7 +33,9 @@ export const config = {
 
 	// the marketing part of the application
 	marketing: {
-		// whether the marketing features should be enabled (otherwise all routes will be redirect to the saas part)
-		enabled: true,
+		// whether the marketing features should be enabled (otherwise all routes
+		// are redirected to the saas part). Disabled — this is a SaaS-only app;
+		// legal pages (/legal/*) remain reachable, see proxy.ts.
+		enabled: false,
 	},
 } as const;
