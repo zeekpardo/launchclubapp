@@ -3,8 +3,7 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"create:user": "dotenv -c -e ../apps/web/.env.local -- tsx create-user.ts",
-		"seed:invite": "dotenv -c -e ../apps/web/.env.local -- tsx seed-invite.ts"
+		"create:user": "dotenv -c -e ../apps/web/.env.local -- tsx create-user.ts"
 	},
 	"dependencies": {
 		"@repo/auth": "workspace:*",
