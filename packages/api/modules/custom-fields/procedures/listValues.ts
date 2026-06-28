@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/client";
-import { getCustomFieldValues } from "@repo/database";
+import { getCustomFieldValues, getPersonById } from "@repo/database";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc/procedures";
 import { verifyOrganizationMembership } from "../../organizations/lib/membership";
@@ -12,10 +12,13 @@ export const listCustomFieldValuesProcedure = protectedProcedure
 	})
 	.input(z.object({ organizationId: z.string(), personId: z.string() }))
 	.handler(async ({ input, context }) => {
-		const membership = await verifyOrganizationMembership(
+		await verifyOrganizationMembership(
 			input.organizationId,
 			context.user.id,
 		);
-		if (!membership) throw new ORPCError("FORBIDDEN");
+		// The person must belong to the caller's org before listing their values.
+		const person = await getPersonById(input.personId);
+		if (!person || person.organizationId !== input.organizationId)
+			throw new ORPCError("NOT_FOUND");
 		return getCustomFieldValues(input.personId);
 	});

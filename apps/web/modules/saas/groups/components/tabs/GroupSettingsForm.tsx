@@ -157,7 +157,12 @@ export function GroupSettingsForm({ groupId, group }: GroupSettingsFormProps) {
 										onValueChange={field.onChange}
 									>
 										<SelectTrigger>
-											<SelectValue />
+											<SelectValue
+												placeholder={
+													group.site?.name ??
+													"Select a site"
+												}
+											/>
 										</SelectTrigger>
 										<SelectContent>
 											{sites?.map((site) => (

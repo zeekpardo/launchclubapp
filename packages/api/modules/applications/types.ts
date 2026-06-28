@@ -122,6 +122,29 @@ export const getConsentFormDownloadUrlSchema = z.object({
 	consentType: z.enum(["observation", "terms", "photoVideo"]),
 });
 
+export const getApplicationFileDownloadUrlSchema = z.object({
+	applicationId: z.string(),
+	path: z.string().max(500),
+});
+
+export const updateApplicationSchema = z.object({
+	id: z.string(),
+	parentFirstName: z.string().min(1).max(200).optional(),
+	parentLastName: z.string().min(1).max(200).optional(),
+	parentEmail: z.string().email().max(320).nullish(),
+	parentPhone: z.string().max(50).nullish(),
+	children: z
+		.array(
+			z.object({
+				id: z.string(),
+				firstName: z.string().min(1).max(200).optional(),
+				lastName: z.string().min(1).max(200).optional(),
+				grade: z.string().max(50).nullish(),
+			}),
+		)
+		.optional(),
+});
+
 export const getOrgApplicationSettingsSchema = z.object({
 	organizationId: z.string(),
 });

@@ -39,7 +39,21 @@ dist/
 # typescript
 *.tsbuildinfo
 
-# other 
+# other
 .react-email/
 .content-collections/
-.prisma-zod-generator-manifest.jsonmc
+.prisma-zod-generator-manifest.json
+
+# local MinIO client binary (use the minio/mc docker image instead)
+/mc
+
+# macOS Finder / cp duplicate artifacts (e.g. "index 2.ts") — code/config only
+# so legitimately-named content files (e.g. "Section 1.md") are unaffected
+* [0-9].ts
+* [0-9].tsx
+* [0-9].js
+* [0-9].jsx
+* [0-9].mjs
+* [0-9].cjs
+* [0-9].json
+* copy.*

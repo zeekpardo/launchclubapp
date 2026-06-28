@@ -4,6 +4,7 @@ import { sendEmail } from "@repo/mail";
 import { z } from "zod";
 import { localeMiddleware } from "../../../orpc/middleware/locale-middleware";
 import { publicProcedure } from "../../../orpc/procedures";
+import { enforceRateLimit, getClientIp } from "../../../orpc/rate-limit";
 
 export const subscribeToNewsletter = publicProcedure
 	.route({
@@ -18,7 +19,12 @@ export const subscribeToNewsletter = publicProcedure
 		}),
 	)
 	.use(localeMiddleware)
-	.handler(async ({ input, context: { locale } }) => {
+	.handler(async ({ input, context }) => {
+		enforceRateLimit(
+			`newsletter:${getClientIp(context.headers)}`,
+			5,
+			60 * 60 * 1000,
+		);
 		const { email } = input;
 
 		try {
@@ -26,7 +32,7 @@ export const subscribeToNewsletter = publicProcedure
 
 			await sendEmail({
 				to: email,
-				locale,
+				locale: context.locale,
 				templateId: "newsletterSignup",
 				context: {},
 			});

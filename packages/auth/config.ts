@@ -5,11 +5,13 @@ export const config = {
 	// Whether magic link is enabled
 	enableMagicLink: true,
 
-	// Whether social login is enabled
-	enableSocialLogin: true,
+	// Whether social login is enabled (OAuth: Google/GitHub). Disabled — we
+	// only offer email/password and magic link.
+	enableSocialLogin: false,
 
-	// Whether passkeys are enabled
-	enablePasskeys: true,
+	// Whether passkeys are enabled. Disabled — only email/password and magic
+	// link are offered.
+	enablePasskeys: false,
 
 	// Whether password login is enabled
 	enablePasswordLogin: true,

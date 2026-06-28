@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/client";
 import { getOrganizationBySlug } from "@repo/database";
 import { getSignedUploadUrl } from "@repo/storage";
 import { publicProcedure } from "../../../orpc/procedures";
+import { enforceRateLimit, getClientIp } from "../../../orpc/rate-limit";
 import { mentorApplicationFileUploadUrlSchema } from "../types";
 
 const ALLOWED_TYPES = [
@@ -19,7 +20,12 @@ export const mentorApplicationFileUploadUrl = publicProcedure
 		tags: ["MentorApplications"],
 	})
 	.input(mentorApplicationFileUploadUrlSchema)
-	.handler(async ({ input }) => {
+	.handler(async ({ input, context }) => {
+		enforceRateLimit(
+			`upload-url:${getClientIp(context.headers)}`,
+			30,
+			10 * 60 * 1000,
+		);
 		const org = await getOrganizationBySlug(input.orgSlug);
 		if (!org) throw new ORPCError("NOT_FOUND");
 

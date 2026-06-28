@@ -15,7 +15,9 @@ import {
 } from "@repo/ui/components/form";
 import { Input } from "@repo/ui/components/input";
 import { useAuthErrorMessages } from "@saas/auth/hooks/errors-messages";
+import { sessionQueryKey } from "@saas/auth/lib/api";
 import { OrganizationInvitationAlert } from "@saas/organizations/components/OrganizationInvitationAlert";
+import { useQueryClient } from "@tanstack/react-query";
 import {
 	AlertTriangleIcon,
 	ArrowRightIcon,
@@ -47,6 +49,7 @@ const formSchema = z.object({
 export function SignupForm({ prefillEmail }: { prefillEmail?: string }) {
 	const t = useTranslations();
 	const router = useRouter();
+	const queryClient = useQueryClient();
 	const { user, loaded: sessionLoaded } = useSession();
 	const { getAuthErrorMessage } = useAuthErrorMessages();
 	const searchParams = useSearchParams();
@@ -65,8 +68,6 @@ export function SignupForm({ prefillEmail }: { prefillEmail?: string }) {
 		},
 	});
 
-	const invitationOnlyMode = !authConfig.enableSignup && invitationId;
-
 	const redirectPath = invitationId
 		? `/organization-invitation/${invitationId}`
 		: (redirectTo ?? config.saas.redirectAfterSignIn);
@@ -79,34 +80,55 @@ export function SignupForm({ prefillEmail }: { prefillEmail?: string }) {
 
 	const onSubmit = form.handleSubmit(async ({ email, password, name }) => {
 		try {
-			const { error } = await (authConfig.enablePasswordLogin
-				? await authClient.signUp.email({
-						email,
-						password,
-						name,
-						callbackURL: redirectPath,
-					})
-				: authClient.signIn.magicLink({
-						email,
-						name,
-						callbackURL: redirectPath,
-					}));
+			if (authConfig.enablePasswordLogin) {
+				const { error: signUpError } = await authClient.signUp.email({
+					email,
+					password,
+					name,
+					callbackURL: redirectPath,
+				});
 
-			if (error) {
-				throw error;
-			}
+				if (signUpError) {
+					throw signUpError;
+				}
 
-			if (invitationOnlyMode) {
-				const { error } =
-					await authClient.organization.acceptInvitation({
-						invitationId,
-					});
+				// Invited users: open-signup mode disables `autoSignIn`, so a
+				// fresh signup has no session. Try to sign them straight in and
+				// route them to the invitation page to join the org.
+				//
+				// In production `requireEmailVerification` blocks sign-in until
+				// the email is verified — that's intentional: it proves the
+				// invitee controls the inbox. The signUp call above already sent
+				// a verification email whose callbackURL is this invitation page,
+				// so when sign-in is blocked we simply show the "check your
+				// email" state; verifying from their inbox lands them on the
+				// acceptance page. We must NOT auto-verify on the inviter's
+				// say-so, or anyone could create a verified account on an
+				// invited address they don't own.
+				if (invitationId) {
+					const { error: signInError } =
+						await authClient.signIn.email({ email, password });
+
+					if (!signInError) {
+						await queryClient.invalidateQueries({
+							queryKey: sessionQueryKey,
+						});
+						router.replace(redirectPath);
+					}
+					// On signInError (verification required), fall through to the
+					// "verify your email" success state below.
+					return;
+				}
+			} else {
+				const { error } = await authClient.signIn.magicLink({
+					email,
+					name,
+					callbackURL: redirectPath,
+				});
 
 				if (error) {
 					throw error;
 				}
-
-				router.push(config.saas.redirectAfterSignIn);
 			}
 		} catch (e) {
 			form.setError("root", {
@@ -128,7 +150,7 @@ export function SignupForm({ prefillEmail }: { prefillEmail?: string }) {
 				{t("auth.signup.message")}
 			</p>
 
-			{form.formState.isSubmitSuccessful && !invitationOnlyMode ? (
+			{form.formState.isSubmitSuccessful ? (
 				<Alert variant="success">
 					<MailboxIcon />
 					<AlertTitle>

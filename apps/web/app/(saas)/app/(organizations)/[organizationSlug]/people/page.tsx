@@ -1,4 +1,4 @@
-import { getUserSiteIds } from "@repo/database";
+import { getUserGroupIds, getUserSiteIds } from "@repo/database";
 import { getActiveOrganization, getSession } from "@saas/auth/lib/server";
 import { PeopleTable } from "@saas/people/components/PeopleTable";
 import { PageHeader } from "@saas/shared/components/PageHeader";
@@ -30,8 +30,13 @@ export default async function PeoplePage({
 		["admin", "owner"].includes(currentMember.role) ||
 		session.user.role === "admin";
 	if (!isAdminOrOwner) {
-		const siteIds = await getUserSiteIds(session.user.id);
-		if (siteIds.length === 0) return notFound();
+		// Site leaders (UserSite) and group leaders (UserGroup) can both view
+		// People, scoped to their assignments. Only block members with neither.
+		const [siteIds, groupIds] = await Promise.all([
+			getUserSiteIds(session.user.id),
+			getUserGroupIds(session.user.id),
+		]);
+		if (siteIds.length === 0 && groupIds.length === 0) return notFound();
 	}
 
 	return (

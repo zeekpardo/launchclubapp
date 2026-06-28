@@ -9,6 +9,7 @@ import {
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc/procedures";
 import { verifyOrganizationMembership } from "../lib/membership";
+import { assertGroupsInOrg, assertSitesInOrg } from "../lib/scope";
 
 export const createMember = protectedProcedure
 	.route({
@@ -100,6 +101,7 @@ export const createMember = protectedProcedure
 
 		// Assign site access for Site Leaders
 		if (input.lcRole === "site-leader") {
+			await assertSitesInOrg(input.siteIds, input.organizationId);
 			await Promise.all(
 				input.siteIds.map((siteId) => addUserToSite(user.id, siteId)),
 			);
@@ -107,6 +109,7 @@ export const createMember = protectedProcedure
 
 		// Assign group access for Group Leaders
 		if (input.lcRole === "group-leader") {
+			await assertGroupsInOrg(input.groupIds, input.organizationId);
 			await Promise.all(
 				input.groupIds.map((groupId) =>
 					addUserToGroup(user.id, groupId),

@@ -101,6 +101,10 @@ export function ApproveDialog({
 						{t("approveDialog.assignChildren")}
 					</p>
 
+					<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+						{t("approveDialog.studentsHeading")}
+					</p>
+
 					{children.map((child) => (
 						<div key={child.id} className="space-y-1.5">
 							<p className="text-sm font-medium">

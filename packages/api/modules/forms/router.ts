@@ -3,6 +3,7 @@ import { createFormProcedure } from "./procedures/create";
 import { getForm } from "./procedures/get";
 import { listForms } from "./procedures/list";
 import { publicConsentUploadUrl } from "./procedures/public-consent-upload-url";
+import { publicFormFieldUploadUrl } from "./procedures/public-form-field-upload-url";
 import { publicGetForm } from "./procedures/public-get";
 import { publicSubmitForm } from "./procedures/public-submit";
 import { softDeleteFormProcedure } from "./procedures/soft-delete";
@@ -18,4 +19,5 @@ export const formsRouter = {
 	publicGet: publicGetForm,
 	publicSubmit: publicSubmitForm,
 	publicConsentUploadUrl,
+	publicFormFieldUploadUrl,
 };

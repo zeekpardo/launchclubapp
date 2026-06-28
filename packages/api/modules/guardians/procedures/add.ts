@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/client";
 import { addGuardian, getPersonById } from "@repo/database";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc/procedures";
+import { verifyOrganizationMembership } from "../../organizations/lib/membership";
 
 export const addGuardianProcedure = protectedProcedure
 	.route({ method: "POST", path: "/guardians", tags: ["Guardians"] })
@@ -12,7 +13,7 @@ export const addGuardianProcedure = protectedProcedure
 			relation: z.string().optional(),
 		}),
 	)
-	.handler(async ({ input }) => {
+	.handler(async ({ input, context }) => {
 		const guardian = await getPersonById(input.personId);
 		if (!guardian)
 			throw new ORPCError("NOT_FOUND", {
@@ -34,6 +35,17 @@ export const addGuardianProcedure = protectedProcedure
 				message: "Child must have personType STUDENT",
 			});
 		}
+
+		// Both must be in the same org, and the caller must be a member of it.
+		if (guardian.organizationId !== kid.organizationId) {
+			throw new ORPCError("BAD_REQUEST", {
+				message: "Guardian and child must be in the same organization",
+			});
+		}
+		await verifyOrganizationMembership(
+			guardian.organizationId,
+			context.user.id,
+		);
 
 		return addGuardian(input.personId, input.kidId, input.relation);
 	});

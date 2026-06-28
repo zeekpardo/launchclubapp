@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@repo/ui/components/badge";
+import { Button } from "@repo/ui/components/button";
 import {
 	Card,
 	CardContent,
@@ -8,12 +9,22 @@ import {
 	CardTitle,
 } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
+import { toastError } from "@repo/ui/components/toast";
 import { ApplicationStatusActions } from "@saas/applications/components/ApplicationActions";
+import { ApplicationEditDialog } from "@saas/applications/components/ApplicationEditDialog";
 import { useApplication } from "@saas/applications/hooks/use-applications";
-import { ArrowLeftIcon, CheckCircle2Icon, XCircleIcon } from "lucide-react";
+import { orpcClient } from "@shared/lib/orpc-client";
+import {
+	ArrowLeftIcon,
+	CheckCircle2Icon,
+	FileIcon,
+	PencilIcon,
+	XCircleIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+import { useState } from "react";
 
 interface ApplicationDetailProps {
 	applicationId: string;
@@ -24,6 +35,7 @@ interface ApplicationDetailProps {
 export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 	const t = useTranslations();
 	const { data: application, isLoading } = useApplication(applicationId);
+	const [editOpen, setEditOpen] = useState(false);
 
 	if (isLoading) {
 		return (
@@ -89,6 +101,14 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 					</CardTitle>
 					<div className="flex items-center gap-2">
 						{statusBadge()}
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setEditOpen(true)}
+						>
+							<PencilIcon className="mr-1.5 size-4" />
+							Edit
+						</Button>
 						<ApplicationStatusActions
 							applicationId={applicationId}
 							siteId={application.siteId}
@@ -270,19 +290,38 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 																	.type !==
 																"HEADER",
 														)
-														.map((ffv) => (
-															<DetailRow
-																key={ffv.id}
-																label={
-																	ffv
-																		.formField
-																		.label
-																}
-																value={
-																	ffv.value
-																}
-															/>
-														))}
+														.map((ffv) =>
+															ffv.formField
+																.type ===
+															"FILE" ? (
+																<FileFieldRow
+																	key={ffv.id}
+																	applicationId={
+																		applicationId
+																	}
+																	label={
+																		ffv
+																			.formField
+																			.label
+																	}
+																	path={
+																		ffv.value
+																	}
+																/>
+															) : (
+																<DetailRow
+																	key={ffv.id}
+																	label={
+																		ffv
+																			.formField
+																			.label
+																	}
+																	value={
+																		ffv.value
+																	}
+																/>
+															),
+														)}
 												</div>
 											)}
 									</div>
@@ -291,6 +330,73 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 						)}
 				</CardContent>
 			</Card>
+
+			<ApplicationEditDialog
+				applicationId={applicationId}
+				open={editOpen}
+				onOpenChange={setEditOpen}
+				initial={{
+					parentFirstName: application.parentFirstName ?? "",
+					parentLastName: application.parentLastName ?? "",
+					parentEmail: application.parentEmail ?? "",
+					parentPhone: application.parentPhone ?? "",
+					children: (application.children ?? []).map((c) => ({
+						id: c.id,
+						firstName: c.firstName ?? "",
+						lastName: c.lastName ?? "",
+						grade: c.grade ?? "",
+					})),
+				}}
+			/>
+		</div>
+	);
+}
+
+function FileFieldRow({
+	applicationId,
+	label,
+	path,
+}: {
+	applicationId: string;
+	label: string;
+	path: string;
+}) {
+	const [loading, setLoading] = useState(false);
+
+	if (!path) {
+		return <DetailRow label={label} value="—" />;
+	}
+
+	const openFile = async () => {
+		setLoading(true);
+		try {
+			const { downloadUrl } =
+				await orpcClient.applications.fileFieldDownloadUrl({
+					applicationId,
+					path,
+				});
+			window.open(downloadUrl, "_blank", "noopener,noreferrer");
+		} catch {
+			toastError("Could not open the file. Please try again.");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	return (
+		<div>
+			<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+				{label}
+			</p>
+			<button
+				type="button"
+				onClick={openFile}
+				disabled={loading}
+				className="mt-1 inline-flex items-center gap-1.5 text-sm text-primary hover:underline disabled:opacity-50"
+			>
+				<FileIcon className="size-3.5" />
+				{loading ? "Opening…" : "View file"}
+			</button>
 		</div>
 	);
 }

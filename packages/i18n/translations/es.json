@@ -1371,8 +1371,9 @@
 				"resetToPending": "Restablecer a pendiente"
 			},
 			"approveDialog": {
-				"title": "Aprobar Solicitud",
-				"assignChildren": "Opcionalmente, asigna cada niño a un grupo. Puedes omitir cualquiera o todos y asignarlos más tarde.",
+				"title": "Aprobar estudiante(s)",
+				"assignChildren": "Al aprobar se admite a los estudiantes indicados abajo. El padre/tutor se conserva solo como su contacto — no se inscribe. Opcionalmente asigna cada estudiante a un grupo; puedes omitirlo y asignarlo después.",
+				"studentsHeading": "Estudiantes a admitir",
 				"noGroup": "Sin grupo (asignar después)",
 				"noGroupsForSite": "No hay grupos para este sitio.",
 				"cancel": "Cancelar",

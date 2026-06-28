@@ -21,6 +21,9 @@ export const updatePersonNoteProcedure = protectedProcedure
 		if (!membership) throw new ORPCError("FORBIDDEN");
 		const note = await getPersonNoteById(input.id);
 		if (!note) throw new ORPCError("NOT_FOUND");
+		// The note must belong to the person whose org we authorized against,
+		// otherwise an admin of org A could edit an org-B note by id.
+		if (note.personId !== input.personId) throw new ORPCError("NOT_FOUND");
 		if (
 			note.authorId !== context.user.id &&
 			membership.role !== "owner" &&

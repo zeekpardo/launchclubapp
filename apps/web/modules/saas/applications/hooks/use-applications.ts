@@ -61,3 +61,26 @@ export function useReviewApplication() {
 		},
 	});
 }
+
+export function useUpdateApplication() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		...orpc.applications.update.mutationOptions(),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: orpc.applications.list
+					.queryOptions({
+						input: { organizationId: "" },
+					})
+					.queryKey.slice(0, 1),
+			});
+			queryClient.invalidateQueries({
+				queryKey: orpc.applications.get
+					.queryOptions({
+						input: { id: "" },
+					})
+					.queryKey.slice(0, 1),
+			});
+		},
+	});
+}

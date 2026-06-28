@@ -5,10 +5,12 @@ import { createFormFieldFileUploadUrl } from "./procedures/create-form-field-fil
 import { createMentorDocUploadUrlProcedure } from "./procedures/create-mentor-doc-upload-url";
 import { getApplication } from "./procedures/get";
 import { getConsentFormDownloadUrlProcedure } from "./procedures/get-consent-form-download-url";
+import { getApplicationFileDownloadUrlProcedure } from "./procedures/get-file-download-url";
 import { getOrgApplicationSettingsProcedure } from "./procedures/get-org-settings";
 import { listApplications } from "./procedures/list";
 import { reviewApplicationProcedure } from "./procedures/review";
 import { submitApplication } from "./procedures/submit";
+import { updateApplicationProcedure } from "./procedures/update";
 import { updateOrgApplicationSettingsProcedure } from "./procedures/update-org-settings";
 
 export const applicationsRouter = {
@@ -16,6 +18,7 @@ export const applicationsRouter = {
 	list: listApplications,
 	get: getApplication,
 	review: reviewApplicationProcedure,
+	update: updateApplicationProcedure,
 	getOrgSettings: getOrgApplicationSettingsProcedure,
 	updateOrgSettings: updateOrgApplicationSettingsProcedure,
 	childPhotoUploadUrl: createChildPhotoUploadUrl,
@@ -23,5 +26,6 @@ export const applicationsRouter = {
 	consentSignatureUploadUrl: createConsentSignatureUploadUrlProcedure,
 	consentFormUploadUrl: createConsentFormUploadUrlProcedure,
 	consentFormDownloadUrl: getConsentFormDownloadUrlProcedure,
+	fileFieldDownloadUrl: getApplicationFileDownloadUrlProcedure,
 	mentorDocUploadUrl: createMentorDocUploadUrlProcedure,
 };

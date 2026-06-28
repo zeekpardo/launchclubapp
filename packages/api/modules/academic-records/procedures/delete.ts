@@ -26,6 +26,7 @@ export const deleteAcademicRecordProcedure = protectedProcedure
 		) {
 			throw new ORPCError("FORBIDDEN");
 		}
-		await deleteAcademicRecord(input.id);
+		const { count } = await deleteAcademicRecord(input.id, input.personId);
+		if (count === 0) throw new ORPCError("NOT_FOUND");
 		return { success: true };
 	});

@@ -54,7 +54,15 @@ export default async function proxy(req: NextRequest) {
 	}
 
 	if (!appConfig.marketing.enabled) {
-		return NextResponse.redirect(new URL("/app", origin));
+		// Keep legal pages (privacy policy, terms) reachable even with marketing
+		// disabled — they're linked from the auth and SaaS footers and are
+		// legally required. They live under (marketing)/[locale]/legal, so allow
+		// both "/legal/..." and a locale-prefixed "/<locale>/legal/..." through.
+		const segments = pathname.split("/").filter(Boolean);
+		const isLegal = segments[0] === "legal" || segments[1] === "legal";
+		if (!isLegal) {
+			return NextResponse.redirect(new URL("/app", origin));
+		}
 	}
 
 	return intlMiddleware(req);

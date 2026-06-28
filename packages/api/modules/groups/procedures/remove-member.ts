@@ -3,12 +3,16 @@ import {
 	getAreaById,
 	getGroupById,
 	getSiteById,
+	getUserSiteIds,
 	removePersonFromGroup,
 } from "@repo/database";
 import { z } from "zod";
 import { protectedProcedure } from "../../../orpc/procedures";
 import { verifyOrganizationMembership } from "../../organizations/lib/membership";
-import { canAccessSite } from "../../organizations/lib/site-access";
+import {
+	canAccessSite,
+	canManageGroup,
+} from "../../organizations/lib/site-access";
 
 export const removeMember = protectedProcedure
 	.route({
@@ -34,8 +38,15 @@ export const removeMember = protectedProcedure
 			membership.role === "admin" ||
 			context.user.role === "admin";
 		if (!isOwner) {
-			if (!(await canAccessSite(context.user.id, group.siteId)))
+			const userSiteIds = await getUserSiteIds(context.user.id);
+			if (userSiteIds.length > 0) {
+				if (!(await canAccessSite(context.user.id, group.siteId)))
+					throw new ORPCError("FORBIDDEN");
+			} else if (
+				!(await canManageGroup(context.user.id, input.groupId))
+			) {
 				throw new ORPCError("FORBIDDEN");
+			}
 		}
 		await removePersonFromGroup(input.personId, input.groupId);
 		return { success: true };

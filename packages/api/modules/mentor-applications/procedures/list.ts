@@ -1,6 +1,7 @@
 import { ORPCError } from "@orpc/client";
 import {
 	getMentorApplicationsByOrganization,
+	getMentorApplicationsByUserSites,
 	getUserSiteIds,
 } from "@repo/database";
 import { protectedProcedure } from "../../../orpc/procedures";
@@ -19,17 +20,19 @@ export const listMentorApplications = protectedProcedure
 			input.organizationId,
 			context.user.id,
 		);
-		if (!membership) throw new ORPCError("FORBIDDEN");
 		const isOwnerOrAdmin =
 			membership.role === "owner" ||
 			membership.role === "admin" ||
 			context.user.role === "admin";
-		if (!isOwnerOrAdmin) {
-			const siteIds = await getUserSiteIds(context.user.id);
-			if (siteIds.length === 0) throw new ORPCError("FORBIDDEN");
+		if (isOwnerOrAdmin) {
+			return getMentorApplicationsByOrganization(
+				input.organizationId,
+				input.status,
+			);
 		}
-		return getMentorApplicationsByOrganization(
-			input.organizationId,
-			input.status,
-		);
+		// Site leaders see only mentor applications for their assigned sites
+		// (mirrors student application scoping); members with no sites see none.
+		const siteIds = await getUserSiteIds(context.user.id);
+		if (siteIds.length === 0) throw new ORPCError("FORBIDDEN");
+		return getMentorApplicationsByUserSites(context.user.id, input.status);
 	});

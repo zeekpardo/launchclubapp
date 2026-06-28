@@ -14,6 +14,7 @@ import {
 	TooltipTrigger,
 } from "@repo/ui/components/tooltip";
 import { usePendingApplicationCount } from "@saas/applications/hooks/use-applications";
+import { useSession } from "@saas/auth/hooks/use-session";
 import { usePendingPurchaseRequestCount } from "@saas/groups/hooks/use-purchase-requests";
 import { NotificationBell } from "@saas/notifications/components/NotificationBell";
 import { OrganizationLogo } from "@saas/organizations/components/OrganizationLogo";
@@ -47,6 +48,7 @@ export function NavBar() {
 	const { data: pendingCount = 0 } = usePendingApplicationCount();
 	const { data: pendingPurchaseRequestCount = 0 } =
 		usePendingPurchaseRequestCount();
+	const { user } = useSession();
 	const { activeOrganization, isOrganizationAdmin } = useActiveOrganization();
 	const lcRole = useMyLcRole();
 	const isGroupLeader = lcRole === "group-leader";
@@ -80,16 +82,16 @@ export function NavBar() {
 						icon: CalendarIcon,
 						isActive: pathname.startsWith(`${basePath}/events`),
 					},
+					{
+						// People is visible to group leaders too (scoped to the
+						// people in their groups); the page enforces the scope.
+						label: t("app.menu.people"),
+						href: `${basePath}/people`,
+						icon: UserIcon,
+						isActive: pathname.startsWith(`${basePath}/people`),
+					},
 					...(!isGroupLeader
 						? [
-								{
-									label: t("app.menu.people"),
-									href: `${basePath}/people`,
-									icon: UserIcon,
-									isActive: pathname.startsWith(
-										`${basePath}/people`,
-									),
-								},
 								{
 									label: t("app.menu.applications"),
 									href: `${basePath}/applications`,

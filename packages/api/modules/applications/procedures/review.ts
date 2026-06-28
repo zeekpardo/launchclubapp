@@ -1,7 +1,6 @@
 import { ORPCError } from "@orpc/client";
 import {
 	getApplicationById,
-	getOrgApplicationSettings,
 	migrateApplicationToPeople,
 	reviewApplication,
 } from "@repo/database";
@@ -36,23 +35,25 @@ export const reviewApplicationProcedure = protectedProcedure
 				throw new ORPCError("FORBIDDEN");
 		}
 
+		// On first approval, migrate the applicant to household + people FIRST, then
+		// mark the application approved. If migration fails, the status stays as-is
+		// so the approval can be retried (migration is idempotent). Doing it the
+		// other way round could leave an APPROVED application with no people that
+		// would never re-migrate. Children approved with "no group (assign later)"
+		// are still created as people — they just have no group yet.
+		if (input.status === "APPROVED" && application.status !== "APPROVED") {
+			await migrateApplicationToPeople(
+				input.id,
+				organizationId,
+				input.groupAssignments,
+			);
+		}
+
 		const reviewed = await reviewApplication(
 			input.id,
 			input.status,
 			context.user.id,
 		);
-
-		// Auto-migrate to household + people on first approval if org setting is enabled
-		if (input.status === "APPROVED" && application.status !== "APPROVED") {
-			const settings = await getOrgApplicationSettings(organizationId);
-			if (settings?.autoMigrate) {
-				await migrateApplicationToPeople(
-					input.id,
-					organizationId,
-					input.groupAssignments,
-				);
-			}
-		}
 
 		// TODO: send email notification to application.parentEmail when status changes
 		// Use @repo/mail and the OrganizationApplicationSettings.emailNotifications flag

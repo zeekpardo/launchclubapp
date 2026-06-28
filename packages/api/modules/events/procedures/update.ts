@@ -13,6 +13,7 @@ import {
 	canAccessSite,
 	canManageGroup,
 } from "../../organizations/lib/site-access";
+import { authorizeEventGroups } from "../lib/authorize";
 import { updateEventSchema } from "../types";
 
 export const updateEventProcedure = protectedProcedure
@@ -51,6 +52,15 @@ export const updateEventProcedure = protectedProcedure
 			}
 		}
 		const { id, groupIds, startsAt, endsAt, ...rest } = input;
+		// When moving the event to new groups, the caller must also be authorized
+		// for every new group (not just the event's current group).
+		if (groupIds) {
+			await authorizeEventGroups(
+				context.user.id,
+				context.user.role,
+				groupIds,
+			);
+		}
 		const [updatedEvent] = await Promise.all([
 			updateEvent(id, {
 				...rest,

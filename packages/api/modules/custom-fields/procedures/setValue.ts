@@ -1,5 +1,9 @@
 import { ORPCError } from "@orpc/client";
-import { upsertCustomFieldValue } from "@repo/database";
+import {
+	getCustomFieldById,
+	getPersonById,
+	upsertCustomFieldValue,
+} from "@repo/database";
 import { protectedProcedure } from "../../../orpc/procedures";
 import { verifyOrganizationMembership } from "../../organizations/lib/membership";
 import { setCustomFieldValueSchema } from "../types";
@@ -12,11 +16,20 @@ export const setCustomFieldValueProcedure = protectedProcedure
 	})
 	.input(setCustomFieldValueSchema)
 	.handler(async ({ input, context }) => {
-		const membership = await verifyOrganizationMembership(
+		await verifyOrganizationMembership(
 			input.organizationId,
 			context.user.id,
 		);
-		if (!membership) throw new ORPCError("FORBIDDEN");
+		// The field and person must both belong to the caller's org, otherwise a
+		// member of one org could write a value onto another org's field/person.
+		const [field, person] = await Promise.all([
+			getCustomFieldById(input.customFieldId),
+			getPersonById(input.personId),
+		]);
+		if (!field || field.organizationId !== input.organizationId)
+			throw new ORPCError("NOT_FOUND");
+		if (!person || person.organizationId !== input.organizationId)
+			throw new ORPCError("NOT_FOUND");
 		return upsertCustomFieldValue(
 			input.customFieldId,
 			input.personId,
