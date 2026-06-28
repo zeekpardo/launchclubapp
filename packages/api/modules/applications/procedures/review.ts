@@ -24,15 +24,17 @@ export const reviewApplicationProcedure = protectedProcedure
       if (!(await canAccessSite(context.user.id, application.siteId))) throw new ORPCError("FORBIDDEN");
     }
 
-    const reviewed = await reviewApplication(input.id, input.status, context.user.id);
-
-    // On first approval, migrate the applicant to household + people so the
-    // approved applicant is always findable in People (and assigned to any
-    // selected groups). Children approved with "no group (assign later)" are
-    // still created as people — they just have no group yet.
+    // On first approval, migrate the applicant to household + people FIRST, then
+    // mark the application approved. If migration fails, the status stays as-is
+    // so the approval can be retried (migration is idempotent). Doing it the
+    // other way round could leave an APPROVED application with no people that
+    // would never re-migrate. Children approved with "no group (assign later)"
+    // are still created as people — they just have no group yet.
     if (input.status === "APPROVED" && application.status !== "APPROVED") {
       await migrateApplicationToPeople(input.id, organizationId, input.groupAssignments);
     }
+
+    const reviewed = await reviewApplication(input.id, input.status, context.user.id);
 
     // TODO: send email notification to application.parentEmail when status changes
     // Use @repo/mail and the OrganizationApplicationSettings.emailNotifications flag

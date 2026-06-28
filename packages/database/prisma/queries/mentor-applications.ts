@@ -58,6 +58,22 @@ export async function getMentorApplicationsByOrganization(
   });
 }
 
+// Site-scoped variant for site leaders — only mentor applications tied to a
+// site the user is assigned to (org-level mentor apps with no site are omitted).
+export async function getMentorApplicationsByUserSites(
+  userId: string,
+  status?: string,
+) {
+  return db.mentorApplication.findMany({
+    where: {
+      site: { userSites: { some: { userId } } },
+      ...(status ? { status } : {}),
+    },
+    include: { site: true },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export async function countRecentMentorApplicationsByEmail(
   email: string,
   windowMs: number,
