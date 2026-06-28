@@ -93,23 +93,30 @@ export function SignupForm({ prefillEmail }: { prefillEmail?: string }) {
 				}
 
 				// Invited users: open-signup mode disables `autoSignIn`, so a
-				// fresh signup has no session and `acceptInvitation` can't run.
-				// The invitation already proves email ownership, so sign the
-				// user in here and send them to the invitation page to join the
-				// existing organization. Without this they'd land with no org
-				// and get pushed into creating a brand-new one.
+				// fresh signup has no session. Try to sign them straight in and
+				// route them to the invitation page to join the org.
+				//
+				// In production `requireEmailVerification` blocks sign-in until
+				// the email is verified — that's intentional: it proves the
+				// invitee controls the inbox. The signUp call above already sent
+				// a verification email whose callbackURL is this invitation page,
+				// so when sign-in is blocked we simply show the "check your
+				// email" state; verifying from their inbox lands them on the
+				// acceptance page. We must NOT auto-verify on the inviter's
+				// say-so, or anyone could create a verified account on an
+				// invited address they don't own.
 				if (invitationId) {
 					const { error: signInError } =
 						await authClient.signIn.email({ email, password });
 
-					if (signInError) {
-						throw signInError;
+					if (!signInError) {
+						await queryClient.invalidateQueries({
+							queryKey: sessionQueryKey,
+						});
+						router.replace(redirectPath);
 					}
-
-					await queryClient.invalidateQueries({
-						queryKey: sessionQueryKey,
-					});
-					router.replace(redirectPath);
+					// On signInError (verification required), fall through to the
+					// "verify your email" success state below.
 					return;
 				}
 			} else {
@@ -143,7 +150,7 @@ export function SignupForm({ prefillEmail }: { prefillEmail?: string }) {
 				{t("auth.signup.message")}
 			</p>
 
-			{form.formState.isSubmitSuccessful && !invitationId ? (
+			{form.formState.isSubmitSuccessful ? (
 				<Alert variant="success">
 					<MailboxIcon />
 					<AlertTitle>
