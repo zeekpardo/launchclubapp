@@ -79,6 +79,7 @@ export function GroupDetail({ groupId }: GroupDetailProps) {
 	const memberCount = group.personGroups.length;
 	const eventCount = events?.length ?? 0;
 	const areaName = group.site?.area?.name;
+	const siteName = group.site?.name;
 
 	const navItems = [
 		{
@@ -153,6 +154,11 @@ export function GroupDetail({ groupId }: GroupDetailProps) {
 						{areaName && (
 							<Badge className="bg-secondary text-secondary-foreground normal-case shrink-0">
 								{areaName}
+							</Badge>
+						)}
+						{siteName && (
+							<Badge className="bg-secondary text-secondary-foreground normal-case shrink-0">
+								{siteName}
 							</Badge>
 						)}
 						<div className="flex items-center gap-1 text-sm text-muted-foreground shrink-0">
