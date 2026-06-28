@@ -44,13 +44,25 @@ type InviteMode = "invite" | "add";
 
 // ── Tab: Existing Person ──────────────────────────────────────────────────────
 
+const PERSON_TYPE_LABEL: Record<string, string> = {
+	STUDENT: "Student",
+	PARENT: "Parent",
+	MENTOR: "Mentor",
+};
+
+type TypeFilter = "STUDENT" | "PARENT" | "MENTOR" | "ALL";
+
 function ExistingPersonTab({
 	groupId,
 	organizationId,
+	siteId,
+	existingMemberIds = [],
 	onSuccess,
 }: {
 	groupId: string;
 	organizationId: string;
+	siteId?: string;
+	existingMemberIds?: string[];
 	onSuccess: () => void;
 }) {
 	const t = useTranslations();
@@ -58,9 +70,28 @@ function ExistingPersonTab({
 	const [personId, setPersonId] = useState("");
 	const [role, setRole] = useState<"MEMBER" | "LEADER">("MEMBER");
 	const [submitting, setSubmitting] = useState(false);
+	// Default to students (typical group members) and to the group's site so the
+	// list isn't cluttered with every applicant from every location.
+	const [typeFilter, setTypeFilter] = useState<TypeFilter>("STUDENT");
+	const [siteFilter, setSiteFilter] = useState<string>(siteId ?? "ALL");
 
 	const { data: people, isLoading } = useQuery(
-		orpc.people.list.queryOptions({ input: { organizationId } }),
+		orpc.people.list.queryOptions({
+			input: {
+				organizationId,
+				...(typeFilter !== "ALL" ? { personType: typeFilter } : {}),
+				...(siteFilter !== "ALL" ? { siteId: siteFilter } : {}),
+			},
+		}),
+	);
+
+	const { data: sites } = useQuery(
+		orpc.sites.list.queryOptions({ input: { organizationId } }),
+	);
+
+	// Don't offer people who are already in this group.
+	const candidates = (people ?? []).filter(
+		(p) => !existingMemberIds.includes(p.id),
 	);
 
 	const handleSubmit = async () => {
@@ -79,6 +110,35 @@ function ExistingPersonTab({
 
 	return (
 		<div className="space-y-4">
+			<div className="flex gap-2">
+				<Select
+					value={typeFilter}
+					onValueChange={(v) => setTypeFilter(v as TypeFilter)}
+				>
+					<SelectTrigger className="flex-1">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="STUDENT">Students</SelectItem>
+						<SelectItem value="PARENT">Parents</SelectItem>
+						<SelectItem value="MENTOR">Mentors</SelectItem>
+						<SelectItem value="ALL">All types</SelectItem>
+					</SelectContent>
+				</Select>
+				<Select value={siteFilter} onValueChange={setSiteFilter}>
+					<SelectTrigger className="flex-1">
+						<SelectValue placeholder="All locations" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="ALL">All locations</SelectItem>
+						{(sites ?? []).map((s) => (
+							<SelectItem key={s.id} value={s.id}>
+								{s.name}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
 			<div className="space-y-2">
 				<label className="font-medium text-sm">
 					{t("launchclub.people.title")}
@@ -91,11 +151,31 @@ function ExistingPersonTab({
 							<SelectValue placeholder="Select a person…" />
 						</SelectTrigger>
 						<SelectContent>
-							{(people ?? []).map((p) => (
-								<SelectItem key={p.id} value={p.id}>
-									{p.firstName} {p.lastName}
-								</SelectItem>
-							))}
+							{candidates.length === 0 ? (
+								<div className="px-3 py-2 text-sm text-muted-foreground">
+									No matching people
+								</div>
+							) : (
+								candidates.map((p) => {
+									const groups = (p.personGroups ?? [])
+										.map((pg) => pg.group?.name)
+										.filter(Boolean)
+										.join(", ");
+									return (
+										<SelectItem key={p.id} value={p.id}>
+											{p.firstName} {p.lastName}
+											<span className="text-muted-foreground">
+												{" "}
+												·{" "}
+												{PERSON_TYPE_LABEL[
+													p.personType
+												] ?? p.personType}
+												{groups ? ` · ${groups}` : ""}
+											</span>
+										</SelectItem>
+									);
+								})
+							)}
 						</SelectContent>
 					</Select>
 				)}
@@ -176,7 +256,9 @@ function NewMemberTab({
 				personId: person.id,
 				role: "MEMBER",
 			});
-			toastSuccess(`${values.firstName} ${values.lastName} added to the group.`);
+			toastSuccess(
+				`${values.firstName} ${values.lastName} added to the group.`,
+			);
 			onSuccess();
 		} catch {
 			toastError("Failed to add member. Please try again.");
@@ -227,7 +309,11 @@ function NewMemberTab({
 								</span>
 							</FormLabel>
 							<FormControl>
-								<Input type="email" placeholder="jane@example.com" {...field} />
+								<Input
+									type="email"
+									placeholder="jane@example.com"
+									{...field}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -246,15 +332,19 @@ function NewMemberTab({
 								</span>
 							</FormLabel>
 							<FormControl>
-								<Input type="tel" placeholder="555-000-0000" {...field} />
+								<Input
+									type="tel"
+									placeholder="555-000-0000"
+									{...field}
+								/>
 							</FormControl>
 						</FormItem>
 					)}
 				/>
 
 				<p className="text-muted-foreground text-xs">
-					Creates a people record and adds them to this group. No system login
-					access is granted.
+					Creates a people record and adds them to this group. No
+					system login access is granted.
 				</p>
 
 				<DialogFooter>
@@ -318,11 +408,12 @@ function NewLeaderTab({
 				});
 			} else {
 				// Send invitation
-				const { error, data } = await authClient.organization.inviteMember({
-					email: values.email,
-					role: "member",
-					organizationId,
-				});
+				const { error, data } =
+					await authClient.organization.inviteMember({
+						email: values.email,
+						role: "member",
+						organizationId,
+					});
 				if (error) throw error;
 				if (data?.id) {
 					await saveAssignment.mutateAsync({
@@ -440,7 +531,11 @@ function NewLeaderTab({
 							<FormItem>
 								<FormLabel>Email</FormLabel>
 								<FormControl>
-									<Input type="email" placeholder="jane@example.com" {...field} />
+									<Input
+										type="email"
+										placeholder="jane@example.com"
+										{...field}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -454,8 +549,13 @@ function NewLeaderTab({
 					</p>
 
 					<DialogFooter>
-						<Button type="submit" loading={form.formState.isSubmitting}>
-							{inviteMode === "add" ? "Add Leader" : "Send Invitation"}
+						<Button
+							type="submit"
+							loading={form.formState.isSubmitting}
+						>
+							{inviteMode === "add"
+								? "Add Leader"
+								: "Send Invitation"}
 						</Button>
 					</DialogFooter>
 				</form>
@@ -470,6 +570,8 @@ interface AddMemberDialogProps {
 	groupId: string;
 	groupName: string;
 	organizationId: string;
+	siteId?: string;
+	existingMemberIds?: string[];
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSuccess?: () => void;
@@ -485,6 +587,8 @@ export function AddMemberDialog({
 	groupId,
 	groupName,
 	organizationId,
+	siteId,
+	existingMemberIds,
 	open,
 	onOpenChange,
 	onSuccess,
@@ -533,6 +637,8 @@ export function AddMemberDialog({
 					<ExistingPersonTab
 						groupId={groupId}
 						organizationId={organizationId}
+						siteId={siteId}
+						existingMemberIds={existingMemberIds}
 						onSuccess={handleSuccess}
 					/>
 				)}
