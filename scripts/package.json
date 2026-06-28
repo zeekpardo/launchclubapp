@@ -1,0 +1,19 @@
+{
+	"name": "scripts",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"create:user": "dotenv -c -e ../apps/web/.env.local -- tsx create-user.ts",
+		"seed:invite": "dotenv -c -e ../apps/web/.env.local -- tsx seed-invite.ts"
+	},
+	"dependencies": {
+		"@repo/auth": "workspace:*",
+		"@repo/database": "workspace:*"
+	},
+	"devDependencies": {
+		"@repo/tsconfig": "workspace:*",
+		"@types/node": "24.10.1",
+		"dotenv-cli": "^11.0.0",
+		"tsx": "^4.19.2"
+	}
+}
