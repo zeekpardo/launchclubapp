@@ -233,7 +233,7 @@ function renderCustomField(
 		case "FILE":
 			return (
 				<FieldWrapper field={field}>
-					<Input id={id} type="file" onChange={(e) => onChange(e.target.value)} />
+					<FileField id={id} value={value} onChange={onChange} />
 				</FieldWrapper>
 			);
 
@@ -360,7 +360,7 @@ export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererP
 			return (
 				<div className="space-y-1.5">
 					{label}
-					<Input id={id} type="file" onChange={(e) => onChange(e.target.value)} />
+					<FileField id={id} value={value} onChange={onChange} />
 					{helpText}
 				</div>
 			);
@@ -400,6 +400,71 @@ export function FormFieldRenderer({ field, value, onChange }: FormFieldRendererP
 }
 
 // ── Consent Field ─────────────────────────────────────────────────────────────
+
+function FileField({
+	id,
+	value,
+	onChange,
+}: {
+	id: string;
+	value: string;
+	onChange: (v: string) => void;
+}) {
+	const [uploading, setUploading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		const contentType = file.type;
+		const allowed = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+		if (!allowed.includes(contentType)) {
+			setError("Please upload a JPG, PNG, or PDF.");
+			if (fileInputRef.current) fileInputRef.current.value = "";
+			return;
+		}
+		setUploading(true);
+		setError(null);
+		try {
+			const { uploadUrl, path } = await orpcClient.forms.publicFormFieldUploadUrl({
+				contentType: contentType as "image/jpeg" | "image/jpg" | "image/png" | "application/pdf",
+			});
+			const upload = await fetch(uploadUrl, {
+				method: "PUT",
+				headers: { "Content-Type": contentType },
+				body: file,
+			});
+			if (!upload.ok) throw new Error("Upload failed");
+			// Store the storage key so the admin can open the file later.
+			onChange(path);
+		} catch {
+			setError("Upload failed. Please try again.");
+			if (fileInputRef.current) fileInputRef.current.value = "";
+		} finally {
+			setUploading(false);
+		}
+	};
+
+	return (
+		<div className="space-y-1.5">
+			<input
+				id={id}
+				ref={fileInputRef}
+				type="file"
+				accept="image/jpeg,image/png,application/pdf"
+				disabled={uploading}
+				onChange={handleFileChange}
+				className="block w-full text-sm text-foreground file:mr-3 file:rounded-md file:border file:border-input file:bg-background file:px-3 file:py-1.5 file:text-sm file:font-medium hover:file:bg-muted disabled:opacity-50"
+			/>
+			{uploading && <p className="text-xs text-muted-foreground">Uploading…</p>}
+			{!uploading && value && (
+				<p className="text-xs text-green-600">File uploaded.</p>
+			)}
+			{error && <p className="text-xs text-destructive">{error}</p>}
+		</div>
+	);
+}
 
 function ConsentField({
 	id,
