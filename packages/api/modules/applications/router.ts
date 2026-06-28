@@ -9,6 +9,7 @@ import { submitApplication } from "./procedures/submit";
 import { listApplications } from "./procedures/list";
 import { getApplication } from "./procedures/get";
 import { reviewApplicationProcedure } from "./procedures/review";
+import { updateApplicationProcedure } from "./procedures/update";
 import { getOrgApplicationSettingsProcedure } from "./procedures/get-org-settings";
 import { updateOrgApplicationSettingsProcedure } from "./procedures/update-org-settings";
 
@@ -17,6 +18,7 @@ export const applicationsRouter = {
   list: listApplications,
   get: getApplication,
   review: reviewApplicationProcedure,
+  update: updateApplicationProcedure,
   getOrgSettings: getOrgApplicationSettingsProcedure,
   updateOrgSettings: updateOrgApplicationSettingsProcedure,
   childPhotoUploadUrl: createChildPhotoUploadUrl,

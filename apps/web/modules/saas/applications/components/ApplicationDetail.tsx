@@ -4,11 +4,13 @@ import type { ReactNode } from "react";
 import { Badge } from "@repo/ui/components/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
+import { Button } from "@repo/ui/components/button";
 import { ApplicationStatusActions } from "@saas/applications/components/ApplicationActions";
+import { ApplicationEditDialog } from "@saas/applications/components/ApplicationEditDialog";
 import { useApplication } from "@saas/applications/hooks/use-applications";
 import { orpcClient } from "@shared/lib/orpc-client";
 import { toastError } from "@repo/ui/components/toast";
-import { ArrowLeftIcon, CheckCircle2Icon, FileIcon, XCircleIcon } from "lucide-react";
+import { ArrowLeftIcon, CheckCircle2Icon, FileIcon, PencilIcon, XCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -22,6 +24,7 @@ interface ApplicationDetailProps {
 export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 	const t = useTranslations();
 	const { data: application, isLoading } = useApplication(applicationId);
+	const [editOpen, setEditOpen] = useState(false);
 
 	if (isLoading) {
 		return (
@@ -86,6 +89,10 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 					</CardTitle>
 					<div className="flex items-center gap-2">
 						{statusBadge()}
+						<Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+							<PencilIcon className="mr-1.5 size-4" />
+							Edit
+						</Button>
 						<ApplicationStatusActions
 							applicationId={applicationId}
 							siteId={application.siteId}
@@ -225,6 +232,24 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 					)}
 				</CardContent>
 			</Card>
+
+			<ApplicationEditDialog
+				applicationId={applicationId}
+				open={editOpen}
+				onOpenChange={setEditOpen}
+				initial={{
+					parentFirstName: application.parentFirstName ?? "",
+					parentLastName: application.parentLastName ?? "",
+					parentEmail: application.parentEmail ?? "",
+					parentPhone: application.parentPhone ?? "",
+					children: (application.children ?? []).map((c) => ({
+						id: c.id,
+						firstName: c.firstName ?? "",
+						lastName: c.lastName ?? "",
+						grade: c.grade ?? "",
+					})),
+				}}
+			/>
 		</div>
 	);
 }

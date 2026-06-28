@@ -109,6 +109,36 @@ export async function reviewApplication(
   });
 }
 
+export interface UpdateApplicationData {
+  parentFirstName?: string;
+  parentLastName?: string;
+  parentEmail?: string | null;
+  parentPhone?: string | null;
+  children?: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    grade?: string | null;
+  }[];
+}
+
+export async function updateApplication(id: string, data: UpdateApplicationData) {
+  const { children, ...parent } = data;
+  return db.$transaction(async (tx) => {
+    await tx.application.update({ where: { id }, data: parent });
+    for (const child of children ?? []) {
+      const { id: childId, ...childData } = child;
+      // Scope the update to this application so a caller can't edit a child of
+      // another application by id.
+      await tx.applicationChild.updateMany({
+        where: { id: childId, applicationId: id },
+        data: childData,
+      });
+    }
+    return tx.application.findUnique({ where: { id } });
+  });
+}
+
 export async function migrateApplicationToPeople(
   applicationId: string,
   organizationId: string,
