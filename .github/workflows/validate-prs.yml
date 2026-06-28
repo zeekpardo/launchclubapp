@@ -22,9 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     # Run inside the official Playwright image so the browsers are pre-installed
     # — the runner→cdn.playwright.dev browser download was hanging for 10+ min.
-    # Tag must match the @playwright/test version (1.56.x).
+    # Tag MUST match the resolved @playwright/test version (currently 1.57.0);
+    # if Playwright is upgraded, bump this tag to match.
     container:
-      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
     services:
       postgres:
         image: postgres:16-alpine
