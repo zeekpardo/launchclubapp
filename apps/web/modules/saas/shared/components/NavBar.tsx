@@ -13,13 +13,12 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@repo/ui/components/tooltip";
-import { useSession } from "@saas/auth/hooks/use-session";
 import { usePendingApplicationCount } from "@saas/applications/hooks/use-applications";
 import { usePendingPurchaseRequestCount } from "@saas/groups/hooks/use-purchase-requests";
+import { NotificationBell } from "@saas/notifications/components/NotificationBell";
+import { OrganizationLogo } from "@saas/organizations/components/OrganizationLogo";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { useMyLcRole } from "@saas/organizations/hooks/use-my-lc-role";
-import { OrganizationLogo } from "@saas/organizations/components/OrganizationLogo";
-import { NotificationBell } from "@saas/notifications/components/NotificationBell";
 import { UserMenu } from "@saas/shared/components/UserMenu";
 import {
 	CalendarIcon,
@@ -46,8 +45,8 @@ export function NavBar() {
 	const t = useTranslations();
 	const pathname = usePathname();
 	const { data: pendingCount = 0 } = usePendingApplicationCount();
-	const { data: pendingPurchaseRequestCount = 0 } = usePendingPurchaseRequestCount();
-	const { user } = useSession();
+	const { data: pendingPurchaseRequestCount = 0 } =
+		usePendingPurchaseRequestCount();
 	const { activeOrganization, isOrganizationAdmin } = useActiveOrganization();
 	const lcRole = useMyLcRole();
 	const isGroupLeader = lcRole === "group-leader";
@@ -82,42 +81,52 @@ export function NavBar() {
 						isActive: pathname.startsWith(`${basePath}/events`),
 					},
 					...(!isGroupLeader
-					? [
-							{
-								label: t("app.menu.people"),
-								href: `${basePath}/people`,
-								icon: UserIcon,
-								isActive: pathname.startsWith(`${basePath}/people`),
-							},
-							{
-								label: t("app.menu.applications"),
-								href: `${basePath}/applications`,
-								icon: ClipboardListIcon,
-								isActive: pathname.startsWith(`${basePath}/applications`),
-								hasBadge: pendingCount > 0,
-							},
-							{
-								label: "Mentor Applications",
-								href: `${basePath}/mentor-applications`,
-								icon: UserCheckIcon,
-								isActive: pathname.startsWith(`${basePath}/mentor-applications`),
-							},
-							{
-								label: "Forms",
-								href: `${basePath}/forms`,
-								icon: FileTextIcon,
-								isActive: pathname.startsWith(`${basePath}/forms`),
-							},
-							{
-								label: t("app.menu.purchaseRequests"),
-								href: `${basePath}/purchase-requests`,
-								icon: DollarSignIcon,
-								isActive: pathname.startsWith(`${basePath}/purchase-requests`),
-								hasBadge: pendingPurchaseRequestCount > 0,
-							},
-						]
-					: []),
-			]
+						? [
+								{
+									label: t("app.menu.people"),
+									href: `${basePath}/people`,
+									icon: UserIcon,
+									isActive: pathname.startsWith(
+										`${basePath}/people`,
+									),
+								},
+								{
+									label: t("app.menu.applications"),
+									href: `${basePath}/applications`,
+									icon: ClipboardListIcon,
+									isActive: pathname.startsWith(
+										`${basePath}/applications`,
+									),
+									hasBadge: pendingCount > 0,
+								},
+								{
+									label: "Mentor Applications",
+									href: `${basePath}/mentor-applications`,
+									icon: UserCheckIcon,
+									isActive: pathname.startsWith(
+										`${basePath}/mentor-applications`,
+									),
+								},
+								{
+									label: "Forms",
+									href: `${basePath}/forms`,
+									icon: FileTextIcon,
+									isActive: pathname.startsWith(
+										`${basePath}/forms`,
+									),
+								},
+								{
+									label: t("app.menu.purchaseRequests"),
+									href: `${basePath}/purchase-requests`,
+									icon: DollarSignIcon,
+									isActive: pathname.startsWith(
+										`${basePath}/purchase-requests`,
+									),
+									hasBadge: pendingPurchaseRequestCount > 0,
+								},
+							]
+						: []),
+				]
 			: []),
 		...(activeOrganization && isOrganizationAdmin
 			? [
@@ -153,7 +162,10 @@ export function NavBar() {
 						})}
 					>
 						<div className="flex items-center gap-2 md:w-full">
-							<Link href="/app" className="flex items-center gap-2.5">
+							<Link
+								href="/app"
+								className="flex items-center gap-2.5"
+							>
 								{activeOrganization ? (
 									<>
 										<OrganizationLogo
@@ -161,8 +173,11 @@ export function NavBar() {
 											logoUrl={activeOrganization.logo}
 											className="size-10 rounded-md shrink-0"
 										/>
-										{(!isCollapsed || !useSidebarLayout) && (
-											<span className="font-semibold text-sm truncate">{activeOrganization.name}</span>
+										{(!isCollapsed ||
+											!useSidebarLayout) && (
+											<span className="font-semibold text-sm truncate">
+												{activeOrganization.name}
+											</span>
 										)}
 									</>
 								) : (
@@ -170,7 +185,6 @@ export function NavBar() {
 								)}
 							</Link>
 						</div>
-
 					</div>
 
 					<div
@@ -232,9 +246,10 @@ export function NavBar() {
 														: "text-muted-foreground opacity-60",
 												)}
 											/>
-											{"hasBadge" in menuItem && menuItem.hasBadge && (
-												<span className="absolute -top-1 -right-1 size-2 rounded-full bg-red-500" />
-											)}
+											{"hasBadge" in menuItem &&
+												menuItem.hasBadge && (
+													<span className="absolute -top-1 -right-1 size-2 rounded-full bg-red-500" />
+												)}
 										</span>
 										<span
 											className={cn(
@@ -255,15 +270,11 @@ export function NavBar() {
 				{/* Desktop nav (hidden on mobile) */}
 				<TooltipProvider delayDuration={0}>
 					<ul
-						className={cn(
-							"hidden list-none text-sm",
-							{
-								"md:mx-0 md:my-6 md:flex md:flex-col md:items-stretch md:gap-1 md:px-0":
-									useSidebarLayout,
-								"md:items-center":
-									useSidebarLayout && isCollapsed,
-							},
-						)}
+						className={cn("hidden list-none text-sm", {
+							"md:mx-0 md:my-6 md:flex md:flex-col md:items-stretch md:gap-1 md:px-0":
+								useSidebarLayout,
+							"md:items-center": useSidebarLayout && isCollapsed,
+						})}
 					>
 						{menuItems.map((menuItem) => {
 							const menuItemContent = (
@@ -292,9 +303,10 @@ export function NavBar() {
 													: "text-muted-foreground opacity-60",
 											)}
 										/>
-										{"hasBadge" in menuItem && menuItem.hasBadge && (
-											<span className="absolute -top-1 -right-1 size-2 rounded-full bg-red-500" />
-										)}
+										{"hasBadge" in menuItem &&
+											menuItem.hasBadge && (
+												<span className="absolute -top-1 -right-1 size-2 rounded-full bg-red-500" />
+											)}
 									</span>
 									{(!isCollapsed || !useSidebarLayout) && (
 										<span
@@ -336,7 +348,10 @@ export function NavBar() {
 								{isCollapsed ? (
 									<Tooltip>
 										<TooltipTrigger asChild>
-											<NotificationBell navMode collapsed />
+											<NotificationBell
+												navMode
+												collapsed
+											/>
 										</TooltipTrigger>
 										<TooltipContent side="right">
 											Notifications

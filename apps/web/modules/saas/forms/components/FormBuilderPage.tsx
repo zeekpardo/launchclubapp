@@ -5,8 +5,8 @@ import { useFormData } from "@saas/forms/hooks/use-forms";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { FormTypeBadge, FormStatusBadge } from "./FormBadges";
 import { BuilderTab } from "./BuilderTab";
+import { FormStatusBadge, FormTypeBadge } from "./FormBadges";
 import { SettingsTab } from "./SettingsTab";
 import { ShareTab } from "./ShareTab";
 
@@ -42,7 +42,9 @@ export function FormBuilderPage({ formId }: FormBuilderPageProps) {
 				<div>
 					<h1 className="text-2xl font-bold">{form.name}</h1>
 					{form.description && (
-						<p className="mt-1 text-sm text-muted-foreground">{form.description}</p>
+						<p className="mt-1 text-sm text-muted-foreground">
+							{form.description}
+						</p>
 					)}
 				</div>
 				<div className="flex items-center gap-2">

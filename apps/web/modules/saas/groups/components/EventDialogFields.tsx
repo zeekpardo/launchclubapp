@@ -15,7 +15,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@repo/ui/components/select";
-import { type Control } from "react-hook-form";
+import type { Control } from "react-hook-form";
 
 // ─── Options ─────────────────────────────────────────────────────────────────
 
@@ -45,7 +45,15 @@ export interface EventFormValues {
 	guestName?: string;
 	guestCompany?: string;
 	guestIndustry?: string;
-	recurrence: "never" | "daily" | "weekday" | "weekly" | "biweekly" | "monthly_weekday" | "monthly_date" | "yearly";
+	recurrence:
+		| "never"
+		| "daily"
+		| "weekday"
+		| "weekly"
+		| "biweekly"
+		| "monthly_weekday"
+		| "monthly_date"
+		| "yearly";
 	startDate: string;
 	endDate: string;
 	startTime: string;
@@ -97,7 +105,10 @@ export function EventDialogFields({
 				render={({ field }) => (
 					<FormItem>
 						<FormLabel>Event Type</FormLabel>
-						<Select value={field.value} onValueChange={field.onChange}>
+						<Select
+							value={field.value}
+							onValueChange={field.onChange}
+						>
 							<FormControl>
 								<SelectTrigger>
 									<SelectValue />
@@ -126,7 +137,10 @@ export function EventDialogFields({
 							<FormItem>
 								<FormLabel>Guest Name</FormLabel>
 								<FormControl>
-									<Input placeholder="Guest Name" {...field} />
+									<Input
+										placeholder="Guest Name"
+										{...field}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -139,7 +153,10 @@ export function EventDialogFields({
 							<FormItem>
 								<FormLabel>Company Name</FormLabel>
 								<FormControl>
-									<Input placeholder="Company Name" {...field} />
+									<Input
+										placeholder="Company Name"
+										{...field}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -169,7 +186,9 @@ export function EventDialogFields({
 					<FormItem>
 						<FormLabel>
 							Description{" "}
-							<span className="font-normal text-muted-foreground">(optional)</span>
+							<span className="font-normal text-muted-foreground">
+								(optional)
+							</span>
 						</FormLabel>
 						<FormControl>
 							<Input placeholder="Description" {...field} />
@@ -205,7 +224,11 @@ export function EventDialogFields({
 									type="date"
 									disabled={isNever}
 									{...field}
-									value={isNever ? (startDate || today) : field.value}
+									value={
+										isNever
+											? startDate || today
+											: field.value
+									}
 								/>
 							</FormControl>
 							<FormMessage />
@@ -236,7 +259,9 @@ export function EventDialogFields({
 						<FormItem>
 							<FormLabel>
 								End Time{" "}
-								<span className="font-normal text-muted-foreground">(optional)</span>
+								<span className="font-normal text-muted-foreground">
+									(optional)
+								</span>
 							</FormLabel>
 							<FormControl>
 								<Input type="time" {...field} />
@@ -255,18 +280,26 @@ export function EventDialogFields({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Recurrence</FormLabel>
-							<Select value={field.value} onValueChange={field.onChange}>
+							<Select
+								value={field.value}
+								onValueChange={field.onChange}
+							>
 								<FormControl>
 									<SelectTrigger>
 										<SelectValue />
 									</SelectTrigger>
 								</FormControl>
 								<SelectContent>
-									{RECURRENCE_OPTIONS.map(({ value, label }) => (
-										<SelectItem key={value} value={value}>
-											{label}
-										</SelectItem>
-									))}
+									{RECURRENCE_OPTIONS.map(
+										({ value, label }) => (
+											<SelectItem
+												key={value}
+												value={value}
+											>
+												{label}
+											</SelectItem>
+										),
+									)}
 								</SelectContent>
 							</Select>
 							<FormMessage />

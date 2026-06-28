@@ -15,9 +15,9 @@ import { Button } from "@repo/ui/components/button";
 import { Card } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { useDeleteSite, useSites } from "@saas/sites/hooks/use-sites";
-import { SiteDialog } from "@saas/sites/components/SiteDialog";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
+import { SiteDialog } from "@saas/sites/components/SiteDialog";
+import { useDeleteSite, useSites } from "@saas/sites/hooks/use-sites";
 import { PencilIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -136,9 +136,7 @@ export function SiteList() {
 								<Button
 									variant="ghost"
 									size="icon"
-									onClick={() =>
-										setDeletingSiteId(site.id)
-									}
+									onClick={() => setDeletingSiteId(site.id)}
 									aria-label={t("launchclub.sites.delete")}
 								>
 									<TrashIcon className="size-4 text-destructive" />

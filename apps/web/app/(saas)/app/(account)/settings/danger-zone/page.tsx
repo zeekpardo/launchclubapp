@@ -2,8 +2,7 @@ import { getUserIsOrgOwner } from "@repo/database";
 import { getSession } from "@saas/auth/lib/server";
 import { DeleteAccountForm } from "@saas/settings/components/DeleteAccountForm";
 import { SettingsList } from "@saas/shared/components/SettingsList";
-import { redirect } from "next/navigation";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata() {
@@ -22,7 +21,8 @@ export default async function AccountSettingsPage() {
 	}
 
 	const isGlobalAdmin = session.user.role === "admin";
-	const isOrgOwner = isGlobalAdmin || (await getUserIsOrgOwner(session.user.id));
+	const isOrgOwner =
+		isGlobalAdmin || (await getUserIsOrgOwner(session.user.id));
 	if (!isOrgOwner) return notFound();
 
 	return (

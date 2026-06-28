@@ -2,7 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/card";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@repo/ui/components/card";
 import { Checkbox } from "@repo/ui/components/checkbox";
 import {
 	Form,
@@ -50,13 +55,25 @@ const baseChildSchema = z.object({
 function buildChildSchema(config: ConsentConfig) {
 	return baseChildSchema.superRefine((data, ctx) => {
 		if (config.showObservation && !data.observationConsent) {
-			ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["observationConsent"], message: "Required" });
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["observationConsent"],
+				message: "Required",
+			});
 		}
 		if (config.showTerms && !data.termsConsent) {
-			ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["termsConsent"], message: "Required" });
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["termsConsent"],
+				message: "Required",
+			});
 		}
 		if (config.showPhotoVideo && !data.photoVideoConsent) {
-			ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["photoVideoConsent"], message: "Required" });
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["photoVideoConsent"],
+				message: "Required",
+			});
 		}
 	});
 }
@@ -122,15 +139,31 @@ interface ApplicationFormProps {
 	consentConfig?: ConsentConfig;
 }
 
-const DEFAULT_CONSENT_CONFIG: ConsentConfig = { showObservation: true, showTerms: true, showPhotoVideo: true };
+const DEFAULT_CONSENT_CONFIG: ConsentConfig = {
+	showObservation: true,
+	showTerms: true,
+	showPhotoVideo: true,
+};
 
-export function ApplicationForm({ siteSlug, profileFields = [], formFields = [], enableConsentFileUpload = false, consentConfig = DEFAULT_CONSENT_CONFIG }: ApplicationFormProps) {
+export function ApplicationForm({
+	siteSlug,
+	profileFields = [],
+	formFields = [],
+	enableConsentFileUpload = false,
+	consentConfig = DEFAULT_CONSENT_CONFIG,
+}: ApplicationFormProps) {
 	const t = useTranslations("application");
 	const [submitted, setSubmitted] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 	const [serverError, setServerError] = useState<string | null>(null);
 
-	const schema = useMemo(() => parentSchema.extend({ children: z.array(buildChildSchema(consentConfig)) }), [consentConfig]);
+	const schema = useMemo(
+		() =>
+			parentSchema.extend({
+				children: z.array(buildChildSchema(consentConfig)),
+			}),
+		[consentConfig],
+	);
 
 	const form = useForm<ApplicationFormValues>({
 		resolver: zodResolver(schema),
@@ -152,7 +185,11 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 		},
 	});
 
-	const { fields: childFields, append: appendChild, remove: removeChild } = useFieldArray({
+	const {
+		fields: childFields,
+		append: appendChild,
+		remove: removeChild,
+	} = useFieldArray({
 		control: form.control,
 		name: "children",
 	});
@@ -174,16 +211,30 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 				parentStateProvince: values.parentStateProvince || undefined,
 				parentPostalCode: values.parentPostalCode || undefined,
 				parentCountry: values.parentCountry || undefined,
-				spouseFirstName: values.hasSpouse ? values.spouseFirstName || undefined : undefined,
-				spouseLastName: values.hasSpouse ? values.spouseLastName || undefined : undefined,
-				spouseEmail: values.hasSpouse ? values.spouseEmail || undefined : undefined,
-				spousePhone: values.hasSpouse ? values.spousePhone || undefined : undefined,
+				spouseFirstName: values.hasSpouse
+					? values.spouseFirstName || undefined
+					: undefined,
+				spouseLastName: values.hasSpouse
+					? values.spouseLastName || undefined
+					: undefined,
+				spouseEmail: values.hasSpouse
+					? values.spouseEmail || undefined
+					: undefined,
+				spousePhone: values.hasSpouse
+					? values.spousePhone || undefined
+					: undefined,
 				children: values.children.map((child) => {
 					const childProfileFieldValues = profileFields
-						.map((f) => ({ customFieldId: f.id, value: child.profileFields?.[f.id] ?? "" }))
+						.map((f) => ({
+							customFieldId: f.id,
+							value: child.profileFields?.[f.id] ?? "",
+						}))
 						.filter((v) => v.value !== "");
 					const childFormFieldValues = formFields
-						.map((f) => ({ formFieldId: f.id, value: child.formFields?.[f.id] ?? "" }))
+						.map((f) => ({
+							formFieldId: f.id,
+							value: child.formFields?.[f.id] ?? "",
+						}))
 						.filter((v) => v.value !== "");
 					return {
 						firstName: child.firstName,
@@ -191,18 +242,28 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 						birthday: child.birthday || undefined,
 						grade: child.grade || undefined,
 						isPartOfChurch: child.isPartOfChurch,
-						emergencyContactName: values.emergencyContactName || undefined,
-						emergencyContactPhone: values.emergencyContactPhone || undefined,
-						emergencyContactEmail: values.emergencyContactEmail || undefined,
+						emergencyContactName:
+							values.emergencyContactName || undefined,
+						emergencyContactPhone:
+							values.emergencyContactPhone || undefined,
+						emergencyContactEmail:
+							values.emergencyContactEmail || undefined,
 						observationConsent: child.observationConsent,
 						termsConsent: child.termsConsent,
 						photoVideoConsent: child.photoVideoConsent,
 						photoUrl: child.photoUrl || undefined,
-						observationConsentFileUrl: child.observationConsentFileUrl || undefined,
-						termsConsentFileUrl: child.termsConsentFileUrl || undefined,
-						photoVideoConsentFileUrl: child.photoVideoConsentFileUrl || undefined,
-						profileFieldValues: childProfileFieldValues.length ? childProfileFieldValues : undefined,
-						formFieldValues: childFormFieldValues.length ? childFormFieldValues : undefined,
+						observationConsentFileUrl:
+							child.observationConsentFileUrl || undefined,
+						termsConsentFileUrl:
+							child.termsConsentFileUrl || undefined,
+						photoVideoConsentFileUrl:
+							child.photoVideoConsentFileUrl || undefined,
+						profileFieldValues: childProfileFieldValues.length
+							? childProfileFieldValues
+							: undefined,
+						formFieldValues: childFormFieldValues.length
+							? childFormFieldValues
+							: undefined,
 					};
 				}),
 			});
@@ -225,7 +286,9 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 				<CardContent className="flex flex-col items-center gap-4 py-16 text-center">
 					<CheckCircleIcon className="size-14 text-green-500" />
 					<div>
-						<CardTitle className="text-2xl">{t("submitted.title")}</CardTitle>
+						<CardTitle className="text-2xl">
+							{t("submitted.title")}
+						</CardTitle>
 						<p className="mt-2 text-muted-foreground max-w-sm">
 							{t("submitted.message")}
 						</p>
@@ -250,7 +313,9 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 								name="parentFirstName"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("parent.firstName")} *</FormLabel>
+										<FormLabel>
+											{t("parent.firstName")} *
+										</FormLabel>
 										<FormControl>
 											<Input {...field} />
 										</FormControl>
@@ -263,7 +328,9 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 								name="parentLastName"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("parent.lastName")} *</FormLabel>
+										<FormLabel>
+											{t("parent.lastName")} *
+										</FormLabel>
 										<FormControl>
 											<Input {...field} />
 										</FormControl>
@@ -278,7 +345,9 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 								name="parentEmail"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("parent.email")}</FormLabel>
+										<FormLabel>
+											{t("parent.email")}
+										</FormLabel>
 										<FormControl>
 											<Input type="email" {...field} />
 										</FormControl>
@@ -291,7 +360,9 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 								name="parentPhone"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("parent.phone")}</FormLabel>
+										<FormLabel>
+											{t("parent.phone")}
+										</FormLabel>
 										<FormControl>
 											<Input type="tel" {...field} />
 										</FormControl>
@@ -307,7 +378,10 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 								<FormItem>
 									<FormLabel>{t("parent.address")}</FormLabel>
 									<FormControl>
-										<Input {...field} placeholder="Street address" />
+										<Input
+											{...field}
+											placeholder="Street address"
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -372,14 +446,20 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 
 						{/* Emergency Contact */}
 						<div className="space-y-4 border-t pt-4">
-							<h3 className="font-semibold">{t("parent.emergencyContact.title")}</h3>
+							<h3 className="font-semibold">
+								{t("parent.emergencyContact.title")}
+							</h3>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<FormField
 									control={form.control}
 									name="emergencyContactName"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>{t("parent.emergencyContact.name")}</FormLabel>
+											<FormLabel>
+												{t(
+													"parent.emergencyContact.name",
+												)}
+											</FormLabel>
 											<FormControl>
 												<Input {...field} />
 											</FormControl>
@@ -392,7 +472,11 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 									name="emergencyContactPhone"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>{t("parent.emergencyContact.phone")}</FormLabel>
+											<FormLabel>
+												{t(
+													"parent.emergencyContact.phone",
+												)}
+											</FormLabel>
 											<FormControl>
 												<Input type="tel" {...field} />
 											</FormControl>
@@ -406,7 +490,9 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 								name="emergencyContactEmail"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("parent.emergencyContact.email")}</FormLabel>
+										<FormLabel>
+											{t("parent.emergencyContact.email")}
+										</FormLabel>
 										<FormControl>
 											<Input type="email" {...field} />
 										</FormControl>
@@ -449,7 +535,9 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 										name="spouseFirstName"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>{t("spouse.firstName")}</FormLabel>
+												<FormLabel>
+													{t("spouse.firstName")}
+												</FormLabel>
 												<FormControl>
 													<Input {...field} />
 												</FormControl>
@@ -462,7 +550,9 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 										name="spouseLastName"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>{t("spouse.lastName")}</FormLabel>
+												<FormLabel>
+													{t("spouse.lastName")}
+												</FormLabel>
 												<FormControl>
 													<Input {...field} />
 												</FormControl>
@@ -477,9 +567,14 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 										name="spouseEmail"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>{t("spouse.email")}</FormLabel>
+												<FormLabel>
+													{t("spouse.email")}
+												</FormLabel>
 												<FormControl>
-													<Input type="email" {...field} />
+													<Input
+														type="email"
+														{...field}
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -490,9 +585,14 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 										name="spousePhone"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>{t("spouse.phone")}</FormLabel>
+												<FormLabel>
+													{t("spouse.phone")}
+												</FormLabel>
 												<FormControl>
-													<Input type="tel" {...field} />
+													<Input
+														type="tel"
+														{...field}
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -507,7 +607,9 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 				{/* Children */}
 				<div className="space-y-4">
 					<div className="flex items-center justify-between">
-						<h2 className="text-2xl font-bold">{t("children.sectionTitle")}</h2>
+						<h2 className="text-2xl font-bold">
+							{t("children.sectionTitle")}
+						</h2>
 						<Button
 							type="button"
 							onClick={() => appendChild({ ...defaultChild })}
@@ -535,7 +637,9 @@ export function ApplicationForm({ siteSlug, profileFields = [], formFields = [],
 				</div>
 
 				{serverError && (
-					<p className="text-sm text-destructive text-center">{serverError}</p>
+					<p className="text-sm text-destructive text-center">
+						{serverError}
+					</p>
 				)}
 
 				<div className="flex justify-center">

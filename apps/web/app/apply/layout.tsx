@@ -1,6 +1,6 @@
 import { Document } from "@shared/components/Document";
-import { getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import type { PropsWithChildren } from "react";
 
 export default async function ApplyLayout({ children }: PropsWithChildren) {

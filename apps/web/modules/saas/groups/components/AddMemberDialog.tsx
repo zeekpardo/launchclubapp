@@ -176,7 +176,9 @@ function NewMemberTab({
 				personId: person.id,
 				role: "MEMBER",
 			});
-			toastSuccess(`${values.firstName} ${values.lastName} added to the group.`);
+			toastSuccess(
+				`${values.firstName} ${values.lastName} added to the group.`,
+			);
 			onSuccess();
 		} catch {
 			toastError("Failed to add member. Please try again.");
@@ -227,7 +229,11 @@ function NewMemberTab({
 								</span>
 							</FormLabel>
 							<FormControl>
-								<Input type="email" placeholder="jane@example.com" {...field} />
+								<Input
+									type="email"
+									placeholder="jane@example.com"
+									{...field}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -246,15 +252,19 @@ function NewMemberTab({
 								</span>
 							</FormLabel>
 							<FormControl>
-								<Input type="tel" placeholder="555-000-0000" {...field} />
+								<Input
+									type="tel"
+									placeholder="555-000-0000"
+									{...field}
+								/>
 							</FormControl>
 						</FormItem>
 					)}
 				/>
 
 				<p className="text-muted-foreground text-xs">
-					Creates a people record and adds them to this group. No system login
-					access is granted.
+					Creates a people record and adds them to this group. No
+					system login access is granted.
 				</p>
 
 				<DialogFooter>
@@ -318,11 +328,12 @@ function NewLeaderTab({
 				});
 			} else {
 				// Send invitation
-				const { error, data } = await authClient.organization.inviteMember({
-					email: values.email,
-					role: "member",
-					organizationId,
-				});
+				const { error, data } =
+					await authClient.organization.inviteMember({
+						email: values.email,
+						role: "member",
+						organizationId,
+					});
 				if (error) throw error;
 				if (data?.id) {
 					await saveAssignment.mutateAsync({
@@ -440,7 +451,11 @@ function NewLeaderTab({
 							<FormItem>
 								<FormLabel>Email</FormLabel>
 								<FormControl>
-									<Input type="email" placeholder="jane@example.com" {...field} />
+									<Input
+										type="email"
+										placeholder="jane@example.com"
+										{...field}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -454,8 +469,13 @@ function NewLeaderTab({
 					</p>
 
 					<DialogFooter>
-						<Button type="submit" loading={form.formState.isSubmitting}>
-							{inviteMode === "add" ? "Add Leader" : "Send Invitation"}
+						<Button
+							type="submit"
+							loading={form.formState.isSubmitting}
+						>
+							{inviteMode === "add"
+								? "Add Leader"
+								: "Send Invitation"}
 						</Button>
 					</DialogFooter>
 				</form>

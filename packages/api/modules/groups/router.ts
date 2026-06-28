@@ -10,14 +10,14 @@ import { removeMember } from "./procedures/remove-member";
 import { updateGroupProcedure } from "./procedures/update";
 
 export const groupsRouter = {
-  list: listGroups,
-  get: getGroup,
-  create: createGroupProcedure,
-  update: updateGroupProcedure,
-  delete: deleteGroupProcedure,
-  addMember,
-  removeMember,
-  assignLeader: assignGroupLeader,
-  removeLeader: removeGroupLeader,
-  imageUploadUrl: createGroupImageUploadUrl,
+	list: listGroups,
+	get: getGroup,
+	create: createGroupProcedure,
+	update: updateGroupProcedure,
+	delete: deleteGroupProcedure,
+	addMember,
+	removeMember,
+	assignLeader: assignGroupLeader,
+	removeLeader: removeGroupLeader,
+	imageUploadUrl: createGroupImageUploadUrl,
 };

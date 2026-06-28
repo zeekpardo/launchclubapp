@@ -1,7 +1,10 @@
 "use client";
 
+import type { formFieldTypeEnum } from "@repo/api/modules/form-builder/types";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { toastError } from "@repo/ui/components/toast";
+import { useConsentItems } from "@saas/applications/hooks/use-consent-items";
+import { useCustomFields } from "@saas/custom-fields/hooks/use-custom-fields";
 import type { FormFieldItem } from "@saas/form-builder/components/FieldCard";
 import {
 	FieldTypePicker,
@@ -17,9 +20,6 @@ import {
 	useUpdateFormField,
 } from "@saas/form-builder/hooks/use-form-fields";
 import { slugify } from "@saas/form-builder/lib/slugify";
-import { useConsentItems } from "@saas/applications/hooks/use-consent-items";
-import { useCustomFields } from "@saas/custom-fields/hooks/use-custom-fields";
-import { formFieldTypeEnum } from "@repo/api/modules/form-builder/types";
 import { useCallback, useMemo, useState } from "react";
 import type { z } from "zod";
 
@@ -33,8 +33,14 @@ interface BuilderTabProps {
 	orgSlug: string;
 }
 
-export function BuilderTab({ formId, isStudentForm, organizationId, orgSlug }: BuilderTabProps) {
-	const { data: fields = [], isLoading: fieldsLoading } = useFormFields(formId);
+export function BuilderTab({
+	formId,
+	isStudentForm,
+	organizationId,
+	orgSlug,
+}: BuilderTabProps) {
+	const { data: fields = [], isLoading: fieldsLoading } =
+		useFormFields(formId);
 	const { data: allCustomFields = [] } = useCustomFields(organizationId);
 	const { data: allConsentItems = [] } = useConsentItems(organizationId);
 
@@ -51,12 +57,18 @@ export function BuilderTab({ formId, isStudentForm, organizationId, orgSlug }: B
 		() =>
 			typedFields.reduce(
 				(acc, f) => {
-					if (f.targetPersonType === "PARENT") acc.parentFields.push(f);
-					else if (f.targetPersonType === "STUDENT") acc.studentFields.push(f);
+					if (f.targetPersonType === "PARENT")
+						acc.parentFields.push(f);
+					else if (f.targetPersonType === "STUDENT")
+						acc.studentFields.push(f);
 					else acc.globalFields.push(f);
 					return acc;
 				},
-				{ parentFields: [] as FormFieldItem[], studentFields: [] as FormFieldItem[], globalFields: [] as FormFieldItem[] },
+				{
+					parentFields: [] as FormFieldItem[],
+					studentFields: [] as FormFieldItem[],
+					globalFields: [] as FormFieldItem[],
+				},
 			),
 		[typedFields],
 	);
@@ -84,13 +96,23 @@ export function BuilderTab({ formId, isStudentForm, organizationId, orgSlug }: B
 		[fieldsInSection],
 	);
 
-	const customFieldOptions = allCustomFields as { id: string; name: string }[];
+	const customFieldOptions = allCustomFields as {
+		id: string;
+		name: string;
+	}[];
 
 	const consentItems = useMemo(
 		() =>
-			(allConsentItems as { id: string; name: string; applicantType: string }[]).filter((item) =>
+			(
+				allConsentItems as {
+					id: string;
+					name: string;
+					applicantType: string;
+				}[]
+			).filter((item) =>
 				isStudentForm
-					? item.applicantType === "STUDENT" || item.applicantType === "PARENT"
+					? item.applicantType === "STUDENT" ||
+						item.applicantType === "PARENT"
 					: item.applicantType === "MENTOR",
 			),
 		[allConsentItems, isStudentForm],
@@ -102,8 +124,23 @@ export function BuilderTab({ formId, isStudentForm, organizationId, orgSlug }: B
 		() =>
 			new Set(
 				typedFields
-					.filter((f) => f.type === "CONSENT" && (f as FormFieldItem & { consentItemId?: string | null }).consentItemId)
-					.map((f) => (f as FormFieldItem & { consentItemId?: string | null }).consentItemId as string),
+					.filter(
+						(f) =>
+							f.type === "CONSENT" &&
+							(
+								f as FormFieldItem & {
+									consentItemId?: string | null;
+								}
+							).consentItemId,
+					)
+					.map(
+						(f) =>
+							(
+								f as FormFieldItem & {
+									consentItemId?: string | null;
+								}
+							).consentItemId as string,
+					),
 			),
 		[typedFields],
 	);
@@ -180,7 +217,8 @@ export function BuilderTab({ formId, isStudentForm, organizationId, orgSlug }: B
 	);
 
 	const handleToggle = useCallback(
-		(field: FormFieldItem) => setExpandedId((prev) => (prev === field.id ? null : field.id)),
+		(field: FormFieldItem) =>
+			setExpandedId((prev) => (prev === field.id ? null : field.id)),
 		[],
 	);
 
@@ -193,7 +231,9 @@ export function BuilderTab({ formId, isStudentForm, organizationId, orgSlug }: B
 				placeholder: data.placeholder ?? undefined,
 				helpText: data.helpText ?? undefined,
 				required: data.required,
-				options: data.options as { label: string; value: string }[] | undefined,
+				options: data.options as
+					| { label: string; value: string }[]
+					| undefined,
 				customFieldId: data.customFieldId ?? undefined,
 			});
 		},
@@ -245,7 +285,14 @@ export function BuilderTab({ formId, isStudentForm, organizationId, orgSlug }: B
 					</div>
 				) : (
 					<div className="p-3">
-						<FormBuilderCanvas fields={globalFields.length > 0 ? globalFields : typedFields} {...canvasProps} />
+						<FormBuilderCanvas
+							fields={
+								globalFields.length > 0
+									? globalFields
+									: typedFields
+							}
+							{...canvasProps}
+						/>
 					</div>
 				)}
 			</div>
@@ -254,7 +301,9 @@ export function BuilderTab({ formId, isStudentForm, organizationId, orgSlug }: B
 				<FieldTypePicker
 					onAddBasic={handleAddBasic}
 					targetSection={isStudentForm ? activeSection : null}
-					onTargetSectionChange={isStudentForm ? setActiveSection : undefined}
+					onTargetSectionChange={
+						isStudentForm ? setActiveSection : undefined
+					}
 					addedProfileKeys={addedProfileKeys}
 					onAddBuiltinField={handleAddBuiltinField}
 					onAddCustomField={handleAddCustomField}
@@ -284,21 +333,33 @@ interface SectionPanelProps {
 	customFieldOptions: { id: string; name: string }[];
 }
 
-function SectionPanel({ label, fields, isActive, onSelect, ...canvasProps }: SectionPanelProps) {
+function SectionPanel({
+	label,
+	fields,
+	isActive,
+	onSelect,
+	...canvasProps
+}: SectionPanelProps) {
 	return (
 		<>
 			<button
 				type="button"
 				onClick={onSelect}
 				className={`w-full text-left px-4 py-3 transition-colors ${
-					isActive ? "bg-primary/5 border-l-2 border-l-primary" : "hover:bg-muted/40"
+					isActive
+						? "bg-primary/5 border-l-2 border-l-primary"
+						: "hover:bg-muted/40"
 				}`}
 			>
-				<p className={`text-xs font-semibold uppercase tracking-wider ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+				<p
+					className={`text-xs font-semibold uppercase tracking-wider ${isActive ? "text-primary" : "text-muted-foreground"}`}
+				>
 					{label}
 				</p>
 				<p className="text-xs text-muted-foreground mt-0.5">
-					{isActive ? "← Adding to this section" : `${fields.length} field${fields.length !== 1 ? "s" : ""}`}
+					{isActive
+						? "← Adding to this section"
+						: `${fields.length} field${fields.length !== 1 ? "s" : ""}`}
 				</p>
 			</button>
 			<div className="p-3">

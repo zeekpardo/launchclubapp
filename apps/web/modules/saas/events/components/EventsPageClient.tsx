@@ -1,7 +1,7 @@
 "use client";
 
+import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
-import { Skeleton } from "@repo/ui/components/skeleton";
 import {
 	Select,
 	SelectContent,
@@ -9,14 +9,19 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@repo/ui/components/select";
-import { Button } from "@repo/ui/components/button";
-import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
+import { Skeleton } from "@repo/ui/components/skeleton";
 import { useGroups } from "@saas/groups/hooks/use-groups";
+import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarIcon, LayoutGridIcon, PlusIcon, TableIcon } from "lucide-react";
+import {
+	CalendarIcon,
+	LayoutGridIcon,
+	PlusIcon,
+	TableIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { EventCard } from "./EventCard";
 import { EventDialog } from "./EventDialog";
 import { EventsTable } from "./EventsTable";
@@ -26,7 +31,8 @@ type ViewMode = "grid" | "table";
 
 export function EventsPageClient() {
 	const t = useTranslations();
-	const { activeOrganization, activeOrganizationUserRole } = useActiveOrganization();
+	const { activeOrganization, activeOrganizationUserRole } =
+		useActiveOrganization();
 	const organizationId = activeOrganization?.id ?? "";
 	// Both site leaders and group leaders have member.role="member" in Better Auth.
 	// We distinguish them by whether sites.list returns data (site leaders have UserSite records).
@@ -55,8 +61,10 @@ export function EventsPageClient() {
 	);
 
 	// Distinguish site leader vs group leader: site leaders have UserSite records returned by sites.list
-	const isSiteLeader = isRestrictedMember && !sitesLoading && (allSites?.length ?? 0) > 0;
-	const isGroupLeader = isRestrictedMember && !sitesLoading && (allSites?.length ?? 0) === 0;
+	const isSiteLeader =
+		isRestrictedMember && !sitesLoading && (allSites?.length ?? 0) > 0;
+	const isGroupLeader =
+		isRestrictedMember && !sitesLoading && (allSites?.length ?? 0) === 0;
 
 	// Group leaders: derive available areas/sites from their scoped groups
 	const { data: groups } = useGroups();
@@ -65,7 +73,12 @@ export function EventsPageClient() {
 		if (!isGroupLeader || !groups) return undefined;
 		const seen = new Set<string>();
 		return groups
-			.filter((g) => g.site?.area && !seen.has(g.site.area.id) && seen.add(g.site.area.id))
+			.filter(
+				(g) =>
+					g.site?.area &&
+					!seen.has(g.site.area.id) &&
+					seen.add(g.site.area.id),
+			)
 			.map((g) => g.site.area);
 	}, [isGroupLeader, groups]);
 
@@ -73,7 +86,9 @@ export function EventsPageClient() {
 		if (!isGroupLeader || !groups) return undefined;
 		const seen = new Set<string>();
 		return groups
-			.filter((g) => g.site && !seen.has(g.site.id) && seen.add(g.site.id))
+			.filter(
+				(g) => g.site && !seen.has(g.site.id) && seen.add(g.site.id),
+			)
 			.map((g) => g.site);
 	}, [isGroupLeader, groups]);
 
@@ -82,11 +97,17 @@ export function EventsPageClient() {
 		if (!isSiteLeader || !allSites) return undefined;
 		const seen = new Set<string>();
 		return (allSites as Array<{ area?: { id: string; name: string } }>)
-			.filter((s) => s.area && !seen.has(s.area.id) && seen.add(s.area.id))
+			.filter(
+				(s) => s.area && !seen.has(s.area.id) && seen.add(s.area.id),
+			)
 			.map((s) => s.area as { id: string; name: string });
 	}, [isSiteLeader, allSites]);
 
-	const areas = isGroupLeader ? scopedAreas : isSiteLeader ? siteLeaderAreas : allAreas;
+	const areas = isGroupLeader
+		? scopedAreas
+		: isSiteLeader
+			? siteLeaderAreas
+			: allAreas;
 	const sites = isGroupLeader ? scopedSites : allSites;
 
 	const visibleSites = useMemo(
@@ -140,7 +161,9 @@ export function EventsPageClient() {
 					/>
 					<div className="flex items-center gap-1 rounded-lg border p-1 shrink-0">
 						<Button
-							variant={viewMode === "grid" ? "secondary" : "ghost"}
+							variant={
+								viewMode === "grid" ? "secondary" : "ghost"
+							}
 							size="icon"
 							className="size-7"
 							onClick={() => setViewMode("grid")}
@@ -149,7 +172,9 @@ export function EventsPageClient() {
 							<LayoutGridIcon className="size-3.5" />
 						</Button>
 						<Button
-							variant={viewMode === "table" ? "secondary" : "ghost"}
+							variant={
+								viewMode === "table" ? "secondary" : "ghost"
+							}
 							size="icon"
 							className="size-7"
 							onClick={() => setViewMode("table")}
@@ -158,20 +183,32 @@ export function EventsPageClient() {
 							<TableIcon className="size-3.5" />
 						</Button>
 					</div>
-					<Button className="shrink-0" onClick={() => setCreateOpen(true)}>
+					<Button
+						className="shrink-0"
+						onClick={() => setCreateOpen(true)}
+					>
 						<PlusIcon className="size-4 md:mr-2" />
-						<span className="hidden md:inline">{t("launchclub.events.new")}</span>
+						<span className="hidden md:inline">
+							{t("launchclub.events.new")}
+						</span>
 					</Button>
 				</div>
 
 				{/* Row 2: Area + Site selects */}
 				<div className="flex items-center gap-2">
-					<Select value={selectedAreaId} onValueChange={handleAreaChange}>
+					<Select
+						value={selectedAreaId}
+						onValueChange={handleAreaChange}
+					>
 						<SelectTrigger className="flex-1">
-							<SelectValue placeholder={t("launchclub.events.allAreas")} />
+							<SelectValue
+								placeholder={t("launchclub.events.allAreas")}
+							/>
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value={ALL}>{t("launchclub.events.allAreas")}</SelectItem>
+							<SelectItem value={ALL}>
+								{t("launchclub.events.allAreas")}
+							</SelectItem>
 							{(areas ?? []).map((area) => (
 								<SelectItem key={area.id} value={area.id}>
 									{area.name}
@@ -180,12 +217,19 @@ export function EventsPageClient() {
 						</SelectContent>
 					</Select>
 
-					<Select value={selectedSiteId} onValueChange={setSelectedSiteId}>
+					<Select
+						value={selectedSiteId}
+						onValueChange={setSelectedSiteId}
+					>
 						<SelectTrigger className="flex-1">
-							<SelectValue placeholder={t("launchclub.events.allSites")} />
+							<SelectValue
+								placeholder={t("launchclub.events.allSites")}
+							/>
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value={ALL}>{t("launchclub.events.allSites")}</SelectItem>
+							<SelectItem value={ALL}>
+								{t("launchclub.events.allSites")}
+							</SelectItem>
 							{visibleSites.map((site) => (
 								<SelectItem key={site.id} value={site.id}>
 									{site.name}
@@ -202,13 +246,18 @@ export function EventsPageClient() {
 					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{Array.from({ length: 6 }).map((_, i) => (
 							// biome-ignore lint/suspicious/noArrayIndexKey: skeleton
-							<Skeleton key={i} className="h-40 w-full rounded-xl" />
+							<Skeleton
+								key={i}
+								className="h-40 w-full rounded-xl"
+							/>
 						))}
 					</div>
 				) : filteredEvents.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
 						<CalendarIcon className="mb-3 size-10 opacity-40" />
-						<p className="text-sm">{t("launchclub.events.noResults")}</p>
+						<p className="text-sm">
+							{t("launchclub.events.noResults")}
+						</p>
 					</div>
 				) : (
 					<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

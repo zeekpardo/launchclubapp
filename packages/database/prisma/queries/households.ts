@@ -1,41 +1,43 @@
 import { db } from "../client";
 
 export async function getHouseholdsByOrganization(organizationId: string) {
-  return db.household.findMany({
-    where: { organizationId },
-    include: { _count: { select: { people: true } } },
-    orderBy: { name: "asc" },
-  });
+	return db.household.findMany({
+		where: { organizationId },
+		include: { _count: { select: { people: true } } },
+		orderBy: { name: "asc" },
+	});
 }
 
 export async function getHouseholdById(id: string) {
-  return db.household.findUnique({
-    where: { id },
-    include: { people: true },
-  });
+	return db.household.findUnique({
+		where: { id },
+		include: { people: true },
+	});
 }
 
 export async function createHousehold(data: {
-  organizationId: string;
-  name: string;
-  addressLine1?: string;
-  city?: string;
-  stateProvince?: string;
-  postalCode?: string;
-  country?: string;
-  phone?: string;
-  email?: string;
+	organizationId: string;
+	name: string;
+	addressLine1?: string;
+	city?: string;
+	stateProvince?: string;
+	postalCode?: string;
+	country?: string;
+	phone?: string;
+	email?: string;
 }) {
-  return db.household.create({ data });
+	return db.household.create({ data });
 }
 
 export async function updateHousehold(
-  id: string,
-  data: Partial<Omit<Parameters<typeof createHousehold>[0], "organizationId">>,
+	id: string,
+	data: Partial<
+		Omit<Parameters<typeof createHousehold>[0], "organizationId">
+	>,
 ) {
-  return db.household.update({ where: { id }, data });
+	return db.household.update({ where: { id }, data });
 }
 
 export async function deleteHousehold(id: string) {
-  return db.household.delete({ where: { id } });
+	return db.household.delete({ where: { id } });
 }

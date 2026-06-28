@@ -1,6 +1,6 @@
 "use client";
 
-import { type GroupDetail } from "@saas/groups/hooks/use-groups";
+import type { GroupDetail } from "@saas/groups/hooks/use-groups";
 import { GroupDangerZone } from "./GroupDangerZone";
 import { GroupImageUpload } from "./GroupImageUpload";
 import { GroupSettingsForm } from "./GroupSettingsForm";

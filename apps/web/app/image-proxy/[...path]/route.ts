@@ -49,7 +49,8 @@ export const GET = async (
 		}
 
 		const contentType =
-			s3Response.headers.get("Content-Type") ?? "application/octet-stream";
+			s3Response.headers.get("Content-Type") ??
+			"application/octet-stream";
 		const fileName = filePath.split("/").pop() ?? "file";
 
 		return new Response(s3Response.body, {

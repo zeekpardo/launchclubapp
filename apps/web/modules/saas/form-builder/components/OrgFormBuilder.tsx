@@ -1,23 +1,23 @@
 "use client";
 
+import type { DragEndEvent } from "@dnd-kit/core";
 import {
+	closestCenter,
 	DndContext,
 	KeyboardSensor,
 	PointerSensor,
-	closestCenter,
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core";
-import type { DragEndEvent } from "@dnd-kit/core";
 import {
-	SortableContext,
 	arrayMove,
+	SortableContext,
 	sortableKeyboardCoordinates,
 	useSortable,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { formFieldTypeEnum } from "@repo/api/modules/form-builder/types";
+import type { formFieldTypeEnum } from "@repo/api/modules/form-builder/types";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import { Skeleton } from "@repo/ui/components/skeleton";
@@ -36,17 +36,29 @@ import {
 	useFormFields,
 	useUpdateFormField,
 } from "../hooks/use-form-fields";
+import { slugify } from "../lib/slugify";
 import type { FormFieldItem } from "./FieldCard";
 import { FieldTypePicker } from "./FieldTypePicker";
 import { FormBuilderCanvas } from "./FormBuilderCanvas";
-import { slugify } from "../lib/slugify";
 
 type FormFieldType = z.infer<typeof formFieldTypeEnum>;
 
 const PRESET_FIELDS = [
-	{ id: "emergency_contact_name", label: "Emergency Contact Name", type: "TEXT" },
-	{ id: "emergency_contact_phone", label: "Emergency Contact Phone", type: "TEXT" },
-	{ id: "emergency_contact_email", label: "Emergency Contact Email", type: "TEXT" },
+	{
+		id: "emergency_contact_name",
+		label: "Emergency Contact Name",
+		type: "TEXT",
+	},
+	{
+		id: "emergency_contact_phone",
+		label: "Emergency Contact Phone",
+		type: "TEXT",
+	},
+	{
+		id: "emergency_contact_email",
+		label: "Emergency Contact Email",
+		type: "TEXT",
+	},
 ] as const;
 
 interface ProfileField {
@@ -67,8 +79,18 @@ interface OrgFormBuilderProps {
 function SortableProfileFieldRow({
 	field,
 	onRemove,
-}: { field: ProfileField; onRemove: () => void }) {
-	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+}: {
+	field: ProfileField;
+	onRemove: () => void;
+}) {
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({
 		id: field.id,
 	});
 
@@ -94,8 +116,14 @@ function SortableProfileFieldRow({
 			</button>
 			<p className="text-sm font-medium flex-1 truncate">{field.name}</p>
 			<div className="flex items-center gap-1.5 shrink-0">
-				<Badge status="success" className="text-xs">Profile</Badge>
-				{field.required && <Badge status="error" className="text-xs">Required</Badge>}
+				<Badge status="success" className="text-xs">
+					Profile
+				</Badge>
+				{field.required && (
+					<Badge status="error" className="text-xs">
+						Required
+					</Badge>
+				)}
 			</div>
 			<Button
 				variant="ghost"
@@ -110,31 +138,45 @@ function SortableProfileFieldRow({
 	);
 }
 
-export function OrgFormBuilder({ organizationId, organizationSlug, formId = "" }: OrgFormBuilderProps) {
-	const { data: fields = [], isLoading: basicLoading } = useFormFields(formId);
+export function OrgFormBuilder({
+	organizationId,
+	organizationSlug,
+	formId = "",
+}: OrgFormBuilderProps) {
+	const { data: fields = [], isLoading: basicLoading } =
+		useFormFields(formId);
 	const addField = useAddFormField(formId);
 	const deleteField = useDeleteFormField(formId);
 	const updateField = useUpdateFormField(formId);
 
-	const { data: allCustomFields = [], isLoading: profileLoading } = useCustomFields(organizationId);
+	const { data: allCustomFields = [], isLoading: profileLoading } =
+		useCustomFields(organizationId);
 	const updateCustomField = useUpdateCustomField(organizationId);
 	const reorderCustomField = useReorderCustomFields(organizationId);
 
-	const linkedProfileFields = (allCustomFields as ProfileField[]).filter((f) => f.collectInApplication);
-	const availableProfileFields = (allCustomFields as ProfileField[]).filter((f) => !f.collectInApplication);
+	const linkedProfileFields = (allCustomFields as ProfileField[]).filter(
+		(f) => f.collectInApplication,
+	);
+	const availableProfileFields = (allCustomFields as ProfileField[]).filter(
+		(f) => !f.collectInApplication,
+	);
 
 	const [expandedId, setExpandedId] = useState<string | null>(null);
 	const isLoading = basicLoading || profileLoading;
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
-		useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		}),
 	);
 
 	const handleProfileDragEnd = async (event: DragEndEvent) => {
 		const { active, over } = event;
 		if (!over || active.id === over.id) return;
-		const oldIndex = linkedProfileFields.findIndex((f) => f.id === active.id);
+		const oldIndex = linkedProfileFields.findIndex(
+			(f) => f.id === active.id,
+		);
 		const newIndex = linkedProfileFields.findIndex((f) => f.id === over.id);
 		const reordered = arrayMove(linkedProfileFields, oldIndex, newIndex);
 		try {
@@ -147,8 +189,12 @@ export function OrgFormBuilder({ organizationId, organizationSlug, formId = "" }
 		}
 	};
 
-	const currentFieldKeys = new Set((fields as FormFieldItem[]).map((f) => f.fieldKey));
-	const availablePresetFields = PRESET_FIELDS.filter((p) => !currentFieldKeys.has(p.id));
+	const currentFieldKeys = new Set(
+		(fields as FormFieldItem[]).map((f) => f.fieldKey),
+	);
+	const availablePresetFields = PRESET_FIELDS.filter(
+		(p) => !currentFieldKeys.has(p.id),
+	);
 
 	const handleAddPreset = async (id: string) => {
 		const preset = PRESET_FIELDS.find((p) => p.id === id);
@@ -185,7 +231,10 @@ export function OrgFormBuilder({ organizationId, organizationSlug, formId = "" }
 
 	const handleAddProfile = async (fieldId: string) => {
 		try {
-			await updateCustomField.mutateAsync({ id: fieldId, collectInApplication: true });
+			await updateCustomField.mutateAsync({
+				id: fieldId,
+				collectInApplication: true,
+			});
 		} catch {
 			toastError("Failed to add profile field.");
 		}
@@ -193,7 +242,10 @@ export function OrgFormBuilder({ organizationId, organizationSlug, formId = "" }
 
 	const handleRemoveProfile = async (fieldId: string) => {
 		try {
-			await updateCustomField.mutateAsync({ id: fieldId, collectInApplication: false });
+			await updateCustomField.mutateAsync({
+				id: fieldId,
+				collectInApplication: false,
+			});
 		} catch {
 			toastError("Failed to remove profile field.");
 		}
@@ -220,19 +272,26 @@ export function OrgFormBuilder({ organizationId, organizationSlug, formId = "" }
 			placeholder: data.placeholder ?? undefined,
 			helpText: data.helpText ?? undefined,
 			required: data.required,
-			options: data.options as { label: string; value: string }[] | undefined,
+			options: data.options as
+				| { label: string; value: string }[]
+				| undefined,
 		});
 	};
 
-	const isEmpty = linkedProfileFields.length === 0 && (fields as FormFieldItem[]).length === 0;
+	const isEmpty =
+		linkedProfileFields.length === 0 &&
+		(fields as FormFieldItem[]).length === 0;
 
 	return (
 		<div className="grid grid-cols-[1fr_260px] gap-4 items-start">
 			<div className="rounded-lg border bg-card overflow-hidden">
 				<div className="px-4 py-3 border-b bg-muted/40">
-					<h3 className="font-semibold text-sm">Mentor Form Questions</h3>
+					<h3 className="font-semibold text-sm">
+						Mentor Form Questions
+					</h3>
 					<p className="text-xs text-muted-foreground mt-0.5">
-						These questions appear on the mentor application form for this organization.
+						These questions appear on the mentor application form
+						for this organization.
 					</p>
 				</div>
 				<div className="p-3">
@@ -254,7 +313,9 @@ export function OrgFormBuilder({ organizationId, organizationSlug, formId = "" }
 									onDragEnd={handleProfileDragEnd}
 								>
 									<SortableContext
-										items={linkedProfileFields.map((f) => f.id)}
+										items={linkedProfileFields.map(
+											(f) => f.id,
+										)}
 										strategy={verticalListSortingStrategy}
 									>
 										<div className="space-y-2">
@@ -262,7 +323,11 @@ export function OrgFormBuilder({ organizationId, organizationSlug, formId = "" }
 												<SortableProfileFieldRow
 													key={f.id}
 													field={f}
-													onRemove={() => handleRemoveProfile(f.id)}
+													onRemove={() =>
+														handleRemoveProfile(
+															f.id,
+														)
+													}
 												/>
 											))}
 										</div>

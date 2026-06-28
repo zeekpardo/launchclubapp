@@ -1,9 +1,10 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import {
 	ActivityIcon,
-	AlignLeftIcon,
 	AlertTriangleIcon,
+	AlignLeftIcon,
 	BookOpenIcon,
 	CalendarIcon,
 	CheckSquareIcon,
@@ -21,7 +22,6 @@ import {
 	TextIcon,
 	UserIcon,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 
 // ── Profile field definitions ────────────────────────────────────────────────
 
@@ -34,8 +34,16 @@ interface ProfileFieldDef {
 export const PARENT_PROFILE_FIELDS: ProfileFieldDef[] = [
 	{ key: "phone", label: "Phone", icon: PhoneIcon },
 	{ key: "addressLine1", label: "Address", icon: MapPinIcon },
-	{ key: "emergency_contact_name", label: "Emergency Name", icon: PhoneCallIcon },
-	{ key: "emergency_contact_phone", label: "Emergency Phone", icon: PhoneCallIcon },
+	{
+		key: "emergency_contact_name",
+		label: "Emergency Name",
+		icon: PhoneCallIcon,
+	},
+	{
+		key: "emergency_contact_phone",
+		label: "Emergency Phone",
+		icon: PhoneCallIcon,
+	},
 ];
 
 export const STUDENT_PROFILE_FIELDS: ProfileFieldDef[] = [
@@ -49,8 +57,16 @@ export const MENTOR_PROFILE_FIELDS: ProfileFieldDef[] = [
 	{ key: "phone", label: "Phone", icon: PhoneIcon },
 	{ key: "addressLine1", label: "Address", icon: MapPinIcon },
 	{ key: "dateOfBirth", label: "Date of Birth", icon: CalendarIcon },
-	{ key: "emergency_contact_name", label: "Emergency Name", icon: PhoneCallIcon },
-	{ key: "emergency_contact_phone", label: "Emergency Phone", icon: PhoneCallIcon },
+	{
+		key: "emergency_contact_name",
+		label: "Emergency Name",
+		icon: PhoneCallIcon,
+	},
+	{
+		key: "emergency_contact_phone",
+		label: "Emergency Phone",
+		icon: PhoneCallIcon,
+	},
 ];
 
 const BASIC_FIELDS = [
@@ -116,16 +132,17 @@ export function FieldTypePicker({
 	const isNewBuilder = targetSection !== undefined;
 
 	// Pick the right profile field list
-	const profileFieldDefs: ProfileFieldDef[] =
-		!isNewBuilder
-			? []
-			: targetSection === "PARENT"
-				? PARENT_PROFILE_FIELDS
-				: targetSection === "STUDENT"
-					? STUDENT_PROFILE_FIELDS
-					: MENTOR_PROFILE_FIELDS;
+	const profileFieldDefs: ProfileFieldDef[] = !isNewBuilder
+		? []
+		: targetSection === "PARENT"
+			? PARENT_PROFILE_FIELDS
+			: targetSection === "STUDENT"
+				? STUDENT_PROFILE_FIELDS
+				: MENTOR_PROFILE_FIELDS;
 
-	const availableProfileDefs = profileFieldDefs.filter((f) => !addedProfileKeys.has(f.key));
+	const availableProfileDefs = profileFieldDefs.filter(
+		(f) => !addedProfileKeys.has(f.key),
+	);
 
 	return (
 		<div className="rounded-lg border bg-card overflow-hidden text-sm">
@@ -140,7 +157,8 @@ export function FieldTypePicker({
 			{pendingField && (
 				<div className="px-4 py-2.5 bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-800">
 					<p className="text-xs text-amber-700 dark:text-amber-400">
-						Fill in and save the current field before adding another.
+						Fill in and save the current field before adding
+						another.
 					</p>
 				</div>
 			)}
@@ -184,7 +202,10 @@ export function FieldTypePicker({
 			{!isNewBuilder && (
 				<LegacyDropdownSection
 					label="Custom Profile Field"
-					items={availableProfileFields.map((f) => ({ id: f.id, label: f.name }))}
+					items={availableProfileFields.map((f) => ({
+						id: f.id,
+						label: f.name,
+					}))}
 					onAdd={(id) => onAddProfile?.(id)}
 					emptyLabel="All custom fields added."
 					organizationSlug={organizationSlug}
@@ -196,15 +217,17 @@ export function FieldTypePicker({
 				<div className="p-3 border-b">
 					<SectionHeader label="Profile Fields" icon={UserIcon} />
 					<div className="grid grid-cols-2 gap-1 mt-2">
-						{availableProfileDefs.map(({ key, label, icon: Icon }) => (
-							<FieldButton
-								key={key}
-								icon={Icon}
-								label={label}
-								disabled={pendingField}
-								onClick={() => onAddBuiltinField?.(key)}
-							/>
-						))}
+						{availableProfileDefs.map(
+							({ key, label, icon: Icon }) => (
+								<FieldButton
+									key={key}
+									icon={Icon}
+									label={label}
+									disabled={pendingField}
+									onClick={() => onAddBuiltinField?.(key)}
+								/>
+							),
+						)}
 						<FieldButton
 							icon={SparklesIcon}
 							label="Custom field"
@@ -237,7 +260,9 @@ export function FieldTypePicker({
 								/>
 							))}
 					</div>
-					{consentItems.every((item) => addedConsentIds.has(item.id)) && (
+					{consentItems.every((item) =>
+						addedConsentIds.has(item.id),
+					) && (
 						<p className="text-xs text-muted-foreground px-1 mt-1">
 							All consent items added.
 						</p>
@@ -250,7 +275,13 @@ export function FieldTypePicker({
 				<SectionHeader label="Basic Fields" icon={StarIcon} />
 				<div className="grid grid-cols-2 gap-1 mt-2">
 					{BASIC_FIELDS.map(({ type, label, icon: Icon }) => (
-						<FieldButton key={type} icon={Icon} label={label} disabled={pendingField} onClick={() => onAddBasic(type)} />
+						<FieldButton
+							key={type}
+							icon={Icon}
+							label={label}
+							disabled={pendingField}
+							onClick={() => onAddBasic(type)}
+						/>
 					))}
 				</div>
 			</div>
@@ -260,11 +291,19 @@ export function FieldTypePicker({
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
-function SectionHeader({ label, icon: Icon }: { label: string; icon: LucideIcon }) {
+function SectionHeader({
+	label,
+	icon: Icon,
+}: {
+	label: string;
+	icon: LucideIcon;
+}) {
 	return (
 		<div className="flex items-center gap-1.5 px-1">
 			<Icon className="size-3 text-muted-foreground" />
-			<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
+			<p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+				{label}
+			</p>
 		</div>
 	);
 }
@@ -274,7 +313,12 @@ function FieldButton({
 	label,
 	onClick,
 	disabled,
-}: { icon: LucideIcon; label: string; onClick: () => void; disabled?: boolean }) {
+}: {
+	icon: LucideIcon;
+	label: string;
+	onClick: () => void;
+	disabled?: boolean;
+}) {
 	return (
 		<button
 			type="button"
@@ -329,13 +373,20 @@ function LegacyDropdownSection({
 					>
 						<option value="">Select a field…</option>
 						{items.map((f) => (
-							<option key={f.id} value={f.id}>{f.label}</option>
+							<option key={f.id} value={f.id}>
+								{f.label}
+							</option>
 						))}
 					</select>
 					<button
 						type="button"
 						disabled={!selected}
-						onClick={() => { if (selected) { onAdd(selected); setSelected(""); } }}
+						onClick={() => {
+							if (selected) {
+								onAdd(selected);
+								setSelected("");
+							}
+						}}
 						className="shrink-0 rounded-md bg-primary px-2.5 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-colors"
 					>
 						Add

@@ -23,10 +23,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@repo/ui/components/select";
-import { PersonForm } from "@saas/people/components/PersonForm";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
-import { orpc } from "@shared/lib/orpc-query-utils";
+import { PersonForm } from "@saas/people/components/PersonForm";
 import { useRouter } from "@shared/hooks/router";
+import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon, HomeIcon, PlusIcon, XIcon } from "lucide-react";
 import Link from "next/link";
@@ -56,7 +56,9 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 	const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 	const [selectedAssignId, setSelectedAssignId] = useState("");
 
-	const createHousehold = useMutation(orpc.households.create.mutationOptions());
+	const createHousehold = useMutation(
+		orpc.households.create.mutationOptions(),
+	);
 
 	const { data: allHouseholds } = useQuery(
 		orpc.households.list.queryOptions({
@@ -65,7 +67,9 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 		}),
 	);
 
-	const getHouseholdId = useCallback(async (): Promise<string | undefined> => {
+	const getHouseholdId = useCallback(async (): Promise<
+		string | undefined
+	> => {
 		if (household.type === "existing") return household.id;
 		if (household.type === "new") {
 			const created = await createHousehold.mutateAsync({
@@ -87,7 +91,11 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 	const handleAssignConfirm = () => {
 		if (!selectedAssignId) return;
 		const found = allHouseholds?.find((h) => h.id === selectedAssignId);
-		setHousehold({ type: "existing", id: selectedAssignId, name: found?.name ?? t("launchclub.households.cardTitle") });
+		setHousehold({
+			type: "existing",
+			id: selectedAssignId,
+			name: found?.name ?? t("launchclub.households.cardTitle"),
+		});
 		setAssignDialogOpen(false);
 		setSelectedAssignId("");
 	};
@@ -105,7 +113,9 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 						<ArrowLeftIcon className="size-4" />
 					</Link>
 				</Button>
-				<h1 className="text-3xl font-bold text-foreground">{t("launchclub.people.new")}</h1>
+				<h1 className="text-3xl font-bold text-foreground">
+					{t("launchclub.people.new")}
+				</h1>
 			</div>
 
 			{/* 3-col grid */}
@@ -113,7 +123,9 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 				{/* Main form — col-span-2 */}
 				<Card className="lg:col-span-2">
 					<CardHeader>
-						<CardTitle>{t("launchclub.people.personDetails")}</CardTitle>
+						<CardTitle>
+							{t("launchclub.people.personDetails")}
+						</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<PersonForm
@@ -130,11 +142,15 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 					{/* Groups placeholder */}
 					<Card>
 						<CardHeader className="pb-3">
-							<CardTitle className="text-base">{t("launchclub.people.groups")}</CardTitle>
+							<CardTitle className="text-base">
+								{t("launchclub.people.groups")}
+							</CardTitle>
 						</CardHeader>
 						<CardContent>
 							<p className="text-sm text-muted-foreground">
-								{t("launchclub.people.groupsAvailableAfterSaving")}
+								{t(
+									"launchclub.people.groupsAvailableAfterSaving",
+								)}
 							</p>
 						</CardContent>
 					</Card>
@@ -152,7 +168,9 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 									variant="ghost"
 									className="size-7"
 									type="button"
-									onClick={() => setHousehold({ type: "none" })}
+									onClick={() =>
+										setHousehold({ type: "none" })
+									}
 								>
 									<XIcon className="size-3.5" />
 								</Button>
@@ -161,11 +179,17 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 						<CardContent className="space-y-3">
 							{household.type !== "none" ? (
 								<div className="rounded-lg border p-3 space-y-1">
-									<p className="font-medium text-sm">{household.name}</p>
+									<p className="font-medium text-sm">
+										{household.name}
+									</p>
 									<p className="text-xs text-muted-foreground">
 										{household.type === "new"
-											? t("launchclub.households.willBeCreated")
-											: t("launchclub.households.willBeAssigned")}
+											? t(
+													"launchclub.households.willBeCreated",
+												)
+											: t(
+													"launchclub.households.willBeAssigned",
+												)}
 									</p>
 								</div>
 							) : (
@@ -175,7 +199,9 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 										variant="outline"
 										className="w-full"
 										type="button"
-										onClick={() => setCreateDialogOpen(true)}
+										onClick={() =>
+											setCreateDialogOpen(true)
+										}
 									>
 										<PlusIcon className="mr-2 size-3.5" />
 										{t("launchclub.households.createNew")}
@@ -185,9 +211,13 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 										variant="ghost"
 										className="w-full"
 										type="button"
-										onClick={() => setAssignDialogOpen(true)}
+										onClick={() =>
+											setAssignDialogOpen(true)
+										}
 									>
-										{t("launchclub.households.assignToExisting")}
+										{t(
+											"launchclub.households.assignToExisting",
+										)}
 									</Button>
 								</div>
 							)}
@@ -200,27 +230,43 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 			<Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>{t("launchclub.households.new")}</DialogTitle>
+						<DialogTitle>
+							{t("launchclub.households.new")}
+						</DialogTitle>
 					</DialogHeader>
 					<div className="space-y-2">
-						<Label htmlFor="new-household-name">{t("launchclub.households.form.householdName")}</Label>
+						<Label htmlFor="new-household-name">
+							{t("launchclub.households.form.householdName")}
+						</Label>
 						<Input
 							id="new-household-name"
 							value={newHouseholdName}
-							onChange={(e) => setNewHouseholdName(e.target.value)}
-							onKeyDown={(e) => e.key === "Enter" && handleConfirmCreate()}
-							placeholder={t("launchclub.households.form.namePlaceholder")}
+							onChange={(e) =>
+								setNewHouseholdName(e.target.value)
+							}
+							onKeyDown={(e) =>
+								e.key === "Enter" && handleConfirmCreate()
+							}
+							placeholder={t(
+								"launchclub.households.form.namePlaceholder",
+							)}
 							autoFocus
 						/>
 					</div>
 					<DialogFooter>
-						<Button variant="outline" onClick={() => {
-							setCreateDialogOpen(false);
-							setNewHouseholdName("");
-						}}>
+						<Button
+							variant="outline"
+							onClick={() => {
+								setCreateDialogOpen(false);
+								setNewHouseholdName("");
+							}}
+						>
 							{t("launchclub.households.assignDialog.cancel")}
 						</Button>
-						<Button onClick={handleConfirmCreate} disabled={!newHouseholdName.trim()}>
+						<Button
+							onClick={handleConfirmCreate}
+							disabled={!newHouseholdName.trim()}
+						>
 							{t("launchclub.households.form.confirm")}
 						</Button>
 					</DialogFooter>
@@ -231,11 +277,20 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 			<Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>{t("launchclub.households.assignDialog.title")}</DialogTitle>
+						<DialogTitle>
+							{t("launchclub.households.assignDialog.title")}
+						</DialogTitle>
 					</DialogHeader>
-					<Select value={selectedAssignId} onValueChange={setSelectedAssignId}>
+					<Select
+						value={selectedAssignId}
+						onValueChange={setSelectedAssignId}
+					>
 						<SelectTrigger>
-							<SelectValue placeholder={t("launchclub.households.assignDialog.selectPlaceholder")} />
+							<SelectValue
+								placeholder={t(
+									"launchclub.households.assignDialog.selectPlaceholder",
+								)}
+							/>
 						</SelectTrigger>
 						<SelectContent>
 							{allHouseholds?.map((h) => (
@@ -246,13 +301,19 @@ export function NewPersonClient({ organizationId }: NewPersonClientProps) {
 						</SelectContent>
 					</Select>
 					<DialogFooter>
-						<Button variant="outline" onClick={() => {
-							setAssignDialogOpen(false);
-							setSelectedAssignId("");
-						}}>
+						<Button
+							variant="outline"
+							onClick={() => {
+								setAssignDialogOpen(false);
+								setSelectedAssignId("");
+							}}
+						>
 							{t("launchclub.households.assignDialog.cancel")}
 						</Button>
-						<Button onClick={handleAssignConfirm} disabled={!selectedAssignId}>
+						<Button
+							onClick={handleAssignConfirm}
+							disabled={!selectedAssignId}
+						>
 							{t("launchclub.households.assignDialog.assign")}
 						</Button>
 					</DialogFooter>

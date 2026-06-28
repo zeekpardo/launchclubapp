@@ -28,7 +28,12 @@ import { Textarea } from "@repo/ui/components/textarea";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useSession } from "@saas/auth/hooks/use-session";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
-import { ChevronDownIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import {
+	ChevronDownIcon,
+	PencilIcon,
+	PlusIcon,
+	Trash2Icon,
+} from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -134,7 +139,9 @@ export function AcademicRecordsSection({
 			term: record.term,
 			termGpa: record.termGpa != null ? String(record.termGpa) : "",
 			cumulativeGpa:
-				record.cumulativeGpa != null ? String(record.cumulativeGpa) : "",
+				record.cumulativeGpa != null
+					? String(record.cumulativeGpa)
+					: "",
 			gradeLevel: record.gradeLevel ?? "",
 			notes: record.notes ?? "",
 		});
@@ -146,14 +153,25 @@ export function AcademicRecordsSection({
 			await upsertAcademicRecord.mutateAsync({
 				personId,
 				schoolYear: values.schoolYear,
-				term: values.term as "Q1" | "Q2" | "Q3" | "Q4" | "SEMESTER_1" | "SEMESTER_2" | "TRIMESTER_1" | "TRIMESTER_2" | "TRIMESTER_3" | "ANNUAL",
+				term: values.term as
+					| "Q1"
+					| "Q2"
+					| "Q3"
+					| "Q4"
+					| "SEMESTER_1"
+					| "SEMESTER_2"
+					| "TRIMESTER_1"
+					| "TRIMESTER_2"
+					| "TRIMESTER_3"
+					| "ANNUAL",
 				termGpa:
 					values.termGpa !== "" ? Number(values.termGpa) : undefined,
 				cumulativeGpa:
 					values.cumulativeGpa !== ""
 						? Number(values.cumulativeGpa)
 						: undefined,
-				gradeLevel: values.gradeLevel !== "" ? values.gradeLevel : undefined,
+				gradeLevel:
+					values.gradeLevel !== "" ? values.gradeLevel : undefined,
 				notes: values.notes !== "" ? values.notes : undefined,
 			});
 			toastSuccess("Academic record saved");
@@ -184,7 +202,9 @@ export function AcademicRecordsSection({
 			<Card>
 				<CardHeader className="pb-3">
 					<div className="flex items-center justify-between">
-						<CardTitle className="text-base">Academic Records</CardTitle>
+						<CardTitle className="text-base">
+							Academic Records
+						</CardTitle>
 						<div className="flex items-center gap-1">
 							{isAdmin && (
 								<Button
@@ -197,113 +217,145 @@ export function AcademicRecordsSection({
 									Add
 								</Button>
 							)}
-							<Button size="icon" variant="ghost" className="size-7" onClick={() => setCollapsed((c) => !c)}>
-								<ChevronDownIcon className={`size-4 transition-transform ${collapsed ? "" : "rotate-180"}`} />
+							<Button
+								size="icon"
+								variant="ghost"
+								className="size-7"
+								onClick={() => setCollapsed((c) => !c)}
+							>
+								<ChevronDownIcon
+									className={`size-4 transition-transform ${collapsed ? "" : "rotate-180"}`}
+								/>
 							</Button>
 						</div>
 					</div>
 				</CardHeader>
-				{!collapsed && <CardContent>
-					{latestCumulative != null && (
-						<p className="text-sm text-muted-foreground mb-3">
-							Latest:{" "}
-							<span className="font-medium text-foreground">
-								{latestCumulative.toFixed(2)}
-							</span>{" "}
-							cumulative
-						</p>
-					)}
+				{!collapsed && (
+					<CardContent>
+						{latestCumulative != null && (
+							<p className="text-sm text-muted-foreground mb-3">
+								Latest:{" "}
+								<span className="font-medium text-foreground">
+									{latestCumulative.toFixed(2)}
+								</span>{" "}
+								cumulative
+							</p>
+						)}
 
-					{(records as AcademicRecord[]).length === 0 ? (
-						<p className="text-sm text-muted-foreground">
-							No academic records yet.
-						</p>
-					) : (
-						<div className="space-y-2">
-							<div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-2 text-xs font-medium text-muted-foreground border-b pb-1">
-								<span>School Year</span>
-								<span>Term</span>
-								<span>GPA</span>
-								<span>Cum</span>
-								<span>Grade</span>
-							</div>
-							{(records as AcademicRecord[]).map((record) => (
-								<div
-									key={record.id}
-									className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-2 items-center text-sm py-1"
-								>
-									<span className="text-xs">{record.schoolYear}</span>
-									<span className="text-xs">
-										{GPA_TERM_LABELS[record.term] ?? record.term}
-									</span>
-									<span className="text-xs">
-										{record.termGpa != null
-											? record.termGpa.toFixed(2)
-											: "—"}
-									</span>
-									<span className="text-xs">
-										{record.cumulativeGpa != null
-											? record.cumulativeGpa.toFixed(2)
-											: "—"}
-									</span>
-									<span className="text-xs">{record.gradeLevel ?? "—"}</span>
-									{isAdmin && (
-										<div className="col-span-5 flex gap-1 pt-0.5">
-											<Button
-												size="sm"
-												variant="ghost"
-												className="h-6 px-2 text-xs"
-												onClick={() => openEdit(record)}
-											>
-												<PencilIcon className="size-3 mr-1" />
-												Edit
-											</Button>
-											<Button
-												size="sm"
-												variant="ghost"
-												className="h-6 px-2 text-xs text-destructive hover:text-destructive"
-												onClick={() => handleDelete(record)}
-											>
-												<Trash2Icon className="size-3 mr-1" />
-												Delete
-											</Button>
-										</div>
-									)}
+						{(records as AcademicRecord[]).length === 0 ? (
+							<p className="text-sm text-muted-foreground">
+								No academic records yet.
+							</p>
+						) : (
+							<div className="space-y-2">
+								<div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-2 text-xs font-medium text-muted-foreground border-b pb-1">
+									<span>School Year</span>
+									<span>Term</span>
+									<span>GPA</span>
+									<span>Cum</span>
+									<span>Grade</span>
 								</div>
-							))}
-						</div>
-					)}
-				</CardContent>}
+								{(records as AcademicRecord[]).map((record) => (
+									<div
+										key={record.id}
+										className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-2 items-center text-sm py-1"
+									>
+										<span className="text-xs">
+											{record.schoolYear}
+										</span>
+										<span className="text-xs">
+											{GPA_TERM_LABELS[record.term] ??
+												record.term}
+										</span>
+										<span className="text-xs">
+											{record.termGpa != null
+												? record.termGpa.toFixed(2)
+												: "—"}
+										</span>
+										<span className="text-xs">
+											{record.cumulativeGpa != null
+												? record.cumulativeGpa.toFixed(
+														2,
+													)
+												: "—"}
+										</span>
+										<span className="text-xs">
+											{record.gradeLevel ?? "—"}
+										</span>
+										{isAdmin && (
+											<div className="col-span-5 flex gap-1 pt-0.5">
+												<Button
+													size="sm"
+													variant="ghost"
+													className="h-6 px-2 text-xs"
+													onClick={() =>
+														openEdit(record)
+													}
+												>
+													<PencilIcon className="size-3 mr-1" />
+													Edit
+												</Button>
+												<Button
+													size="sm"
+													variant="ghost"
+													className="h-6 px-2 text-xs text-destructive hover:text-destructive"
+													onClick={() =>
+														handleDelete(record)
+													}
+												>
+													<Trash2Icon className="size-3 mr-1" />
+													Delete
+												</Button>
+											</div>
+										)}
+									</div>
+								))}
+							</div>
+						)}
+					</CardContent>
+				)}
 			</Card>
 
 			<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>
-							{editingRecord ? "Edit Academic Record" : "Add Academic Record"}
+							{editingRecord
+								? "Edit Academic Record"
+								: "Add Academic Record"}
 						</DialogTitle>
 					</DialogHeader>
-					<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+					<form
+						onSubmit={handleSubmit(onSubmit)}
+						className="space-y-4"
+					>
 						<div className="space-y-2">
 							<Label htmlFor="schoolYear">School Year</Label>
 							{academicYears.length === 0 ? (
 								<p className="text-sm text-muted-foreground">
-									No academic years configured. Ask an admin to add one in
-									Settings.
+									No academic years configured. Ask an admin
+									to add one in Settings.
 								</p>
 							) : (
 								<Select
 									value={watch("schoolYear")}
-									onValueChange={(val) => setValue("schoolYear", val)}
+									onValueChange={(val) =>
+										setValue("schoolYear", val)
+									}
 								>
 									<SelectTrigger id="schoolYear">
 										<SelectValue placeholder="Select year" />
 									</SelectTrigger>
 									<SelectContent>
 										{academicYears.map((year) => (
-											<SelectItem key={year.id} value={year.label}>
+											<SelectItem
+												key={year.id}
+												value={year.label}
+											>
 												{year.label}
-												{year.isActive ? " (Active)" : ""}
+												{year.isActive
+													? " (Active)"
+													: ""}
 											</SelectItem>
 										))}
 									</SelectContent>
@@ -321,11 +373,13 @@ export function AcademicRecordsSection({
 									<SelectValue placeholder="Select term" />
 								</SelectTrigger>
 								<SelectContent>
-									{Object.entries(GPA_TERM_LABELS).map(([key, label]) => (
-										<SelectItem key={key} value={key}>
-											{label}
-										</SelectItem>
-									))}
+									{Object.entries(GPA_TERM_LABELS).map(
+										([key, label]) => (
+											<SelectItem key={key} value={key}>
+												{label}
+											</SelectItem>
+										),
+									)}
 								</SelectContent>
 							</Select>
 						</div>
@@ -344,7 +398,9 @@ export function AcademicRecordsSection({
 								/>
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor="cumulativeGpa">Cumulative GPA</Label>
+								<Label htmlFor="cumulativeGpa">
+									Cumulative GPA
+								</Label>
 								<Input
 									id="cumulativeGpa"
 									type="number"
@@ -387,7 +443,9 @@ export function AcademicRecordsSection({
 								type="submit"
 								disabled={upsertAcademicRecord.isPending}
 							>
-								{upsertAcademicRecord.isPending ? "Saving..." : "Save"}
+								{upsertAcademicRecord.isPending
+									? "Saving..."
+									: "Save"}
 							</Button>
 						</DialogFooter>
 					</form>

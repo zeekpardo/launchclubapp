@@ -1,5 +1,5 @@
-import { getSession } from "@saas/auth/lib/server";
 import { SuperAdminView } from "@saas/admin/component/SuperAdminView";
+import { getSession } from "@saas/auth/lib/server";
 import { redirect } from "next/navigation";
 
 export default async function SuperAdminSettingsPage() {

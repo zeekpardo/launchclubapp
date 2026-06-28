@@ -1,5 +1,5 @@
-import { AcademicYearsSettings } from "@saas/settings/components/AcademicYearsSettings";
 import { getActiveOrganization, getSession } from "@saas/auth/lib/server";
+import { AcademicYearsSettings } from "@saas/settings/components/AcademicYearsSettings";
 import { notFound } from "next/navigation";
 
 export async function generateMetadata() {

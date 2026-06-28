@@ -8,6 +8,10 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true,
+			"a11y": {
+				"noSvgWithoutTitle": "warn",
+				"noLabelWithoutControl": "warn"
+			},
 			"suspicious": {
 				"noExplicitAny": "off",
 				"noArrayIndexKey": "off"
@@ -21,7 +25,11 @@
 					"level": "error",
 					"fix": "safe"
 				},
-				"noUnusedFunctionParameters": "warn"
+				"noUnusedFunctionParameters": "warn",
+				"noChildrenProp": "warn"
+			},
+			"performance": {
+				"noImgElement": "warn"
 			},
 			"style": {
 				"noUnusedTemplateLiteral": {

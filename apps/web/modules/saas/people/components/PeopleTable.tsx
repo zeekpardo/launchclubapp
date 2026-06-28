@@ -1,5 +1,6 @@
 "use client";
 
+import { config as storageConfig } from "@repo/storage/config";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -11,6 +12,12 @@ import {
 	AlertDialogTitle,
 } from "@repo/ui/components/alert-dialog";
 import { Button } from "@repo/ui/components/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@repo/ui/components/dropdown-menu";
 import { Input } from "@repo/ui/components/input";
 import {
 	Select,
@@ -35,26 +42,21 @@ import {
 	TableRow,
 } from "@repo/ui/components/table";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { config as storageConfig } from "@repo/storage/config";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useQuery } from "@tanstack/react-query";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@repo/ui/components/dropdown-menu";
-import { PencilIcon, PlusIcon, Settings2Icon, TrashIcon, UserIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
+	PencilIcon,
+	PlusIcon,
+	Settings2Icon,
+	TrashIcon,
+	UserIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import {
-	useDeletePerson,
-	usePeople,
-	usePerson,
-} from "../hooks/use-people";
+import { useDeletePerson, usePeople, usePerson } from "../hooks/use-people";
 import { GuardianManager } from "./GuardianManager";
 
 type FilterTab = "all" | "parents" | "students" | "mentors";
@@ -66,9 +68,13 @@ function PersonAvatar({
 	lastName,
 	personType,
 	avatarUrl,
-}: { firstName: string; lastName: string; personType: string; avatarUrl?: string | null }) {
-	const initials =
-		`${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
+}: {
+	firstName: string;
+	lastName: string;
+	personType: string;
+	avatarUrl?: string | null;
+}) {
+	const initials = `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
 
 	if (avatarUrl) {
 		return (
@@ -93,7 +99,17 @@ function PersonAvatar({
 	);
 }
 
-function TypeBadge({ personType, studentLabel, parentLabel, mentorLabel }: { personType: string; studentLabel: string; parentLabel: string; mentorLabel: string }) {
+function TypeBadge({
+	personType,
+	studentLabel,
+	parentLabel,
+	mentorLabel,
+}: {
+	personType: string;
+	studentLabel: string;
+	parentLabel: string;
+	mentorLabel: string;
+}) {
 	if (personType === "STUDENT") {
 		return (
 			<span className="inline-flex items-center rounded-full bg-cyan-500 px-2.5 py-0.5 text-xs font-medium text-white">
@@ -136,7 +152,12 @@ function GuardianSheet({
 	onClose,
 	sheetTitle,
 	sheetFallback,
-}: { kidId: string; onClose: () => void; sheetTitle: (name: string) => string; sheetFallback: string }) {
+}: {
+	kidId: string;
+	onClose: () => void;
+	sheetTitle: (name: string) => string;
+	sheetFallback: string;
+}) {
 	const { data: kid, isLoading } = usePerson(kidId);
 	return (
 		<Sheet open onOpenChange={(open) => !open && onClose()}>
@@ -182,7 +203,8 @@ export function PeopleTable() {
 	const t = useTranslations();
 	const params = useParams<{ organizationSlug: string }>();
 	const router = useRouter();
-	const { activeOrganization, activeOrganizationUserRole } = useActiveOrganization();
+	const { activeOrganization, activeOrganizationUserRole } =
+		useActiveOrganization();
 	// Both site leaders and group leaders have member.role="member" in Better Auth.
 	// We distinguish them by whether sites.list returns data (site leaders have UserSite records).
 	const isRestrictedMember = activeOrganizationUserRole === "member";
@@ -212,14 +234,17 @@ export function PeopleTable() {
 	);
 
 	// Distinguish site leader vs group leader: site leaders have UserSite records returned by sites.list
-	const isSiteLeader = isRestrictedMember && !sitesLoading && (sites?.length ?? 0) > 0;
+	const isSiteLeader =
+		isRestrictedMember && !sitesLoading && (sites?.length ?? 0) > 0;
 
 	// Site leaders: derive areas from their scoped sites (sites.list is already server-scoped)
 	const siteLeaderAreas = useMemo(() => {
 		if (!isSiteLeader || !sites) return undefined;
 		const seen = new Set<string>();
 		return (sites as Array<{ area?: { id: string; name: string } }>)
-			.filter((s) => s.area && !seen.has(s.area.id) && seen.add(s.area.id))
+			.filter(
+				(s) => s.area && !seen.has(s.area.id) && seen.add(s.area.id),
+			)
 			.map((s) => s.area as { id: string; name: string });
 	}, [isSiteLeader, sites]);
 
@@ -234,10 +259,33 @@ export function PeopleTable() {
 	);
 
 	const activeFilter = showInactive ? undefined : true;
-	const { data: allPeople, isLoading: allLoading } = usePeople({ query: search, isActive: activeFilter, areaId, siteId });
-	const { data: parents, isLoading: parentsLoading } = usePeople({ query: search, personType: "PARENT", isActive: activeFilter, areaId, siteId });
-	const { data: students, isLoading: studentsLoading } = usePeople({ query: search, personType: "STUDENT", isActive: activeFilter, areaId, siteId });
-	const { data: mentors, isLoading: mentorsLoading } = usePeople({ query: search, personType: "MENTOR", isActive: activeFilter, areaId, siteId });
+	const { data: allPeople, isLoading: allLoading } = usePeople({
+		query: search,
+		isActive: activeFilter,
+		areaId,
+		siteId,
+	});
+	const { data: parents, isLoading: parentsLoading } = usePeople({
+		query: search,
+		personType: "PARENT",
+		isActive: activeFilter,
+		areaId,
+		siteId,
+	});
+	const { data: students, isLoading: studentsLoading } = usePeople({
+		query: search,
+		personType: "STUDENT",
+		isActive: activeFilter,
+		areaId,
+		siteId,
+	});
+	const { data: mentors, isLoading: mentorsLoading } = usePeople({
+		query: search,
+		personType: "MENTOR",
+		isActive: activeFilter,
+		areaId,
+		siteId,
+	});
 
 	const handleAreaChange = (value: string) => {
 		setSelectedAreaId(value);
@@ -245,15 +293,21 @@ export function PeopleTable() {
 	};
 
 	const people =
-		tab === "parents" ? parents :
-		tab === "students" ? students :
-		tab === "mentors" ? mentors :
-		allPeople;
+		tab === "parents"
+			? parents
+			: tab === "students"
+				? students
+				: tab === "mentors"
+					? mentors
+					: allPeople;
 	const isLoading =
-		tab === "parents" ? parentsLoading :
-		tab === "students" ? studentsLoading :
-		tab === "mentors" ? mentorsLoading :
-		allLoading;
+		tab === "parents"
+			? parentsLoading
+			: tab === "students"
+				? studentsLoading
+				: tab === "mentors"
+					? mentorsLoading
+					: allLoading;
 	const deletePerson = useDeletePerson();
 
 	const basePath = `/app/${params.organizationSlug}/people`;
@@ -286,18 +340,27 @@ export function PeopleTable() {
 					{!isRestrictedMember && (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<Button variant="outline" size="icon" className="shrink-0" aria-label="Settings">
+								<Button
+									variant="outline"
+									size="icon"
+									className="shrink-0"
+									aria-label="Settings"
+								>
 									<Settings2Icon className="size-4" />
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
 								<DropdownMenuItem asChild>
-									<Link href={`/app/${params.organizationSlug}/settings/academic-years`}>
+									<Link
+										href={`/app/${params.organizationSlug}/settings/academic-years`}
+									>
 										Academic Years
 									</Link>
 								</DropdownMenuItem>
 								<DropdownMenuItem asChild>
-									<Link href={`/app/${params.organizationSlug}/settings/custom-fields`}>
+									<Link
+										href={`/app/${params.organizationSlug}/settings/custom-fields`}
+									>
 										Custom Fields
 									</Link>
 								</DropdownMenuItem>
@@ -307,19 +370,28 @@ export function PeopleTable() {
 					<Button asChild className="shrink-0">
 						<Link href={`${basePath}/new`}>
 							<PlusIcon className="size-4 md:mr-2" />
-							<span className="hidden md:inline">{t("launchclub.people.new")}</span>
+							<span className="hidden md:inline">
+								{t("launchclub.people.new")}
+							</span>
 						</Link>
 					</Button>
 				</div>
 
 				{/* Row 2: Area + Site selects */}
 				<div className="flex items-center gap-2">
-					<Select value={selectedAreaId} onValueChange={handleAreaChange}>
+					<Select
+						value={selectedAreaId}
+						onValueChange={handleAreaChange}
+					>
 						<SelectTrigger className="flex-1">
-							<SelectValue placeholder={t("launchclub.people.allAreas")} />
+							<SelectValue
+								placeholder={t("launchclub.people.allAreas")}
+							/>
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value={ALL}>{t("launchclub.people.allAreas")}</SelectItem>
+							<SelectItem value={ALL}>
+								{t("launchclub.people.allAreas")}
+							</SelectItem>
 							{(areas ?? []).map((area) => (
 								<SelectItem key={area.id} value={area.id}>
 									{area.name}
@@ -328,12 +400,19 @@ export function PeopleTable() {
 						</SelectContent>
 					</Select>
 
-					<Select value={selectedSiteId} onValueChange={setSelectedSiteId}>
+					<Select
+						value={selectedSiteId}
+						onValueChange={setSelectedSiteId}
+					>
 						<SelectTrigger className="flex-1">
-							<SelectValue placeholder={t("launchclub.people.allSites")} />
+							<SelectValue
+								placeholder={t("launchclub.people.allSites")}
+							/>
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value={ALL}>{t("launchclub.people.allSites")}</SelectItem>
+							<SelectItem value={ALL}>
+								{t("launchclub.people.allSites")}
+							</SelectItem>
 							{visibleSites.map((site) => (
 								<SelectItem key={site.id} value={site.id}>
 									{site.name}
@@ -346,7 +425,14 @@ export function PeopleTable() {
 				{/* Row 3: Type tabs + inactive toggle */}
 				<div className="flex items-center gap-3">
 					<div className="inline-flex rounded-lg border bg-muted p-1 self-start">
-						{(["all", "parents", "students", "mentors"] as FilterTab[]).map((filterTab) => (
+						{(
+							[
+								"all",
+								"parents",
+								"students",
+								"mentors",
+							] as FilterTab[]
+						).map((filterTab) => (
 							<button
 								key={filterTab}
 								type="button"
@@ -360,10 +446,14 @@ export function PeopleTable() {
 								{filterTab === "all"
 									? t("launchclub.people.tabs.all")
 									: filterTab === "parents"
-									? t("launchclub.people.tabs.parents")
-									: filterTab === "students"
-									? t("launchclub.people.tabs.students")
-									: t("launchclub.people.tabs.mentors")}
+										? t("launchclub.people.tabs.parents")
+										: filterTab === "students"
+											? t(
+													"launchclub.people.tabs.students",
+												)
+											: t(
+													"launchclub.people.tabs.mentors",
+												)}
 							</button>
 						))}
 					</div>
@@ -385,29 +475,63 @@ export function PeopleTable() {
 					<TableHeader>
 						<TableRow className="hover:bg-transparent">
 							<TableHead className="w-10" />
-							<TableHead>{t("launchclub.people.columns.name")}</TableHead>
-							<TableHead>{t("launchclub.people.columns.type")}</TableHead>
-							<TableHead>{t("launchclub.people.columns.gender")}</TableHead>
-							<TableHead>{t("launchclub.people.columns.phone")}</TableHead>
-							<TableHead>{t("launchclub.people.columns.email")}</TableHead>
-							<TableHead>{t("launchclub.people.columns.groups")}</TableHead>
-							<TableHead>{t("launchclub.people.columns.status")}</TableHead>
-							<TableHead className="w-32">{t("launchclub.people.columns.actions")}</TableHead>
+							<TableHead>
+								{t("launchclub.people.columns.name")}
+							</TableHead>
+							<TableHead>
+								{t("launchclub.people.columns.type")}
+							</TableHead>
+							<TableHead>
+								{t("launchclub.people.columns.gender")}
+							</TableHead>
+							<TableHead>
+								{t("launchclub.people.columns.phone")}
+							</TableHead>
+							<TableHead>
+								{t("launchclub.people.columns.email")}
+							</TableHead>
+							<TableHead>
+								{t("launchclub.people.columns.groups")}
+							</TableHead>
+							<TableHead>
+								{t("launchclub.people.columns.status")}
+							</TableHead>
+							<TableHead className="w-32">
+								{t("launchclub.people.columns.actions")}
+							</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{isLoading ? (
 							Array.from({ length: 5 }).map((_, i) => (
 								<TableRow key={i}>
-									<TableCell><Skeleton className="size-9 rounded-full" /></TableCell>
-									<TableCell><Skeleton className="h-4 w-32" /></TableCell>
-									<TableCell><Skeleton className="h-5 w-14 rounded-full" /></TableCell>
-									<TableCell><Skeleton className="h-4 w-16" /></TableCell>
-									<TableCell><Skeleton className="h-4 w-28" /></TableCell>
-									<TableCell><Skeleton className="h-4 w-40" /></TableCell>
-									<TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
-									<TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
-									<TableCell><Skeleton className="h-8 w-24" /></TableCell>
+									<TableCell>
+										<Skeleton className="size-9 rounded-full" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-32" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-5 w-14 rounded-full" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-16" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-28" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-40" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-5 w-20 rounded-full" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-5 w-16 rounded-full" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-8 w-24" />
+									</TableCell>
 								</TableRow>
 							))
 						) : people && people.length > 0 ? (
@@ -415,7 +539,9 @@ export function PeopleTable() {
 								<TableRow
 									key={person.id}
 									className="cursor-pointer"
-									onClick={() => router.push(`${basePath}/${person.id}`)}
+									onClick={() =>
+										router.push(`${basePath}/${person.id}`)
+									}
 								>
 									<TableCell>
 										<PersonAvatar
@@ -430,11 +556,17 @@ export function PeopleTable() {
 									</TableCell>
 									<TableCell>
 										<TypeBadge
-										personType={person.personType}
-										studentLabel={t("launchclub.people.personType.STUDENT")}
-										parentLabel={t("launchclub.people.personType.PARENT")}
-										mentorLabel={t("launchclub.people.personType.MENTOR")}
-									/>
+											personType={person.personType}
+											studentLabel={t(
+												"launchclub.people.personType.STUDENT",
+											)}
+											parentLabel={t(
+												"launchclub.people.personType.PARENT",
+											)}
+											mentorLabel={t(
+												"launchclub.people.personType.MENTOR",
+											)}
+										/>
 									</TableCell>
 									<TableCell className="text-muted-foreground capitalize">
 										{person.gender ?? "—"}
@@ -447,37 +579,64 @@ export function PeopleTable() {
 									</TableCell>
 									<TableCell>
 										<GroupPills
-											groups={(person.personGroups ?? []).map((pg) => ({
+											groups={(
+												person.personGroups ?? []
+											).map((pg) => ({
 												name: pg.group.name,
 											}))}
 										/>
 									</TableCell>
 									<TableCell>
-										<span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white ${person.isActive ? "bg-green-500" : "bg-muted text-muted-foreground"}`}>
-											{person.isActive ? t("launchclub.people.statusActive") : t("launchclub.people.statusInactive")}
+										<span
+											className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white ${person.isActive ? "bg-green-500" : "bg-muted text-muted-foreground"}`}
+										>
+											{person.isActive
+												? t(
+														"launchclub.people.statusActive",
+													)
+												: t(
+														"launchclub.people.statusInactive",
+													)}
 										</span>
 									</TableCell>
-									<TableCell onClick={(e) => e.stopPropagation()}>
+									<TableCell
+										onClick={(e) => e.stopPropagation()}
+									>
 										<div className="flex items-center gap-1">
-											{person.personType === "STUDENT" && (
+											{person.personType ===
+												"STUDENT" && (
 												<Button
 													size="icon"
 													variant="ghost"
-													title={t("launchclub.people.manageGuardians")}
-													onClick={() => setGuardianKidId(person.id)}
+													title={t(
+														"launchclub.people.manageGuardians",
+													)}
+													onClick={() =>
+														setGuardianKidId(
+															person.id,
+														)
+													}
 												>
 													<UserIcon className="size-4" />
 												</Button>
 											)}
-											<Button asChild size="icon" variant="ghost">
-												<Link href={`${basePath}/${person.id}`}>
+											<Button
+												asChild
+												size="icon"
+												variant="ghost"
+											>
+												<Link
+													href={`${basePath}/${person.id}`}
+												>
 													<PencilIcon className="size-4" />
 												</Link>
 											</Button>
 											<Button
 												size="icon"
 												variant="ghost"
-												onClick={() => setDeletePersonId(person.id)}
+												onClick={() =>
+													setDeletePersonId(person.id)
+												}
 											>
 												<TrashIcon className="size-4 text-destructive" />
 											</Button>
@@ -487,7 +646,10 @@ export function PeopleTable() {
 							))
 						) : (
 							<TableRow>
-								<TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+								<TableCell
+									colSpan={9}
+									className="h-24 text-center text-muted-foreground"
+								>
 									{t("launchclub.people.noResults")}
 								</TableCell>
 							</TableRow>
@@ -496,13 +658,16 @@ export function PeopleTable() {
 				</Table>
 			</div>
 
-
 			{guardianKidId && (
 				<GuardianSheet
 					kidId={guardianKidId}
 					onClose={() => setGuardianKidId(null)}
-					sheetTitle={(name) => t("launchclub.people.guardianSheet.title", { name })}
-					sheetFallback={t("launchclub.people.guardianSheet.fallback")}
+					sheetTitle={(name) =>
+						t("launchclub.people.guardianSheet.title", { name })
+					}
+					sheetFallback={t(
+						"launchclub.people.guardianSheet.fallback",
+					)}
 				/>
 			)}
 
@@ -520,7 +685,9 @@ export function PeopleTable() {
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>{t("launchclub.people.form.cancel")}</AlertDialogCancel>
+						<AlertDialogCancel>
+							{t("launchclub.people.form.cancel")}
+						</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={handleDelete}
 							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

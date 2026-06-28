@@ -30,8 +30,8 @@ import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { orpc } from "@shared/lib/orpc-query-utils";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
+import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PencilIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -106,21 +106,27 @@ export function AcademicYearsSettings() {
 	const createYear = useMutation(
 		orpc.academicYears.create.mutationOptions({
 			onSuccess: () =>
-				queryClient.invalidateQueries({ queryKey: queryOptions.queryKey }),
+				queryClient.invalidateQueries({
+					queryKey: queryOptions.queryKey,
+				}),
 		}),
 	);
 
 	const updateYear = useMutation(
 		orpc.academicYears.update.mutationOptions({
 			onSuccess: () =>
-				queryClient.invalidateQueries({ queryKey: queryOptions.queryKey }),
+				queryClient.invalidateQueries({
+					queryKey: queryOptions.queryKey,
+				}),
 		}),
 	);
 
 	const deleteYear = useMutation(
 		orpc.academicYears.delete.mutationOptions({
 			onSuccess: () =>
-				queryClient.invalidateQueries({ queryKey: queryOptions.queryKey }),
+				queryClient.invalidateQueries({
+					queryKey: queryOptions.queryKey,
+				}),
 		}),
 	);
 
@@ -234,7 +240,10 @@ export function AcademicYearsSettings() {
 					{isLoading ? (
 						<div className="space-y-3">
 							{Array.from({ length: 3 }).map((_, i) => (
-								<Skeleton key={i} className="h-14 w-full rounded-lg" />
+								<Skeleton
+									key={i}
+									className="h-14 w-full rounded-lg"
+								/>
 							))}
 						</div>
 					) : years.length === 0 ? (
@@ -278,7 +287,11 @@ export function AcademicYearsSettings() {
 											<Button
 												variant="ghost"
 												size="icon"
-												onClick={() => handleOpenEdit(year as AcademicYear)}
+												onClick={() =>
+													handleOpenEdit(
+														year as AcademicYear,
+													)
+												}
 												aria-label="Edit academic year"
 											>
 												<PencilIcon className="size-4" />
@@ -286,7 +299,9 @@ export function AcademicYearsSettings() {
 											<Button
 												variant="ghost"
 												size="icon"
-												onClick={() => setDeletingYearId(year.id)}
+												onClick={() =>
+													setDeletingYearId(year.id)
+												}
 												aria-label="Delete academic year"
 											>
 												<TrashIcon className="size-4 text-destructive" />
@@ -305,7 +320,9 @@ export function AcademicYearsSettings() {
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>
-							{editingYear ? "Edit Academic Year" : "Add Academic Year"}
+							{editingYear
+								? "Edit Academic Year"
+								: "Add Academic Year"}
 						</DialogTitle>
 					</DialogHeader>
 
@@ -325,7 +342,9 @@ export function AcademicYearsSettings() {
 						</div>
 
 						<div className="space-y-1.5">
-							<Label htmlFor="ay-startDate">Start Date (optional)</Label>
+							<Label htmlFor="ay-startDate">
+								Start Date (optional)
+							</Label>
 							<Input
 								id="ay-startDate"
 								type="date"
@@ -334,7 +353,9 @@ export function AcademicYearsSettings() {
 						</div>
 
 						<div className="space-y-1.5">
-							<Label htmlFor="ay-endDate">End Date (optional)</Label>
+							<Label htmlFor="ay-endDate">
+								End Date (optional)
+							</Label>
 							<Input
 								id="ay-endDate"
 								type="date"
@@ -350,7 +371,10 @@ export function AcademicYearsSettings() {
 									form.setValue("isActive", Boolean(checked))
 								}
 							/>
-							<Label htmlFor="ay-isActive" className="cursor-pointer">
+							<Label
+								htmlFor="ay-isActive"
+								className="cursor-pointer"
+							>
 								Mark as active
 							</Label>
 						</div>
@@ -384,15 +408,19 @@ export function AcademicYearsSettings() {
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Academic Year</AlertDialogTitle>
+						<AlertDialogTitle>
+							Delete Academic Year
+						</AlertDialogTitle>
 						<AlertDialogDescription>
-							Are you sure you want to delete this academic year? This action
-							cannot be undone.
+							Are you sure you want to delete this academic year?
+							This action cannot be undone.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+						<AlertDialogAction onClick={handleDelete}>
+							Delete
+						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>

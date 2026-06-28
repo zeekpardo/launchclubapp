@@ -1,8 +1,8 @@
 "use client";
 
-import { useActiveOrganization } from "./use-active-organization";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useQuery } from "@tanstack/react-query";
+import { useActiveOrganization } from "./use-active-organization";
 
 export function useMyLcRole() {
 	const { activeOrganization } = useActiveOrganization();

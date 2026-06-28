@@ -41,7 +41,8 @@ export const updateMemberRole = protectedProcedure
 
 		if (input.lcRole === "group-leader" && input.groupIds.length === 0) {
 			throw new ORPCError("BAD_REQUEST", {
-				message: "At least one group must be selected for a Group Leader",
+				message:
+					"At least one group must be selected for a Group Leader",
 			});
 		}
 
@@ -80,19 +81,25 @@ export const updateMemberRole = protectedProcedure
 		await db.userGroup.deleteMany({
 			where: {
 				userId: member.userId,
-				group: { site: { area: { organizationId: input.organizationId } } },
+				group: {
+					site: { area: { organizationId: input.organizationId } },
+				},
 			},
 		});
 
 		if (input.lcRole === "site-leader" && input.siteIds.length > 0) {
 			await Promise.all(
-				input.siteIds.map((siteId) => addUserToSite(member.userId, siteId)),
+				input.siteIds.map((siteId) =>
+					addUserToSite(member.userId, siteId),
+				),
 			);
 		}
 
 		if (input.lcRole === "group-leader" && input.groupIds.length > 0) {
 			await Promise.all(
-				input.groupIds.map((groupId) => addUserToGroup(member.userId, groupId)),
+				input.groupIds.map((groupId) =>
+					addUserToGroup(member.userId, groupId),
+				),
 			);
 		}
 

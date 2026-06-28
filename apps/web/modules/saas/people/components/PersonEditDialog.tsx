@@ -17,7 +17,11 @@ interface PersonEditDialogProps {
 	onClose: () => void;
 }
 
-export function PersonEditDialog({ personId, organizationId, onClose }: PersonEditDialogProps) {
+export function PersonEditDialog({
+	personId,
+	organizationId,
+	onClose,
+}: PersonEditDialogProps) {
 	const t = useTranslations();
 	const { data: person, isLoading } = usePerson(personId);
 

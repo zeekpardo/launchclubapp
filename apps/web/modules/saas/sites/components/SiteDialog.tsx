@@ -12,8 +12,8 @@ import {
 import { Form } from "@repo/ui/components/form";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useAreas } from "@saas/areas/hooks/use-areas";
-import { TrashIcon } from "lucide-react";
 import { useCreateSite, useUpdateSite } from "@saas/sites/hooks/use-sites";
+import { TrashIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -22,7 +22,10 @@ import { SiteFormFields } from "./SiteFormFields";
 
 const formSchema = z.object({
 	name: z.string().min(1),
-	slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
+	slug: z
+		.string()
+		.min(1)
+		.regex(/^[a-z0-9-]+$/),
 	areaId: z.string().min(1),
 	addressLine1: z.string().optional(),
 	city: z.string().optional(),
@@ -160,7 +163,9 @@ export function SiteDialog({
 			<DialogContent className="max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>
-						{isEditing ? t("launchclub.sites.edit") : t("launchclub.sites.new")}
+						{isEditing
+							? t("launchclub.sites.edit")
+							: t("launchclub.sites.new")}
 					</DialogTitle>
 				</DialogHeader>
 
@@ -183,7 +188,11 @@ export function SiteDialog({
 									Delete
 								</Button>
 							)}
-							<Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+							<Button
+								type="button"
+								variant="ghost"
+								onClick={() => onOpenChange(false)}
+							>
 								Cancel
 							</Button>
 							<Button

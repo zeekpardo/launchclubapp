@@ -87,7 +87,9 @@ export function EventCard({ event, organizationId }: EventCardProps) {
 			<Card className="flex flex-col gap-3 p-4 transition-shadow hover:shadow-md">
 				{/* Header row: name + actions */}
 				<div className="flex items-start justify-between gap-2">
-					<p className="font-semibold text-base leading-tight">{event.name}</p>
+					<p className="font-semibold text-base leading-tight">
+						{event.name}
+					</p>
 					<div className="flex shrink-0 gap-0.5">
 						<Button
 							variant="ghost"
@@ -116,7 +118,9 @@ export function EventCard({ event, organizationId }: EventCardProps) {
 						<UsersIcon className="size-3.5 shrink-0" />
 						<span>{primaryGroup.name}</span>
 						{extraGroups > 0 && (
-							<span className="text-xs text-muted-foreground">+{extraGroups} more</span>
+							<span className="text-xs text-muted-foreground">
+								+{extraGroups} more
+							</span>
 						)}
 					</div>
 				)}

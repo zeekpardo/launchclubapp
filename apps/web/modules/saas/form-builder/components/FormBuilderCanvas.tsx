@@ -1,25 +1,28 @@
 "use client";
 
+import type { DragEndEvent } from "@dnd-kit/core";
 import {
+	closestCenter,
 	DndContext,
 	KeyboardSensor,
 	PointerSensor,
-	closestCenter,
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core";
-import type { DragEndEvent } from "@dnd-kit/core";
 import {
-	SortableContext,
 	arrayMove,
+	SortableContext,
 	sortableKeyboardCoordinates,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { toastError } from "@repo/ui/components/toast";
 import { useEffect, useState } from "react";
-import { useReorderFormFields, useReorderOrgFormFields } from "../hooks/use-form-fields";
-import { FieldCard } from "./FieldCard";
+import {
+	useReorderFormFields,
+	useReorderOrgFormFields,
+} from "../hooks/use-form-fields";
 import type { FormFieldItem } from "./FieldCard";
+import { FieldCard } from "./FieldCard";
 
 interface FormBuilderCanvasProps {
 	fields: FormFieldItem[];
@@ -65,7 +68,9 @@ export function FormBuilderCanvas({
 		useSensor(PointerSensor, {
 			activationConstraint: { distance: 8 },
 		}),
-		useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		}),
 	);
 
 	const handleDragEnd = async (event: DragEndEvent) => {
@@ -93,7 +98,9 @@ export function FormBuilderCanvas({
 	if (localFields.length === 0) {
 		return (
 			<div className="rounded-lg border-2 border-dashed border-muted-foreground/20 py-10 text-center text-sm text-muted-foreground">
-				{locked ? "No fields inherited from area." : "No fields yet. Add one from the panel."}
+				{locked
+					? "No fields inherited from area."
+					: "No fields yet. Add one from the panel."}
 			</div>
 		);
 	}
@@ -109,8 +116,15 @@ export function FormBuilderCanvas({
 	}
 
 	return (
-		<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-			<SortableContext items={localFields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+		<DndContext
+			sensors={sensors}
+			collisionDetection={closestCenter}
+			onDragEnd={handleDragEnd}
+		>
+			<SortableContext
+				items={localFields.map((f) => f.id)}
+				strategy={verticalListSortingStrategy}
+			>
 				<div className="space-y-2">
 					{localFields.map((field) => (
 						<FieldCard

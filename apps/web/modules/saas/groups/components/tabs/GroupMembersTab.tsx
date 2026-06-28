@@ -1,9 +1,6 @@
 "use client";
 
-import {
-	Avatar,
-	AvatarFallback,
-} from "@repo/ui/components/avatar";
+import { Avatar, AvatarFallback } from "@repo/ui/components/avatar";
 import { Button } from "@repo/ui/components/button";
 import { Checkbox } from "@repo/ui/components/checkbox";
 import { Input } from "@repo/ui/components/input";
@@ -105,7 +102,8 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 	);
 
 	const allSelected =
-		filteredIds.length > 0 && filteredIds.every((id) => selectedIds.has(id));
+		filteredIds.length > 0 &&
+		filteredIds.every((id) => selectedIds.has(id));
 	const someSelected = filteredIds.some((id) => selectedIds.has(id));
 
 	const toggleAll = () => {
@@ -133,7 +131,9 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 	const activeMembers = useMemo(
 		() =>
 			selectedIds.size > 0
-				? filteredMembers.filter(({ person }) => selectedIds.has(person.id))
+				? filteredMembers.filter(({ person }) =>
+						selectedIds.has(person.id),
+					)
 				: filteredMembers,
 		[filteredMembers, selectedIds],
 	);
@@ -201,12 +201,16 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 		const csvContent = [headers, ...rows]
 			.map((row) =>
 				row
-					.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`)
+					.map(
+						(cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`,
+					)
 					.join(","),
 			)
 			.join("\n");
 
-		const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+		const blob = new Blob([csvContent], {
+			type: "text/csv;charset=utf-8;",
+		});
 		const url = URL.createObjectURL(blob);
 		const link = document.createElement("a");
 		link.href = url;
@@ -225,7 +229,9 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 		<div className="space-y-4">
 			<div className="max-w-md">
 				<Input
-					placeholder={t("launchclub.groups.members.searchPlaceholder")}
+					placeholder={t(
+						"launchclub.groups.members.searchPlaceholder",
+					)}
 					value={memberSearch}
 					onChange={(e) => setMemberSearch(e.target.value)}
 				/>
@@ -294,10 +300,14 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 							</TableHead>
 							<TableHead className="w-12" />
 							<TableHead>
-								{t("launchclub.groups.members.columns.firstName")}
+								{t(
+									"launchclub.groups.members.columns.firstName",
+								)}
 							</TableHead>
 							<TableHead>
-								{t("launchclub.groups.members.columns.lastName")}
+								{t(
+									"launchclub.groups.members.columns.lastName",
+								)}
 							</TableHead>
 							<TableHead>
 								{t("launchclub.groups.members.columns.role")}
@@ -309,7 +319,9 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 								{t("launchclub.groups.members.columns.phone")}
 							</TableHead>
 							<TableHead>
-								{t("launchclub.groups.members.columns.memberSince")}
+								{t(
+									"launchclub.groups.members.columns.memberSince",
+								)}
 							</TableHead>
 							<TableHead className="w-12" />
 						</TableRow>
@@ -327,13 +339,19 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 							return (
 								<TableRow
 									key={person.id}
-									data-state={isSelected ? "selected" : undefined}
-									className={isSelected ? "bg-muted/40" : undefined}
+									data-state={
+										isSelected ? "selected" : undefined
+									}
+									className={
+										isSelected ? "bg-muted/40" : undefined
+									}
 								>
 									<TableCell>
 										<Checkbox
 											checked={isSelected}
-											onCheckedChange={() => toggleOne(person.id)}
+											onCheckedChange={() =>
+												toggleOne(person.id)
+											}
 											aria-label={`Select ${person.firstName} ${person.lastName}`}
 										/>
 									</TableCell>
@@ -351,42 +369,60 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 										{person.lastName}
 									</TableCell>
 									<TableCell>
-										<span className="capitalize">{role.toLowerCase()}</span>
+										<span className="capitalize">
+											{role.toLowerCase()}
+										</span>
 										<Button
 											variant="link"
 											size="sm"
 											className="ml-1 h-auto p-0 text-xs"
-											onClick={() => handleChangeRole(person.id, role)}
+											onClick={() =>
+												handleChangeRole(
+													person.id,
+													role,
+												)
+											}
 										>
-											{t("launchclub.groups.members.editRole")}
+											{t(
+												"launchclub.groups.members.editRole",
+											)}
 										</Button>
 									</TableCell>
 									<TableCell className="text-muted-foreground">
-										{person.personType === "STUDENT" && guardianEmails.length > 0 ? (
-											<span title={`Parent: ${guardianEmails.join(", ")}`}>
+										{person.personType === "STUDENT" &&
+										guardianEmails.length > 0 ? (
+											<span
+												title={`Parent: ${guardianEmails.join(", ")}`}
+											>
 												{guardianEmails[0]}
 												{guardianEmails.length > 1 && (
 													<span className="ml-1 text-xs">
-														+{guardianEmails.length - 1}
+														+
+														{guardianEmails.length -
+															1}
 													</span>
 												)}
 											</span>
 										) : (
-											person.email ?? "-"
+											(person.email ?? "-")
 										)}
 									</TableCell>
 									<TableCell className="text-muted-foreground">
 										{person.phone ?? "-"}
 									</TableCell>
 									<TableCell className="text-muted-foreground">
-										{new Date(joinedAt).toLocaleDateString()}
+										{new Date(
+											joinedAt,
+										).toLocaleDateString()}
 									</TableCell>
 									<TableCell>
 										<Button
 											variant="ghost"
 											size="icon"
 											className="h-8 w-8 text-destructive hover:text-destructive"
-											onClick={() => handleRemoveMember(person.id)}
+											onClick={() =>
+												handleRemoveMember(person.id)
+											}
 										>
 											<XIcon className="h-4 w-4" />
 										</Button>

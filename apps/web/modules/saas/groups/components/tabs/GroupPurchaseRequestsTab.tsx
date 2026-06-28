@@ -5,6 +5,7 @@ import { Button } from "@repo/ui/components/button";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
+import { ReviewDialog } from "@saas/purchase-requests/components/ReviewDialog";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -18,16 +19,18 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import {
+	type PurchaseRequest,
 	useDeletePurchaseRequest,
 	usePurchaseRequests,
-	type PurchaseRequest,
 } from "../../hooks/use-purchase-requests";
 import { PurchaseRequestDialog } from "../PurchaseRequestDialog";
-import { ReviewDialog } from "@saas/purchase-requests/components/ReviewDialog";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const STATUS_CONFIG: Record<string, { label: string; status: "success" | "info" | "warning" | "error" }> = {
+const STATUS_CONFIG: Record<
+	string,
+	{ label: string; status: "success" | "info" | "warning" | "error" }
+> = {
 	PENDING: { label: "Pending", status: "warning" },
 	APPROVED: { label: "Approved", status: "success" },
 	DECLINED: { label: "Declined", status: "error" },
@@ -55,13 +58,17 @@ interface GroupPurchaseRequestsTabProps {
 	groupId: string;
 }
 
-export function GroupPurchaseRequestsTab({ groupId }: GroupPurchaseRequestsTabProps) {
+export function GroupPurchaseRequestsTab({
+	groupId,
+}: GroupPurchaseRequestsTabProps) {
 	const { data: requests, isLoading } = usePurchaseRequests(groupId);
 	const deleteRequest = useDeletePurchaseRequest(groupId);
 	const { isOrganizationAdmin } = useActiveOrganization();
 
 	const [dialogOpen, setDialogOpen] = useState(false);
-	const [editRequest, setEditRequest] = useState<PurchaseRequest | null>(null);
+	const [editRequest, setEditRequest] = useState<PurchaseRequest | null>(
+		null,
+	);
 
 	const handleOpenCreate = () => {
 		setEditRequest(null);
@@ -87,11 +94,19 @@ export function GroupPurchaseRequestsTab({ groupId }: GroupPurchaseRequestsTabPr
 		}
 	};
 
-	const totalPending = requests?.filter((r: PurchaseRequest) => r.status === "PENDING").length ?? 0;
-	const totalApproved = requests?.filter((r: PurchaseRequest) => r.status === "APPROVED").length ?? 0;
-	const approvedAmount = requests
-		?.filter((r: PurchaseRequest) => r.status === "APPROVED")
-		.reduce((sum: number, r: PurchaseRequest) => sum + requestTotal(r), 0) ?? 0;
+	const totalPending =
+		requests?.filter((r: PurchaseRequest) => r.status === "PENDING")
+			.length ?? 0;
+	const totalApproved =
+		requests?.filter((r: PurchaseRequest) => r.status === "APPROVED")
+			.length ?? 0;
+	const approvedAmount =
+		requests
+			?.filter((r: PurchaseRequest) => r.status === "APPROVED")
+			.reduce(
+				(sum: number, r: PurchaseRequest) => sum + requestTotal(r),
+				0,
+			) ?? 0;
 
 	return (
 		<div className="space-y-4">
@@ -99,11 +114,15 @@ export function GroupPurchaseRequestsTab({ groupId }: GroupPurchaseRequestsTabPr
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-6 text-sm text-muted-foreground">
 					<span>
-						<span className="font-semibold text-foreground">{totalPending}</span>{" "}
+						<span className="font-semibold text-foreground">
+							{totalPending}
+						</span>{" "}
 						pending
 					</span>
 					<span>
-						<span className="font-semibold text-green-600">{totalApproved}</span>{" "}
+						<span className="font-semibold text-green-600">
+							{totalApproved}
+						</span>{" "}
 						approved
 					</span>
 					<span>
@@ -131,7 +150,11 @@ export function GroupPurchaseRequestsTab({ groupId }: GroupPurchaseRequestsTabPr
 				<div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
 					<DollarSignIcon className="size-8 opacity-40" />
 					<p className="text-sm">No purchase requests yet.</p>
-					<Button variant="outline" size="sm" onClick={handleOpenCreate}>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={handleOpenCreate}
+					>
 						Submit first request
 					</Button>
 				</div>
@@ -178,21 +201,39 @@ function PurchaseRequestCard({
 	onDelete,
 }: PurchaseRequestCardProps) {
 	const queryClient = useQueryClient();
-	const reviewMutation = useMutation(orpc.purchaseRequests.review.mutationOptions());
+	const reviewMutation = useMutation(
+		orpc.purchaseRequests.review.mutationOptions(),
+	);
 
-	const [reviewDialog, setReviewDialog] = useState<"APPROVED" | "DECLINED" | null>(null);
+	const [reviewDialog, setReviewDialog] = useState<
+		"APPROVED" | "DECLINED" | null
+	>(null);
 
 	const isPending = request.status === "PENDING";
-	const statusConfig = STATUS_CONFIG[request.status] ?? { label: request.status, status: "default" as const };
+	const statusConfig = STATUS_CONFIG[request.status] ?? {
+		label: request.status,
+		status: "default" as const,
+	};
 	const total = requestTotal(request);
 
-	const handleReview = async (status: "APPROVED" | "DECLINED", note: string) => {
+	const handleReview = async (
+		status: "APPROVED" | "DECLINED",
+		note: string,
+	) => {
 		try {
-			await reviewMutation.mutateAsync({ id: request.id, status, reviewNote: note || undefined });
+			await reviewMutation.mutateAsync({
+				id: request.id,
+				status,
+				reviewNote: note || undefined,
+			});
 			queryClient.invalidateQueries(
 				orpc.purchaseRequests.list.queryOptions({ input: { groupId } }),
 			);
-			toastSuccess(status === "APPROVED" ? "Request approved." : "Request declined.");
+			toastSuccess(
+				status === "APPROVED"
+					? "Request approved."
+					: "Request declined.",
+			);
 			setReviewDialog(null);
 		} catch {
 			toastError("Failed to review request. Please try again.");
@@ -206,29 +247,39 @@ function PurchaseRequestCard({
 					{/* Title row */}
 					<div className="flex flex-wrap items-center gap-2">
 						<span className="font-semibold">{request.name}</span>
-						<Badge status={statusConfig.status}>{statusConfig.label}</Badge>
+						<Badge status={statusConfig.status}>
+							{statusConfig.label}
+						</Badge>
 						<span className="text-lg font-bold text-green-600">
 							${total.toFixed(2)}
 						</span>
 					</div>
 					{request.description && (
-						<p className="text-sm text-muted-foreground">{request.description}</p>
+						<p className="text-sm text-muted-foreground">
+							{request.description}
+						</p>
 					)}
 
 					{/* Meta row */}
 					<div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
 						<span>
-							<span className="font-medium text-foreground">By: </span>
+							<span className="font-medium text-foreground">
+								By:{" "}
+							</span>
 							{request.requestedBy.name}
 						</span>
 						{request.dueDate && (
 							<span>
-								<span className="font-medium text-foreground">Needed by: </span>
+								<span className="font-medium text-foreground">
+									Needed by:{" "}
+								</span>
 								{new Date(request.dueDate).toLocaleDateString()}
 							</span>
 						)}
 						<span>
-							<span className="font-medium text-foreground">Submitted: </span>
+							<span className="font-medium text-foreground">
+								Submitted:{" "}
+							</span>
 							{new Date(request.createdAt).toLocaleDateString()}
 						</span>
 					</div>
@@ -237,15 +288,26 @@ function PurchaseRequestCard({
 					{request.items.length > 0 && (
 						<div className="rounded-md bg-muted/40 px-3 py-2 text-sm space-y-1">
 							{request.items.map((item) => (
-								<div key={item.id} className="flex items-center gap-2">
-									<span className="flex-1 font-medium">{item.item}</span>
+								<div
+									key={item.id}
+									className="flex items-center gap-2"
+								>
+									<span className="flex-1 font-medium">
+										{item.item}
+									</span>
 									<span className="text-muted-foreground text-xs">
-										{CATEGORY_LABELS[item.category] ?? item.category}
+										{CATEGORY_LABELS[item.category] ??
+											item.category}
 									</span>
 									<span className="text-muted-foreground">
-										{item.quantity} × ${Number(item.amount).toFixed(2)} ={" "}
+										{item.quantity} × $
+										{Number(item.amount).toFixed(2)} ={" "}
 										<span className="font-medium text-foreground">
-											${(Number(item.amount) * item.quantity).toFixed(2)}
+											$
+											{(
+												Number(item.amount) *
+												item.quantity
+											).toFixed(2)}
 										</span>
 									</span>
 									{item.url && (
@@ -272,11 +334,16 @@ function PurchaseRequestCard({
 								<XCircleIcon className="h-3.5 w-3.5 text-destructive" />
 							)}
 							<span>
-								{statusConfig.label} by {request.reviewedBy.name} on{" "}
-								{new Date(request.reviewedAt).toLocaleDateString()}
+								{statusConfig.label} by{" "}
+								{request.reviewedBy.name} on{" "}
+								{new Date(
+									request.reviewedAt,
+								).toLocaleDateString()}
 							</span>
 							{request.reviewNote && (
-								<span className="italic">— {request.reviewNote}</span>
+								<span className="italic">
+									— {request.reviewNote}
+								</span>
 							)}
 						</div>
 					)}
@@ -330,7 +397,9 @@ function PurchaseRequestCard({
 					open={!!reviewDialog}
 					status={reviewDialog}
 					loading={reviewMutation.isPending}
-					onOpenChange={(open) => { if (!open) setReviewDialog(null); }}
+					onOpenChange={(open) => {
+						if (!open) setReviewDialog(null);
+					}}
 					onConfirm={(note) => handleReview(reviewDialog, note)}
 				/>
 			)}

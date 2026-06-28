@@ -40,9 +40,22 @@ export function AreaDetailClient({ areaId }: AreaDetailClientProps) {
 	if (!area) return null;
 
 	const navItems = [
-		{ key: "sites" as NavSection, label: "Sites", icon: BuildingIcon, count: area.sites.length },
-		{ key: "submissions" as NavSection, label: "Submissions", icon: InboxIcon },
-		{ key: "settings" as NavSection, label: "Settings", icon: SettingsIcon },
+		{
+			key: "sites" as NavSection,
+			label: "Sites",
+			icon: BuildingIcon,
+			count: area.sites.length,
+		},
+		{
+			key: "submissions" as NavSection,
+			label: "Submissions",
+			icon: InboxIcon,
+		},
+		{
+			key: "settings" as NavSection,
+			label: "Settings",
+			icon: SettingsIcon,
+		},
 	];
 
 	return (
@@ -52,10 +65,16 @@ export function AreaDetailClient({ areaId }: AreaDetailClientProps) {
 				<div>
 					<h1 className="text-3xl font-bold">{area.name}</h1>
 					{area.description && (
-						<p className="mt-1 text-sm text-muted-foreground">{area.description}</p>
+						<p className="mt-1 text-sm text-muted-foreground">
+							{area.description}
+						</p>
 					)}
 				</div>
-				<Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => setEditOpen(true)}
+				>
 					Edit
 				</Button>
 			</div>
@@ -79,7 +98,9 @@ export function AreaDetailClient({ areaId }: AreaDetailClientProps) {
 						>
 							<div className="flex items-center gap-2">
 								<Icon className="h-4 w-4" />
-								<span className="whitespace-nowrap">{label}</span>
+								<span className="whitespace-nowrap">
+									{label}
+								</span>
 							</div>
 							{count !== undefined && (
 								<span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-secondary text-secondary-foreground text-xs font-semibold px-1">
@@ -93,13 +114,19 @@ export function AreaDetailClient({ areaId }: AreaDetailClientProps) {
 				{/* Content panel */}
 				<div className="min-w-0 flex-1 rounded-lg border bg-card p-6">
 					{activeSection === "sites" && (
-						<AreaSitesTab areaId={areaId} organizationId={organizationId} />
+						<AreaSitesTab
+							areaId={areaId}
+							organizationId={organizationId}
+						/>
 					)}
 					{activeSection === "submissions" && (
 						<AreaSubmissionsTab areaId={areaId} />
 					)}
 					{activeSection === "settings" && (
-						<AreaSettingsTab area={area} organizationId={organizationId} />
+						<AreaSettingsTab
+							area={area}
+							organizationId={organizationId}
+						/>
 					)}
 				</div>
 			</div>
@@ -107,7 +134,11 @@ export function AreaDetailClient({ areaId }: AreaDetailClientProps) {
 			<AreaDialog
 				open={editOpen}
 				onOpenChange={setEditOpen}
-				area={{ id: area.id, name: area.name, description: area.description }}
+				area={{
+					id: area.id,
+					name: area.name,
+					description: area.description,
+				}}
 				organizationId={organizationId}
 			/>
 		</div>

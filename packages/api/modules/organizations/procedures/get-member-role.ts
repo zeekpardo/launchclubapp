@@ -22,11 +22,14 @@ export const getMemberRole = protectedProcedure
 			context.user.id,
 		);
 		const isOrgAdmin =
-			callerMembership && ["owner", "admin"].includes(callerMembership.role);
+			callerMembership &&
+			["owner", "admin"].includes(callerMembership.role);
 		const isPlatformAdmin = context.user.role === "admin";
 		if (!isOrgAdmin && !isPlatformAdmin) throw new ORPCError("FORBIDDEN");
 
-		const member = await db.member.findUnique({ where: { id: input.memberId } });
+		const member = await db.member.findUnique({
+			where: { id: input.memberId },
+		});
 		if (!member || member.organizationId !== input.organizationId) {
 			throw new ORPCError("NOT_FOUND");
 		}
@@ -66,7 +69,9 @@ export const getMemberRole = protectedProcedure
 		const userGroups = await db.userGroup.findMany({
 			where: {
 				userId: member.userId,
-				group: { site: { area: { organizationId: input.organizationId } } },
+				group: {
+					site: { area: { organizationId: input.organizationId } },
+				},
 			},
 			include: {
 				group: {
@@ -78,7 +83,10 @@ export const getMemberRole = protectedProcedure
 		});
 
 		return {
-			lcRole: userGroups.length > 0 ? ("group-leader" as const) : ("member" as const),
+			lcRole:
+				userGroups.length > 0
+					? ("group-leader" as const)
+					: ("member" as const),
 			sites: [],
 			groups: userGroups.map((ug) => ({
 				id: ug.group.id,

@@ -6,10 +6,10 @@ import { listPeople } from "./procedures/list";
 import { updatePersonProcedure } from "./procedures/update";
 
 export const peopleRouter = {
-  list: listPeople,
-  get: getPerson,
-  create: createPersonProcedure,
-  update: updatePersonProcedure,
-  delete: deletePersonProcedure,
-  avatarUploadUrl: createPersonAvatarUploadUrl,
+	list: listPeople,
+	get: getPerson,
+	create: createPersonProcedure,
+	update: updatePersonProcedure,
+	delete: deletePersonProcedure,
+	avatarUploadUrl: createPersonAvatarUploadUrl,
 };

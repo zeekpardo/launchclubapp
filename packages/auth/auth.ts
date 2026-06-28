@@ -83,21 +83,26 @@ export const auth = betterAuth({
 				);
 
 				// Apply pending site/group assignments if this invitation had a role assignment
-				const assignment = await getInvitationRoleAssignment(invitationId);
+				const assignment =
+					await getInvitationRoleAssignment(invitationId);
 				if (assignment) {
 					// Find the member record just created by Better Auth
 					const member = await db.member.findUnique({
 						where: {
 							organizationId_userId: {
 								organizationId: invitation.organizationId,
-								userId: ctx.context.session?.session.userId ?? "",
+								userId:
+									ctx.context.session?.session.userId ?? "",
 							},
 						},
 					});
 
 					if (member) {
 						// Promote to admin if lcRole is admin
-						if (assignment.lcRole === "admin" && member.role !== "admin") {
+						if (
+							assignment.lcRole === "admin" &&
+							member.role !== "admin"
+						) {
 							await db.member.update({
 								where: { id: member.id },
 								data: { role: "admin" },
@@ -105,7 +110,10 @@ export const auth = betterAuth({
 						}
 
 						// Assign sites for site-leader
-						if (assignment.lcRole === "site-leader" && assignment.siteIds.length > 0) {
+						if (
+							assignment.lcRole === "site-leader" &&
+							assignment.siteIds.length > 0
+						) {
 							await Promise.all(
 								assignment.siteIds.map((siteId) =>
 									addUserToSite(member.userId, siteId),
@@ -114,7 +122,10 @@ export const auth = betterAuth({
 						}
 
 						// Assign groups for group-leader
-						if (assignment.lcRole === "group-leader" && assignment.groupIds.length > 0) {
+						if (
+							assignment.lcRole === "group-leader" &&
+							assignment.groupIds.length > 0
+						) {
 							await Promise.all(
 								assignment.groupIds.map((groupId) =>
 									addUserToGroup(member.userId, groupId),
@@ -204,7 +215,8 @@ export const auth = betterAuth({
 		// If signup is disabled, the only way to sign up is via an invitation. So in this case we can auto sign in the user, as the email is already verified by the invitation.
 		// If signup is enabled, we can't auto sign in the user, as the email is not verified yet.
 		autoSignIn: !config.enableSignup,
-		requireEmailVerification: process.env.NODE_ENV === "production" && config.enableSignup,
+		requireEmailVerification:
+			process.env.NODE_ENV === "production" && config.enableSignup,
 		sendResetPassword: async ({ user, url }, request) => {
 			const locale = getLocaleFromRequest(request);
 			await sendEmail({
@@ -219,7 +231,8 @@ export const auth = betterAuth({
 		},
 	},
 	emailVerification: {
-		sendOnSignUp: process.env.NODE_ENV === "production" && config.enableSignup,
+		sendOnSignUp:
+			process.env.NODE_ENV === "production" && config.enableSignup,
 		autoSignInAfterVerification: true,
 		sendVerificationEmail: async (
 			{ user: { email, name }, url },

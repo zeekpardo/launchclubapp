@@ -33,14 +33,18 @@ export function useReviewMentorApplication() {
 		...orpc.mentorApplications.review.mutationOptions(),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: orpc.mentorApplications.list.queryOptions({
-					input: { organizationId: "" },
-				}).queryKey.slice(0, 1),
+				queryKey: orpc.mentorApplications.list
+					.queryOptions({
+						input: { organizationId: "" },
+					})
+					.queryKey.slice(0, 1),
 			});
 			queryClient.invalidateQueries({
-				queryKey: orpc.mentorApplications.get.queryOptions({
-					input: { id: "" },
-				}).queryKey.slice(0, 1),
+				queryKey: orpc.mentorApplications.get
+					.queryOptions({
+						input: { id: "" },
+					})
+					.queryKey.slice(0, 1),
 			});
 		},
 	});

@@ -69,7 +69,8 @@ export const featureTabs: Array<{
 		id: "operations",
 		title: "Operations",
 		icon: ClipboardListIcon,
-		subtitle: "Streamline the admin work so your team can focus on the kids.",
+		subtitle:
+			"Streamline the admin work so your team can focus on the kids.",
 		description:
 			"From purchase requests to new participant applications, keep your approval workflows moving with full visibility for everyone involved.",
 		stack: [],
@@ -107,11 +108,12 @@ export function Features() {
 						Everything you need
 					</small>
 					<h2 className="text-3xl lg:text-4xl xl:text-5xl font-medium">
-						Built for the people running programs, not just managing them
+						Built for the people running programs, not just managing
+						them
 					</h2>
 					<p className="mt-2 text-base lg:text-lg text-foreground/60">
-						Everything your team needs to manage participants,
-						track attendance, and run operations, all in one place.
+						Everything your team needs to manage participants, track
+						attendance, and run operations, all in one place.
 					</p>
 				</div>
 			</div>

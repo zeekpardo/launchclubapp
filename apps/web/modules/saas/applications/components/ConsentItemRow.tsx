@@ -1,8 +1,8 @@
 "use client";
 
-import { Badge } from "@repo/ui/components/badge";
-import { Button } from "@repo/ui/components/button";
-import { Switch } from "@repo/ui/components/switch";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { ConsentItemType } from "@repo/database";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -14,12 +14,21 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@repo/ui/components/alert-dialog";
+import { Badge } from "@repo/ui/components/badge";
+import { Button } from "@repo/ui/components/button";
+import { Switch } from "@repo/ui/components/switch";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { FileTextIcon, GripVerticalIcon, PenLineIcon, Trash2Icon } from "lucide-react";
-import type { ConsentItemType } from "@repo/database";
-import { useDeleteConsentItem, useUpdateConsentItem, usePdfDownloadUrl } from "../hooks/use-consent-items";
+import {
+	FileTextIcon,
+	GripVerticalIcon,
+	PenLineIcon,
+	Trash2Icon,
+} from "lucide-react";
+import {
+	useDeleteConsentItem,
+	usePdfDownloadUrl,
+	useUpdateConsentItem,
+} from "../hooks/use-consent-items";
 
 interface ConsentItemRowProps {
 	item: ConsentItemType;
@@ -27,9 +36,19 @@ interface ConsentItemRowProps {
 	onEdit: (item: ConsentItemType) => void;
 }
 
-export function ConsentItemRow({ item, organizationId, onEdit }: ConsentItemRowProps) {
-	const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-		useSortable({ id: item.id });
+export function ConsentItemRow({
+	item,
+	organizationId,
+	onEdit,
+}: ConsentItemRowProps) {
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({ id: item.id });
 
 	const style = {
 		transform: CSS.Transform.toString(transform),
@@ -74,7 +93,8 @@ export function ConsentItemRow({ item, organizationId, onEdit }: ConsentItemRowP
 		}
 	}
 
-	const applicantTypeLabel = item.applicantType === "MENTOR" ? "Mentor" : "Student";
+	const applicantTypeLabel =
+		item.applicantType === "MENTOR" ? "Mentor" : "Student";
 
 	return (
 		<div
@@ -106,16 +126,22 @@ export function ConsentItemRow({ item, organizationId, onEdit }: ConsentItemRowP
 						</button>
 					)}
 					{!item.isActive && (
-						<Badge status="warning" className="text-xs">Paused</Badge>
+						<Badge status="warning" className="text-xs">
+							Paused
+						</Badge>
 					)}
 				</div>
 				{item.nameES && (
-					<p className="text-xs text-muted-foreground truncate mt-0.5">{item.nameES}</p>
+					<p className="text-xs text-muted-foreground truncate mt-0.5">
+						{item.nameES}
+					</p>
 				)}
 			</div>
 
 			<div className="flex items-center gap-2 shrink-0">
-				<Badge status="info" className="text-xs">{applicantTypeLabel}</Badge>
+				<Badge status="info" className="text-xs">
+					{applicantTypeLabel}
+				</Badge>
 
 				<Switch
 					checked={item.isActive}
@@ -144,10 +170,13 @@ export function ConsentItemRow({ item, organizationId, onEdit }: ConsentItemRowP
 					</AlertDialogTrigger>
 					<AlertDialogContent>
 						<AlertDialogHeader>
-							<AlertDialogTitle>Delete consent item?</AlertDialogTitle>
+							<AlertDialogTitle>
+								Delete consent item?
+							</AlertDialogTitle>
 							<AlertDialogDescription>
-								This will permanently delete <strong>{item.name}</strong> and remove all recorded
-								consent history. This cannot be undone.
+								This will permanently delete{" "}
+								<strong>{item.name}</strong> and remove all
+								recorded consent history. This cannot be undone.
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 						<AlertDialogFooter>

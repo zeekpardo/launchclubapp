@@ -1,13 +1,18 @@
 "use client";
 
 import { Button } from "@repo/ui/components/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/card";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@repo/ui/components/card";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { PlusIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
-import { FormFieldRenderer } from "./FormFieldRenderer";
 import type { PublicFormField } from "./FormFieldRenderer";
+import { FormFieldRenderer } from "./FormFieldRenderer";
 import { PublicFormSubmit } from "./PublicFormSubmit";
 
 interface Site {
@@ -53,7 +58,9 @@ export function StudentFormLayout({
 		parentPhone: "",
 	});
 	const [students, setStudents] = useState<StudentEntry[]>([emptyStudent()]);
-	const [selectedSiteId, setSelectedSiteId] = useState(preselectedSiteId ?? "");
+	const [selectedSiteId, setSelectedSiteId] = useState(
+		preselectedSiteId ?? "",
+	);
 	const [submitted, setSubmitted] = useState(false);
 
 	const hasSiteSelector = fields.some((f) => f.type === "SITE_SELECTOR");
@@ -72,16 +79,26 @@ export function StudentFormLayout({
 		setParentValues((prev) => ({ ...prev, [key]: value }));
 	};
 
-	const updateStudent = (index: number, key: keyof StudentEntry, value: string) => {
+	const updateStudent = (
+		index: number,
+		key: keyof StudentEntry,
+		value: string,
+	) => {
 		setStudents((prev) =>
 			prev.map((s, i) => (i === index ? { ...s, [key]: value } : s)),
 		);
 	};
 
-	const updateStudentField = (index: number, fieldId: string, value: string) => {
+	const updateStudentField = (
+		index: number,
+		fieldId: string,
+		value: string,
+	) => {
 		setStudents((prev) =>
 			prev.map((s, i) =>
-				i === index ? { ...s, fields: { ...s.fields, [fieldId]: value } } : s,
+				i === index
+					? { ...s, fields: { ...s.fields, [fieldId]: value } }
+					: s,
 			),
 		);
 	};
@@ -106,14 +123,25 @@ export function StudentFormLayout({
 		return (
 			<div className="flex flex-col items-center gap-4 py-16 text-center">
 				<div className="rounded-full bg-green-100 p-4">
-					<svg className="size-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+					<svg
+						className="size-10 text-green-600"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={2}
+							d="M5 13l4 4L19 7"
+						/>
 					</svg>
 				</div>
 				<div>
 					<p className="text-2xl font-bold">Submitted!</p>
 					<p className="mt-2 text-muted-foreground max-w-sm">
-						Thank you for your application. We will be in touch soon.
+						Thank you for your application. We will be in touch
+						soon.
 					</p>
 				</div>
 			</div>
@@ -127,13 +155,18 @@ export function StudentFormLayout({
 				<Card>
 					<CardContent className="pt-6">
 						<div className="space-y-1.5">
-							<label className="text-sm font-medium" htmlFor="site-selector">
+							<label
+								className="text-sm font-medium"
+								htmlFor="site-selector"
+							>
 								Site <span className="text-destructive">*</span>
 							</label>
 							<select
 								id="site-selector"
 								value={selectedSiteId}
-								onChange={(e) => setSelectedSiteId(e.target.value)}
+								onChange={(e) =>
+									setSelectedSiteId(e.target.value)
+								}
 								className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
 							>
 								<option value="">Select a site…</option>
@@ -157,22 +190,34 @@ export function StudentFormLayout({
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<div className="space-y-1.5">
 							<Label htmlFor="parentFirstName">
-								First Name <span className="text-destructive">*</span>
+								First Name{" "}
+								<span className="text-destructive">*</span>
 							</Label>
 							<Input
 								id="parentFirstName"
 								value={parentValues.parentFirstName}
-								onChange={(e) => updateParent("parentFirstName", e.target.value)}
+								onChange={(e) =>
+									updateParent(
+										"parentFirstName",
+										e.target.value,
+									)
+								}
 							/>
 						</div>
 						<div className="space-y-1.5">
 							<Label htmlFor="parentLastName">
-								Last Name <span className="text-destructive">*</span>
+								Last Name{" "}
+								<span className="text-destructive">*</span>
 							</Label>
 							<Input
 								id="parentLastName"
 								value={parentValues.parentLastName}
-								onChange={(e) => updateParent("parentLastName", e.target.value)}
+								onChange={(e) =>
+									updateParent(
+										"parentLastName",
+										e.target.value,
+									)
+								}
 							/>
 						</div>
 					</div>
@@ -183,7 +228,9 @@ export function StudentFormLayout({
 								id="parentEmail"
 								type="email"
 								value={parentValues.parentEmail}
-								onChange={(e) => updateParent("parentEmail", e.target.value)}
+								onChange={(e) =>
+									updateParent("parentEmail", e.target.value)
+								}
 							/>
 						</div>
 						<div className="space-y-1.5">
@@ -192,7 +239,15 @@ export function StudentFormLayout({
 								id="parentPhone"
 								type="tel"
 								value={parentValues.parentPhone}
-								onChange={(e) => updateParent("parentPhone", e.target.value.replace(/[^\d\s\-()+.]/g, ""))}
+								onChange={(e) =>
+									updateParent(
+										"parentPhone",
+										e.target.value.replace(
+											/[^\d\s\-()+.]/g,
+											"",
+										),
+									)
+								}
 							/>
 						</div>
 					</div>
@@ -241,23 +296,45 @@ export function StudentFormLayout({
 						<CardContent className="space-y-4">
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="space-y-1.5">
-									<Label htmlFor={`student-${index}-firstName`}>
-										First Name <span className="text-destructive">*</span>
+									<Label
+										htmlFor={`student-${index}-firstName`}
+									>
+										First Name{" "}
+										<span className="text-destructive">
+											*
+										</span>
 									</Label>
 									<Input
 										id={`student-${index}-firstName`}
 										value={student.firstName}
-										onChange={(e) => updateStudent(index, "firstName", e.target.value)}
+										onChange={(e) =>
+											updateStudent(
+												index,
+												"firstName",
+												e.target.value,
+											)
+										}
 									/>
 								</div>
 								<div className="space-y-1.5">
-									<Label htmlFor={`student-${index}-lastName`}>
-										Last Name <span className="text-destructive">*</span>
+									<Label
+										htmlFor={`student-${index}-lastName`}
+									>
+										Last Name{" "}
+										<span className="text-destructive">
+											*
+										</span>
 									</Label>
 									<Input
 										id={`student-${index}-lastName`}
 										value={student.lastName}
-										onChange={(e) => updateStudent(index, "lastName", e.target.value)}
+										onChange={(e) =>
+											updateStudent(
+												index,
+												"lastName",
+												e.target.value,
+											)
+										}
 									/>
 								</div>
 							</div>
@@ -268,7 +345,9 @@ export function StudentFormLayout({
 									key={field.id}
 									field={field}
 									value={student.fields[field.id] ?? ""}
-									onChange={(val) => updateStudentField(index, field.id, val)}
+									onChange={(val) =>
+										updateStudentField(index, field.id, val)
+									}
 								/>
 							))}
 						</CardContent>
@@ -281,7 +360,11 @@ export function StudentFormLayout({
 				formSlug={formSlug}
 				parentFields={parentValues}
 				students={getStudentsPayload()}
-				siteId={hasSiteSelector && selectedSiteId ? selectedSiteId : undefined}
+				siteId={
+					hasSiteSelector && selectedSiteId
+						? selectedSiteId
+						: undefined
+				}
 				onSuccess={() => setSubmitted(true)}
 			/>
 		</div>

@@ -20,8 +20,8 @@ import {
 import { Input } from "@repo/ui/components/input";
 import { Textarea } from "@repo/ui/components/textarea";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { TrashIcon } from "lucide-react";
 import { useCreateArea, useUpdateArea } from "@saas/areas/hooks/use-areas";
+import { TrashIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";

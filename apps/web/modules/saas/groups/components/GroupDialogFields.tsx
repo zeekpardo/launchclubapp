@@ -17,12 +17,8 @@ import {
 } from "@repo/ui/components/select";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { useTranslations } from "next-intl";
-import { type Control } from "react-hook-form";
-import {
-	DayPicker,
-	GradePicker,
-	RecurrenceSelect,
-} from "./GroupFormFields";
+import type { Control } from "react-hook-form";
+import { DayPicker, GradePicker, RecurrenceSelect } from "./GroupFormFields";
 
 interface Site {
 	id: string;
@@ -48,7 +44,11 @@ interface GroupDialogFieldsProps {
 	sitesLoading: boolean;
 }
 
-export function GroupDialogFields({ control, sites, sitesLoading }: GroupDialogFieldsProps) {
+export function GroupDialogFields({
+	control,
+	sites,
+	sitesLoading,
+}: GroupDialogFieldsProps) {
 	const t = useTranslations();
 
 	return (
@@ -58,7 +58,9 @@ export function GroupDialogFields({ control, sites, sitesLoading }: GroupDialogF
 				name="name"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>{t("launchclub.groups.form.name")}</FormLabel>
+						<FormLabel>
+							{t("launchclub.groups.form.name")}
+						</FormLabel>
 						<FormControl>
 							<Input {...field} />
 						</FormControl>
@@ -72,18 +74,26 @@ export function GroupDialogFields({ control, sites, sitesLoading }: GroupDialogF
 				name="siteId"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>{t("launchclub.groups.form.site")}</FormLabel>
+						<FormLabel>
+							{t("launchclub.groups.form.site")}
+						</FormLabel>
 						<FormControl>
 							{sitesLoading ? (
 								<Skeleton className="h-10 w-full" />
 							) : (
-								<Select value={field.value} onValueChange={field.onChange}>
+								<Select
+									value={field.value}
+									onValueChange={field.onChange}
+								>
 									<SelectTrigger>
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
 										{sites?.map((site) => (
-											<SelectItem key={site.id} value={site.id}>
+											<SelectItem
+												key={site.id}
+												value={site.id}
+											>
 												{site.name}
 											</SelectItem>
 										))}
@@ -104,7 +114,11 @@ export function GroupDialogFields({ control, sites, sitesLoading }: GroupDialogF
 						<FormItem>
 							<FormLabel>Start date</FormLabel>
 							<FormControl>
-								<Input type="date" {...field} value={field.value ?? ""} />
+								<Input
+									type="date"
+									{...field}
+									value={field.value ?? ""}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -117,7 +131,11 @@ export function GroupDialogFields({ control, sites, sitesLoading }: GroupDialogF
 						<FormItem>
 							<FormLabel>End date</FormLabel>
 							<FormControl>
-								<Input type="date" {...field} value={field.value ?? ""} />
+								<Input
+									type="date"
+									{...field}
+									value={field.value ?? ""}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -130,9 +148,14 @@ export function GroupDialogFields({ control, sites, sitesLoading }: GroupDialogF
 				name="gradeLevel"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>{t("launchclub.groups.columns.gradeLevel")}</FormLabel>
+						<FormLabel>
+							{t("launchclub.groups.columns.gradeLevel")}
+						</FormLabel>
 						<FormControl>
-							<GradePicker value={field.value ?? ""} onChange={field.onChange} />
+							<GradePicker
+								value={field.value ?? ""}
+								onChange={field.onChange}
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -144,9 +167,14 @@ export function GroupDialogFields({ control, sites, sitesLoading }: GroupDialogF
 				name="meetingDay"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>{t("launchclub.groups.columns.meetingDays")}</FormLabel>
+						<FormLabel>
+							{t("launchclub.groups.columns.meetingDays")}
+						</FormLabel>
 						<FormControl>
-							<DayPicker value={field.value ?? ""} onChange={field.onChange} />
+							<DayPicker
+								value={field.value ?? ""}
+								onChange={field.onChange}
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -161,7 +189,11 @@ export function GroupDialogFields({ control, sites, sitesLoading }: GroupDialogF
 						<FormItem>
 							<FormLabel>Start time</FormLabel>
 							<FormControl>
-								<Input type="time" {...field} value={field.value ?? ""} />
+								<Input
+									type="time"
+									{...field}
+									value={field.value ?? ""}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -174,7 +206,11 @@ export function GroupDialogFields({ control, sites, sitesLoading }: GroupDialogF
 						<FormItem>
 							<FormLabel>End time</FormLabel>
 							<FormControl>
-								<Input type="time" {...field} value={field.value ?? ""} />
+								<Input
+									type="time"
+									{...field}
+									value={field.value ?? ""}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -185,9 +221,14 @@ export function GroupDialogFields({ control, sites, sitesLoading }: GroupDialogF
 					name="meetingRecurrence"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>{t("launchclub.groups.form.meetingRecurrence")}</FormLabel>
+							<FormLabel>
+								{t("launchclub.groups.form.meetingRecurrence")}
+							</FormLabel>
 							<FormControl>
-								<RecurrenceSelect value={field.value ?? ""} onChange={field.onChange} />
+								<RecurrenceSelect
+									value={field.value ?? ""}
+									onChange={field.onChange}
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
