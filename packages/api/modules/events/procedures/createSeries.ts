@@ -1,14 +1,6 @@
-import { ORPCError } from "@orpc/client";
-import {
-  batchCreateEvents,
-  getAreaById,
-  getGroupById,
-  getSiteById,
-  getUserSiteIds,
-} from "@repo/database";
-import { verifyOrganizationMembership } from "../../organizations/lib/membership";
-import { canAccessSite, canManageGroup } from "../../organizations/lib/site-access";
+import { batchCreateEvents } from "@repo/database";
 import { protectedProcedure } from "../../../orpc/procedures";
+import { authorizeEventGroups } from "../lib/authorize";
 import { type EventRecurrence, createEventSeriesSchema } from "../types";
 
 const MAX_EVENTS = 200;
@@ -90,30 +82,9 @@ export const createEventSeriesProcedure = protectedProcedure
   .route({ method: "POST", path: "/events/series", tags: ["Events"] })
   .input(createEventSeriesSchema)
   .handler(async ({ input, context }) => {
-    const group = await getGroupById(input.groupIds[0]);
-    if (!group) throw new ORPCError("NOT_FOUND");
-    const site = await getSiteById(group.siteId);
-    if (!site) throw new ORPCError("NOT_FOUND");
-    const area = await getAreaById(site.areaId);
-    if (!area) throw new ORPCError("NOT_FOUND");
-
-    const membership = await verifyOrganizationMembership(
-      area.organizationId,
-      context.user.id,
-    );
-    if (!membership) throw new ORPCError("FORBIDDEN");
-
-    const isOwner = membership.role === "owner" || membership.role === "admin" || context.user.role === "admin";
-    if (!isOwner) {
-      const userSiteIds = await getUserSiteIds(context.user.id);
-      if (userSiteIds.length > 0) {
-        if (!(await canAccessSite(context.user.id, group.siteId)))
-          throw new ORPCError("FORBIDDEN");
-      } else {
-        if (!(await canManageGroup(context.user.id, input.groupIds[0])))
-          throw new ORPCError("FORBIDDEN");
-      }
-    }
+    // Authorize EVERY target group (not just the first) since every event in
+    // the series is attached to all of them.
+    await authorizeEventGroups(context.user.id, context.user.role, input.groupIds);
 
     const dates = generateSeriesDates(
       input.startDate,
