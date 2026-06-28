@@ -30,7 +30,7 @@ import { useActiveOrganization } from "@saas/organizations/hooks/use-active-orga
 import { SearchInput } from "@shared/components/SearchInput";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDownIcon, ExternalLinkIcon, Settings2Icon } from "lucide-react";
+import { ExternalLinkIcon, Settings2Icon } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -95,7 +95,9 @@ export function ApplicationsList() {
 			const q = search.toLowerCase();
 			list = list.filter(
 				(a) =>
-					`${a.parentFirstName} ${a.parentLastName}`.toLowerCase().includes(q) ||
+					`${a.parentFirstName} ${a.parentLastName}`
+						.toLowerCase()
+						.includes(q) ||
 					(a.parentEmail ?? "").toLowerCase().includes(q),
 			);
 		}
@@ -113,13 +115,19 @@ export function ApplicationsList() {
 			<div className="flex flex-wrap items-center gap-3">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant="outline" size="icon" aria-label="Settings">
+						<Button
+							variant="outline"
+							size="icon"
+							aria-label="Settings"
+						>
 							<Settings2Icon className="size-4" />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="start">
 						<DropdownMenuItem asChild>
-							<Link href={`/app/${orgSlug}/settings/applications`}>
+							<Link
+								href={`/app/${orgSlug}/settings/applications`}
+							>
 								Advanced Settings
 							</Link>
 						</DropdownMenuItem>
@@ -140,7 +148,10 @@ export function ApplicationsList() {
 					</SelectContent>
 				</Select>
 
-				<Select value={selectedSiteId} onValueChange={setSelectedSiteId}>
+				<Select
+					value={selectedSiteId}
+					onValueChange={setSelectedSiteId}
+				>
 					<SelectTrigger className="w-44">
 						<SelectValue placeholder={t("allSites")} />
 					</SelectTrigger>
@@ -163,16 +174,20 @@ export function ApplicationsList() {
 			</div>
 
 			<div className="inline-flex rounded-lg border bg-muted p-1">
-				{(["ALL", "PENDING", "APPROVED", "REJECTED"] as const).map((s) => (
-					<button
-						key={s}
-						type="button"
-						onClick={() => setStatusFilter(s)}
-						className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${statusFilter === s ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-					>
-						{t(`filter.${s.toLowerCase() as "all" | "pending" | "approved" | "rejected"}`)}
-					</button>
-				))}
+				{(["ALL", "PENDING", "APPROVED", "REJECTED"] as const).map(
+					(s) => (
+						<button
+							key={s}
+							type="button"
+							onClick={() => setStatusFilter(s)}
+							className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${statusFilter === s ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+						>
+							{t(
+								`filter.${s.toLowerCase() as "all" | "pending" | "approved" | "rejected"}`,
+							)}
+						</button>
+					),
+				)}
 			</div>
 
 			<div className="rounded-md border">
@@ -190,19 +205,31 @@ export function ApplicationsList() {
 					</TableHeader>
 					<TableBody>
 						{isLoading ? (
-							<>
-								{Array.from({ length: 5 }).map((_, i) => (
-									<TableRow key={i}>
-										<TableCell><Skeleton className="h-4 w-32" /></TableCell>
-										<TableCell><Skeleton className="h-4 w-40" /></TableCell>
-										<TableCell><Skeleton className="h-4 w-28" /></TableCell>
-										<TableCell><Skeleton className="h-4 w-24" /></TableCell>
-										<TableCell><Skeleton className="h-4 w-24" /></TableCell>
-										<TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
-										<TableCell><Skeleton className="h-8 w-20" /></TableCell>
-									</TableRow>
-								))}
-							</>
+							Array.from({ length: 5 }).map((_, i) => (
+								<TableRow key={i}>
+									<TableCell>
+										<Skeleton className="h-4 w-32" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-40" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-28" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-24" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-4 w-24" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-5 w-20 rounded-full" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-8 w-20" />
+									</TableCell>
+								</TableRow>
+							))
 						) : filteredApplications.length > 0 ? (
 							filteredApplications.map((app) => (
 								<TableRow key={app.id}>
@@ -211,15 +238,24 @@ export function ApplicationsList() {
 											href={`/app/${orgSlug}/applications/${app.id}`}
 											className="hover:underline inline-flex items-center gap-1"
 										>
-											{app.parentFirstName} {app.parentLastName}
+											{app.parentFirstName}{" "}
+											{app.parentLastName}
 											<ExternalLinkIcon className="size-3 text-muted-foreground" />
 										</Link>
 									</TableCell>
-									<TableCell>{app.parentEmail ?? "—"}</TableCell>
-									<TableCell>{app.parentPhone ?? "—"}</TableCell>
-									<TableCell>{app.site?.name ?? "—"}</TableCell>
 									<TableCell>
-										{new Date(app.createdAt).toLocaleDateString()}
+										{app.parentEmail ?? "—"}
+									</TableCell>
+									<TableCell>
+										{app.parentPhone ?? "—"}
+									</TableCell>
+									<TableCell>
+										{app.site?.name ?? "—"}
+									</TableCell>
+									<TableCell>
+										{new Date(
+											app.createdAt,
+										).toLocaleDateString()}
 									</TableCell>
 									<TableCell>
 										<StatusBadge status={app.status} />

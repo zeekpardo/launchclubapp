@@ -20,13 +20,13 @@ import {
 import { Input } from "@repo/ui/components/input";
 import { Textarea } from "@repo/ui/components/textarea";
 import { toastError } from "@repo/ui/components/toast";
+import { useCreateArea } from "@saas/areas/hooks/use-areas";
 import {
 	DayPicker,
 	GradePicker,
 	RecurrenceSelect,
 } from "@saas/groups/components/GroupFormFields";
 import { useCreateGroup } from "@saas/groups/hooks/use-groups";
-import { useCreateArea } from "@saas/areas/hooks/use-areas";
 import { useCreateSite } from "@saas/sites/hooks/use-sites";
 import { useRouter } from "@shared/hooks/router";
 import { useEffect, useState } from "react";
@@ -77,7 +77,13 @@ const areaSchema = z.object({
 
 const siteSchema = z.object({
 	name: z.string().min(1, "Name is required"),
-	slug: z.string().min(1).regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, and hyphens"),
+	slug: z
+		.string()
+		.min(1)
+		.regex(
+			/^[a-z0-9-]+$/,
+			"Slug must be lowercase letters, numbers, and hyphens",
+		),
 });
 
 const groupSchema = z.object({
@@ -118,20 +124,22 @@ export function OnboardingWizard({
 		defaultValues: { name: "", description: "" },
 	});
 
-	const onAreaSubmit = areaForm.handleSubmit(async ({ name, description }) => {
-		try {
-			const area = await createArea.mutateAsync({
-				organizationId,
-				name,
-				description: description || undefined,
-			});
-			setCreatedAreaId(area.id);
-			setCreatedAreaName(area.name);
-			setStep("site");
-		} catch {
-			toastError("Failed to create area. Please try again.");
-		}
-	});
+	const onAreaSubmit = areaForm.handleSubmit(
+		async ({ name, description }) => {
+			try {
+				const area = await createArea.mutateAsync({
+					organizationId,
+					name,
+					description: description || undefined,
+				});
+				setCreatedAreaId(area.id);
+				setCreatedAreaName(area.name);
+				setStep("site");
+			} catch {
+				toastError("Failed to create area. Please try again.");
+			}
+		},
+	);
 
 	// ── Step 2: Site ──────────────────────────────────────────────────────────
 
@@ -202,8 +210,9 @@ export function OnboardingWizard({
 					<>
 						<CardTitle>Create your first Area</CardTitle>
 						<CardDescription>
-							An Area is a region or campus — the top-level way to organize your
-							locations. For example: "North Campus" or "Downtown."
+							An Area is a region or campus — the top-level way to
+							organize your locations. For example: "North Campus"
+							or "Downtown."
 						</CardDescription>
 					</>
 				)}
@@ -211,17 +220,20 @@ export function OnboardingWizard({
 					<>
 						<CardTitle>Add a Site to {createdAreaName}</CardTitle>
 						<CardDescription>
-							A Site is a specific location within an Area — like a building or
-							address where people gather.
+							A Site is a specific location within an Area — like
+							a building or address where people gather.
 						</CardDescription>
 					</>
 				)}
 				{step === "group" && (
 					<>
-						<CardTitle>Create a Group at {createdSiteName}</CardTitle>
+						<CardTitle>
+							Create a Group at {createdSiteName}
+						</CardTitle>
 						<CardDescription>
-							A Group is a team, class, or cohort of people who meet together.
-							You can add members and events after setup.
+							A Group is a team, class, or cohort of people who
+							meet together. You can add members and events after
+							setup.
 						</CardDescription>
 					</>
 				)}
@@ -238,7 +250,10 @@ export function OnboardingWizard({
 									<FormItem>
 										<FormLabel>Area Name</FormLabel>
 										<FormControl>
-											<Input placeholder="e.g. North Campus" {...field} />
+											<Input
+												placeholder="e.g. North Campus"
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -249,7 +264,9 @@ export function OnboardingWizard({
 								name="description"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Description (optional)</FormLabel>
+										<FormLabel>
+											Description (optional)
+										</FormLabel>
 										<FormControl>
 											<Textarea
 												placeholder="Brief description of this area…"
@@ -283,7 +300,10 @@ export function OnboardingWizard({
 									<FormItem>
 										<FormLabel>Site Name</FormLabel>
 										<FormControl>
-											<Input placeholder="e.g. Main Building" {...field} />
+											<Input
+												placeholder="e.g. Main Building"
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -328,7 +348,10 @@ export function OnboardingWizard({
 									<FormItem>
 										<FormLabel>Group Name</FormLabel>
 										<FormControl>
-											<Input placeholder="e.g. Sunday Elementary" {...field} />
+											<Input
+												placeholder="e.g. Sunday Elementary"
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -339,7 +362,9 @@ export function OnboardingWizard({
 								name="gradeLevel"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Grade Level (optional)</FormLabel>
+										<FormLabel>
+											Grade Level (optional)
+										</FormLabel>
 										<FormControl>
 											<GradePicker
 												value={field.value ?? ""}
@@ -355,7 +380,9 @@ export function OnboardingWizard({
 								name="meetingDay"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Meeting Day (optional)</FormLabel>
+										<FormLabel>
+											Meeting Day (optional)
+										</FormLabel>
 										<FormControl>
 											<DayPicker
 												value={field.value ?? ""}
@@ -371,7 +398,9 @@ export function OnboardingWizard({
 								name="meetingRecurrence"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Recurrence (optional)</FormLabel>
+										<FormLabel>
+											Recurrence (optional)
+										</FormLabel>
 										<FormControl>
 											<RecurrenceSelect
 												value={field.value ?? ""}

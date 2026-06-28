@@ -46,7 +46,9 @@ export function AttendanceDialog({
 }: AttendanceDialogProps) {
 	const t = useTranslations();
 	const queryClient = useQueryClient();
-	const [records, setRecords] = useState<Record<string, AttendanceRecord>>({});
+	const [records, setRecords] = useState<Record<string, AttendanceRecord>>(
+		{},
+	);
 
 	const { data: group, isLoading } = useQuery(
 		orpc.groups.get.queryOptions({
@@ -86,7 +88,8 @@ export function AttendanceDialog({
 			...prev,
 			[personId]: {
 				personId,
-				status: (prev[personId]?.status ?? "PRESENT") as AttendanceStatus,
+				status: (prev[personId]?.status ??
+					"PRESENT") as AttendanceStatus,
 				notes: prev[personId]?.notes ?? "",
 				[field]: value,
 			},
@@ -98,7 +101,8 @@ export function AttendanceDialog({
 		const allRecords = group.personGroups.map((pg) => ({
 			eventId,
 			personId: pg.person.id,
-			status: (records[pg.person.id]?.status ?? "PRESENT") as AttendanceStatus,
+			status: (records[pg.person.id]?.status ??
+				"PRESENT") as AttendanceStatus,
 			notes: records[pg.person.id]?.notes,
 		}));
 		try {
@@ -114,7 +118,12 @@ export function AttendanceDialog({
 		}
 	};
 
-	const statuses: AttendanceStatus[] = ["PRESENT", "ABSENT", "LATE", "EXCUSED"];
+	const statuses: AttendanceStatus[] = [
+		"PRESENT",
+		"ABSENT",
+		"LATE",
+		"EXCUSED",
+	];
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>

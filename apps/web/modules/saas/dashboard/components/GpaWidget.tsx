@@ -23,15 +23,8 @@ import { Skeleton } from "@repo/ui/components/skeleton";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useQuery } from "@tanstack/react-query";
-import {
-	CartesianGrid,
-	Line,
-	LineChart,
-	ResponsiveContainer,
-	XAxis,
-	YAxis,
-} from "recharts";
 import { useEffect, useState } from "react";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 const TERM_LABELS: Record<string, string> = {
 	Q1: "Q1",
@@ -98,7 +91,9 @@ export function GpaWidget({ areaId, siteId }: GpaWidgetProps) {
 
 	// Groups — for group selector
 	const { data: groupsData } = useQuery({
-		...orpc.groups.list.queryOptions({ input: { organizationId: orgId, siteId: selectedSiteId ?? "" } }),
+		...orpc.groups.list.queryOptions({
+			input: { organizationId: orgId, siteId: selectedSiteId ?? "" },
+		}),
 		enabled: !!orgId && scopeType === "group" && !!selectedSiteId,
 	});
 	const groups = groupsData ?? [];
@@ -130,7 +125,8 @@ export function GpaWidget({ areaId, siteId }: GpaWidgetProps) {
 	const avgGpa =
 		trendData.length > 0
 			? (
-					trendData.reduce((sum, d) => sum + d.avgGpa, 0) / trendData.length
+					trendData.reduce((sum, d) => sum + d.avgGpa, 0) /
+					trendData.length
 				).toFixed(2)
 			: null;
 
@@ -144,7 +140,9 @@ export function GpaWidget({ areaId, siteId }: GpaWidgetProps) {
 	return (
 		<Card>
 			<CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 pb-2">
-				<CardTitle className="text-base font-semibold">GPA Trend</CardTitle>
+				<CardTitle className="text-base font-semibold">
+					GPA Trend
+				</CardTitle>
 				<div className="flex flex-wrap gap-2">
 					<Select
 						value={scopeType}
@@ -224,12 +222,13 @@ export function GpaWidget({ areaId, siteId }: GpaWidgetProps) {
 					</>
 				) : academicYears.length === 0 ? (
 					<p className="text-sm text-muted-foreground">
-						Configure academic years in Settings to enable GPA tracking.
+						Configure academic years in Settings to enable GPA
+						tracking.
 					</p>
 				) : !trendLoading && trendData.length === 0 && selectedYear ? (
 					<p className="text-sm text-muted-foreground">
-						No GPA records for this period. Add academic records on a
-						child&apos;s profile to see trends here.
+						No GPA records for this period. Add academic records on
+						a child&apos;s profile to see trends here.
 					</p>
 				) : !trendLoading && trendData.length === 1 ? (
 					<div className="space-y-1">
@@ -245,15 +244,24 @@ export function GpaWidget({ areaId, siteId }: GpaWidgetProps) {
 						<p className="mb-4 text-sm text-muted-foreground">
 							Avg GPA: {avgGpa} across {totalStudents} students
 						</p>
-						<ChartContainer config={chartConfig} className="h-48 w-full">
+						<ChartContainer
+							config={chartConfig}
+							className="h-48 w-full"
+						>
 							<LineChart
 								data={trendData.map((d) => ({
 									...d,
 									label: TERM_LABELS[d.term] ?? d.term,
 								}))}
 							>
-								<CartesianGrid strokeDasharray="3 3" vertical={false} />
-								<XAxis dataKey="label" tick={{ fontSize: 12 }} />
+								<CartesianGrid
+									strokeDasharray="3 3"
+									vertical={false}
+								/>
+								<XAxis
+									dataKey="label"
+									tick={{ fontSize: 12 }}
+								/>
 								<YAxis
 									domain={[0, 4]}
 									ticks={[0, 1, 2, 3, 4]}
@@ -262,7 +270,11 @@ export function GpaWidget({ areaId, siteId }: GpaWidgetProps) {
 								<ChartTooltip
 									content={
 										<ChartTooltipContent
-											formatter={(value, _name, props) => [
+											formatter={(
+												value,
+												_name,
+												props,
+											) => [
 												`${Number(value).toFixed(2)} (${props.payload?.studentCount ?? 0} students)`,
 												"Avg GPA",
 											]}

@@ -4,8 +4,8 @@ import { listAcademicYearsProcedure } from "./procedures/list";
 import { updateAcademicYearProcedure } from "./procedures/update";
 
 export const academicYearsRouter = {
-  list: listAcademicYearsProcedure,
-  create: createAcademicYearProcedure,
-  update: updateAcademicYearProcedure,
-  delete: deleteAcademicYearProcedure,
+	list: listAcademicYearsProcedure,
+	create: createAcademicYearProcedure,
+	update: updateAcademicYearProcedure,
+	delete: deleteAcademicYearProcedure,
 };

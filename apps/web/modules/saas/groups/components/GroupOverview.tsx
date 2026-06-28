@@ -25,7 +25,10 @@ interface GroupOverviewProps {
 }
 
 function formatMonthLabel(date: Date): string {
-	return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+	return date.toLocaleDateString("en-US", {
+		month: "short",
+		year: "numeric",
+	});
 }
 
 function getMembershipTimeline(
@@ -33,7 +36,8 @@ function getMembershipTimeline(
 ) {
 	if (personGroups.length === 0) return [];
 	const sorted = [...personGroups].sort(
-		(a, b) => new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime(),
+		(a, b) =>
+			new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime(),
 	);
 	const monthMap = new Map<string, number>();
 	for (const pg of sorted) {
@@ -54,7 +58,8 @@ export function GroupOverview({ group, events }: GroupOverviewProps) {
 
 	const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 	const avgMeetingsPerMonth =
-		events?.filter((e) => new Date(e.startsAt) >= thirtyDaysAgo).length ?? 0;
+		events?.filter((e) => new Date(e.startsAt) >= thirtyDaysAgo).length ??
+		0;
 
 	const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
 	const newMemberCount = group.personGroups.filter(
@@ -66,14 +71,17 @@ export function GroupOverview({ group, events }: GroupOverviewProps) {
 	const genderCounts = group.personGroups.reduce(
 		(acc, { person }) => {
 			const g = person.gender
-				? person.gender.charAt(0).toUpperCase() + person.gender.slice(1).toLowerCase()
+				? person.gender.charAt(0).toUpperCase() +
+					person.gender.slice(1).toLowerCase()
 				: "Unknown";
 			acc[g] = (acc[g] ?? 0) + 1;
 			return acc;
 		},
 		{} as Record<string, number>,
 	);
-	const demographicsData = Object.entries(genderCounts).map(([name, value]) => ({ name, value }));
+	const demographicsData = Object.entries(genderCounts).map(
+		([name, value]) => ({ name, value }),
+	);
 
 	const membershipData = getMembershipTimeline(group.personGroups);
 

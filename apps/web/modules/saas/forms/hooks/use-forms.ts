@@ -29,9 +29,11 @@ export function useCreateForm() {
 		...orpc.forms.create.mutationOptions(),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: orpc.forms.list.queryOptions({
-					input: { organizationId: "" },
-				}).queryKey.slice(0, 1),
+				queryKey: orpc.forms.list
+					.queryOptions({
+						input: { organizationId: "" },
+					})
+					.queryKey.slice(0, 1),
 			});
 		},
 	});
@@ -46,9 +48,11 @@ export function useUpdateForm(formId: string) {
 				orpc.forms.get.queryOptions({ input: { formId } }),
 			);
 			queryClient.invalidateQueries({
-				queryKey: orpc.forms.list.queryOptions({
-					input: { organizationId: "" },
-				}).queryKey.slice(0, 1),
+				queryKey: orpc.forms.list
+					.queryOptions({
+						input: { organizationId: "" },
+					})
+					.queryKey.slice(0, 1),
 			});
 		},
 	});
@@ -72,9 +76,11 @@ export function useSoftDeleteForm() {
 		...orpc.forms.softDelete.mutationOptions(),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: orpc.forms.list.queryOptions({
-					input: { organizationId: "" },
-				}).queryKey.slice(0, 1),
+				queryKey: orpc.forms.list
+					.queryOptions({
+						input: { organizationId: "" },
+					})
+					.queryKey.slice(0, 1),
 			});
 		},
 	});

@@ -20,9 +20,8 @@ import { cn } from "@repo/ui/lib";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PencilIcon } from "lucide-react";
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-type LcRole = "site-leader" | "group-leader" | "member" | "admin" | "owner";
 type LcAccessRole = "site-leader" | "group-leader";
 
 // ── Site Picker ───────────────────────────────────────────────────────────────
@@ -32,7 +31,11 @@ function SitePicker({
 	selectedSiteIds,
 	onToggle,
 }: {
-	sites: { id: string; name: string; area?: { id: string; name: string } | null }[];
+	sites: {
+		id: string;
+		name: string;
+		area?: { id: string; name: string } | null;
+	}[];
 	selectedSiteIds: string[];
 	onToggle: (id: string) => void;
 }) {
@@ -58,7 +61,11 @@ function SitePicker({
 						<button
 							key={a.id}
 							type="button"
-							onClick={() => setFilterAreaId(filterAreaId === a.id ? null : a.id)}
+							onClick={() =>
+								setFilterAreaId(
+									filterAreaId === a.id ? null : a.id,
+								)
+							}
 							className={cn(
 								"rounded-full border px-3 py-0.5 text-xs font-medium transition-colors",
 								filterAreaId === a.id
@@ -91,7 +98,9 @@ function SitePicker({
 						<div>
 							<p className="font-medium text-sm">{site.name}</p>
 							{site.area && (
-								<p className="text-foreground/60 text-xs">{site.area.name}</p>
+								<p className="text-foreground/60 text-xs">
+									{site.area.name}
+								</p>
 							)}
 						</div>
 					</label>
@@ -112,7 +121,11 @@ function GroupPicker({
 		id: string;
 		name: string;
 		siteId: string;
-		site?: { id: string; name: string; area?: { id: string; name: string } | null } | null;
+		site?: {
+			id: string;
+			name: string;
+			area?: { id: string; name: string } | null;
+		} | null;
 	}[];
 	selectedGroupIds: string[];
 	onToggle: (id: string) => void;
@@ -145,10 +158,16 @@ function GroupPicker({
 	});
 
 	const bySite = useMemo(() => {
-		const map = new Map<string, { siteName: string; items: typeof visible }>();
+		const map = new Map<
+			string,
+			{ siteName: string; items: typeof visible }
+		>();
 		for (const g of visible) {
 			if (!map.has(g.siteId)) {
-				map.set(g.siteId, { siteName: g.site?.name ?? "Unknown", items: [] });
+				map.set(g.siteId, {
+					siteName: g.site?.name ?? "Unknown",
+					items: [],
+				});
 			}
 			map.get(g.siteId)!.items.push(g);
 		}
@@ -164,7 +183,9 @@ function GroupPicker({
 							key={a.id}
 							type="button"
 							onClick={() => {
-								setFilterAreaId(filterAreaId === a.id ? null : a.id);
+								setFilterAreaId(
+									filterAreaId === a.id ? null : a.id,
+								);
 								setFilterSiteId(null);
 							}}
 							className={cn(
@@ -185,7 +206,11 @@ function GroupPicker({
 						<button
 							key={s.id}
 							type="button"
-							onClick={() => setFilterSiteId(filterSiteId === s.id ? null : s.id)}
+							onClick={() =>
+								setFilterSiteId(
+									filterSiteId === s.id ? null : s.id,
+								)
+							}
 							className={cn(
 								"rounded-full border px-3 py-0.5 text-xs font-medium transition-colors",
 								filterSiteId === s.id
@@ -218,7 +243,9 @@ function GroupPicker({
 									<input
 										type="checkbox"
 										className="accent-primary"
-										checked={selectedGroupIds.includes(g.id)}
+										checked={selectedGroupIds.includes(
+											g.id,
+										)}
 										onChange={() => onToggle(g.id)}
 									/>
 									<span className="text-sm">{g.name}</span>
@@ -260,7 +287,9 @@ export function MemberRoleEditor({
 	);
 
 	// Resolved access role — from server data (after load) or local state (after save)
-	const [localAccessRole, setLocalAccessRole] = useState<LcAccessRole | null>(null);
+	const [localAccessRole, setLocalAccessRole] = useState<LcAccessRole | null>(
+		null,
+	);
 	const [localSiteIds, setLocalSiteIds] = useState<string[]>([]);
 	const [localGroupIds, setLocalGroupIds] = useState<string[]>([]);
 	const [hydrated, setHydrated] = useState(false);
@@ -268,7 +297,10 @@ export function MemberRoleEditor({
 	// Sync server data into local state once on load
 	useEffect(() => {
 		if (!memberRoleData || hydrated) return;
-		if (memberRoleData.lcRole === "site-leader" || memberRoleData.lcRole === "group-leader") {
+		if (
+			memberRoleData.lcRole === "site-leader" ||
+			memberRoleData.lcRole === "group-leader"
+		) {
 			setLocalAccessRole(memberRoleData.lcRole);
 			setLocalSiteIds(memberRoleData.sites.map((s) => s.id));
 			setLocalGroupIds(memberRoleData.groups.map((g) => g.id));
@@ -278,7 +310,8 @@ export function MemberRoleEditor({
 
 	// Dialog state
 	const [dialogOpen, setDialogOpen] = useState(false);
-	const [dialogAccessRole, setDialogAccessRole] = useState<LcAccessRole | null>(null);
+	const [dialogAccessRole, setDialogAccessRole] =
+		useState<LcAccessRole | null>(null);
 	const [selectedSiteIds, setSelectedSiteIds] = useState<string[]>([]);
 	const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
 	const [error, setError] = useState<string | null>(null);
@@ -307,11 +340,19 @@ export function MemberRoleEditor({
 	function handleRoleChange(val: string) {
 		if (val === "admin") {
 			updateRole.mutate(
-				{ organizationId, memberId, lcRole: "admin", siteIds: [], groupIds: [] },
+				{
+					organizationId,
+					memberId,
+					lcRole: "admin",
+					siteIds: [],
+					groupIds: [],
+				},
 				{
 					onSuccess: () => {
 						queryClient.invalidateQueries(
-							orpc.organizations.getMemberRole.queryOptions({ input: { organizationId, memberId } }),
+							orpc.organizations.getMemberRole.queryOptions({
+								input: { organizationId, memberId },
+							}),
 						);
 						onSuccess?.();
 					},
@@ -319,7 +360,13 @@ export function MemberRoleEditor({
 			);
 		} else if (val === "member") {
 			updateRole.mutate(
-				{ organizationId, memberId, lcRole: "member", siteIds: [], groupIds: [] },
+				{
+					organizationId,
+					memberId,
+					lcRole: "member",
+					siteIds: [],
+					groupIds: [],
+				},
 				{
 					onSuccess: () => {
 						setLocalAccessRole(null);
@@ -327,7 +374,9 @@ export function MemberRoleEditor({
 						setLocalGroupIds([]);
 						setHydrated(false);
 						queryClient.invalidateQueries(
-							orpc.organizations.getMemberRole.queryOptions({ input: { organizationId, memberId } }),
+							orpc.organizations.getMemberRole.queryOptions({
+								input: { organizationId, memberId },
+							}),
 						);
 						onSuccess?.();
 					},
@@ -369,11 +418,17 @@ export function MemberRoleEditor({
 
 	function handleConfirm() {
 		if (!dialogAccessRole) return;
-		if (dialogAccessRole === "site-leader" && selectedSiteIds.length === 0) {
+		if (
+			dialogAccessRole === "site-leader" &&
+			selectedSiteIds.length === 0
+		) {
 			setError("Select at least one site.");
 			return;
 		}
-		if (dialogAccessRole === "group-leader" && selectedGroupIds.length === 0) {
+		if (
+			dialogAccessRole === "group-leader" &&
+			selectedGroupIds.length === 0
+		) {
 			setError("Select at least one group.");
 			return;
 		}
@@ -393,11 +448,14 @@ export function MemberRoleEditor({
 					setLocalGroupIds(selectedGroupIds);
 					setDialogOpen(false);
 					queryClient.invalidateQueries(
-						orpc.organizations.getMemberRole.queryOptions({ input: { organizationId, memberId } }),
+						orpc.organizations.getMemberRole.queryOptions({
+							input: { organizationId, memberId },
+						}),
 					);
 					onSuccess?.();
 				},
-				onError: () => setError("Failed to update permissions. Please try again."),
+				onError: () =>
+					setError("Failed to update permissions. Please try again."),
 			},
 		);
 	}
@@ -406,7 +464,13 @@ export function MemberRoleEditor({
 
 	function handleRemoveAccess() {
 		updateRole.mutate(
-			{ organizationId, memberId, lcRole: "member", siteIds: [], groupIds: [] },
+			{
+				organizationId,
+				memberId,
+				lcRole: "member",
+				siteIds: [],
+				groupIds: [],
+			},
 			{
 				onSuccess: () => {
 					setLocalAccessRole(null);
@@ -415,11 +479,14 @@ export function MemberRoleEditor({
 					setHydrated(false);
 					setDialogOpen(false);
 					queryClient.invalidateQueries(
-						orpc.organizations.getMemberRole.queryOptions({ input: { organizationId, memberId } }),
+						orpc.organizations.getMemberRole.queryOptions({
+							input: { organizationId, memberId },
+						}),
 					);
 					onSuccess?.();
 				},
-				onError: () => setError("Failed to remove access. Please try again."),
+				onError: () =>
+					setError("Failed to remove access. Please try again."),
 			},
 		);
 	}
@@ -435,7 +502,11 @@ export function MemberRoleEditor({
 				>
 					<SelectTrigger className="w-[110px]">
 						<span>
-							{isOwner ? "Owner" : currentRole === "admin" ? "Admin" : "Member"}
+							{isOwner
+								? "Owner"
+								: currentRole === "admin"
+									? "Admin"
+									: "Member"}
 						</span>
 					</SelectTrigger>
 					<SelectContent>
@@ -445,8 +516,9 @@ export function MemberRoleEditor({
 				</Select>
 
 				{/* Access section — members only */}
-				{isMember && !disabled && (
-					localAccessRole ? (
+				{isMember &&
+					!disabled &&
+					(localAccessRole ? (
 						// Already has an access role — show edit button
 						<Button
 							variant="outline"
@@ -456,10 +528,14 @@ export function MemberRoleEditor({
 							disabled={updateRole.isPending}
 						>
 							<span>
-								{localAccessRole === "site-leader" ? "Site Leader" : "Group Leader"}
+								{localAccessRole === "site-leader"
+									? "Site Leader"
+									: "Group Leader"}
 							</span>
 							<span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold text-primary leading-none">
-								{localAccessRole === "site-leader" ? localSiteIds.length : localGroupIds.length}
+								{localAccessRole === "site-leader"
+									? localSiteIds.length
+									: localGroupIds.length}
 							</span>
 							<PencilIcon className="size-3 text-muted-foreground" />
 						</Button>
@@ -467,11 +543,15 @@ export function MemberRoleEditor({
 						// No access role yet — show set access dropdown
 						<Select
 							value=""
-							onValueChange={(v) => openSetAccessDialog(v as LcAccessRole)}
+							onValueChange={(v) =>
+								openSetAccessDialog(v as LcAccessRole)
+							}
 							disabled={updateRole.isPending}
 						>
 							<SelectTrigger className="w-[160px]">
-								<span className="text-muted-foreground">Set access…</span>
+								<span className="text-muted-foreground">
+									Set access…
+								</span>
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="site-leader">
@@ -492,8 +572,7 @@ export function MemberRoleEditor({
 								</SelectItem>
 							</SelectContent>
 						</Select>
-					)
-				)}
+					))}
 			</div>
 
 			{/* Permissions dialog */}
@@ -503,7 +582,10 @@ export function MemberRoleEditor({
 						<DialogTitle>Manage Permissions</DialogTitle>
 						<DialogDescription>
 							Set the access level and assign specific{" "}
-							{dialogAccessRole === "site-leader" ? "sites" : "groups"} for this member.
+							{dialogAccessRole === "site-leader"
+								? "sites"
+								: "groups"}{" "}
+							for this member.
 						</DialogDescription>
 					</DialogHeader>
 
@@ -542,7 +624,9 @@ export function MemberRoleEditor({
 								selectedSiteIds={selectedSiteIds}
 								onToggle={(id) =>
 									setSelectedSiteIds((prev) =>
-										prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+										prev.includes(id)
+											? prev.filter((x) => x !== id)
+											: [...prev, id],
 									)
 								}
 							/>
@@ -553,12 +637,18 @@ export function MemberRoleEditor({
 								selectedGroupIds={selectedGroupIds}
 								onToggle={(id) =>
 									setSelectedGroupIds((prev) =>
-										prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+										prev.includes(id)
+											? prev.filter((x) => x !== id)
+											: [...prev, id],
 									)
 								}
 							/>
 						)}
-						{error && <p className="mt-2 text-destructive text-xs">{error}</p>}
+						{error && (
+							<p className="mt-2 text-destructive text-xs">
+								{error}
+							</p>
+						)}
 					</div>
 
 					<DialogFooter className="flex-col gap-2 sm:flex-row sm:items-center">
@@ -579,7 +669,10 @@ export function MemberRoleEditor({
 						>
 							Cancel
 						</Button>
-						<Button onClick={handleConfirm} loading={updateRole.isPending}>
+						<Button
+							onClick={handleConfirm}
+							loading={updateRole.isPending}
+						>
 							Save
 						</Button>
 					</DialogFooter>

@@ -19,10 +19,10 @@ import {
 } from "@repo/ui/components/form";
 import { Input } from "@repo/ui/components/input";
 import { toastError } from "@repo/ui/components/toast";
+import { useCreateForm } from "@saas/forms/hooks/use-forms";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { useSites } from "@saas/sites/hooks/use-sites";
-import { useCreateForm } from "@saas/forms/hooks/use-forms";
-import { useRouter, useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -68,7 +68,9 @@ export function CreateFormModal({ open, onOpenChange }: CreateFormModalProps) {
 				{ shouldValidate: true },
 			);
 		} else {
-			form.setValue("siteIds", [...current, siteId], { shouldValidate: true });
+			form.setValue("siteIds", [...current, siteId], {
+				shouldValidate: true,
+			});
 		}
 	};
 
@@ -95,7 +97,10 @@ export function CreateFormModal({ open, onOpenChange }: CreateFormModalProps) {
 					<DialogTitle>New Form</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						className="space-y-4"
+					>
 						<FormField
 							control={form.control}
 							name="name"
@@ -103,7 +108,10 @@ export function CreateFormModal({ open, onOpenChange }: CreateFormModalProps) {
 								<FormItem>
 									<FormLabel>Form Name</FormLabel>
 									<FormControl>
-										<Input {...field} placeholder="e.g. Student Registration 2025" />
+										<Input
+											{...field}
+											placeholder="e.g. Student Registration 2025"
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -118,7 +126,9 @@ export function CreateFormModal({ open, onOpenChange }: CreateFormModalProps) {
 									<FormLabel>Form Type</FormLabel>
 									<FormControl>
 										<div className="flex gap-3">
-											{(["STUDENT", "MENTOR"] as const).map((t) => (
+											{(
+												["STUDENT", "MENTOR"] as const
+											).map((t) => (
 												<label
 													key={t}
 													className={`flex flex-1 cursor-pointer items-center justify-center rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${field.value === t ? "border-primary bg-primary/10 text-primary" : "border-border hover:bg-muted"}`}
@@ -127,10 +137,16 @@ export function CreateFormModal({ open, onOpenChange }: CreateFormModalProps) {
 														type="radio"
 														className="sr-only"
 														value={t}
-														checked={field.value === t}
-														onChange={() => field.onChange(t)}
+														checked={
+															field.value === t
+														}
+														onChange={() =>
+															field.onChange(t)
+														}
 													/>
-													{t === "STUDENT" ? "Student" : "Mentor"}
+													{t === "STUDENT"
+														? "Student"
+														: "Mentor"}
 												</label>
 											))}
 										</div>
@@ -160,10 +176,16 @@ export function CreateFormModal({ open, onOpenChange }: CreateFormModalProps) {
 													<input
 														type="checkbox"
 														className="size-4 rounded border-border"
-														checked={selectedSiteIds.includes(site.id)}
-														onChange={() => toggleSite(site.id)}
+														checked={selectedSiteIds.includes(
+															site.id,
+														)}
+														onChange={() =>
+															toggleSite(site.id)
+														}
 													/>
-													<span className="text-sm">{site.name}</span>
+													<span className="text-sm">
+														{site.name}
+													</span>
 												</label>
 											))}
 										</div>
@@ -181,8 +203,13 @@ export function CreateFormModal({ open, onOpenChange }: CreateFormModalProps) {
 							>
 								Cancel
 							</Button>
-							<Button type="submit" disabled={createForm.isPending}>
-								{createForm.isPending ? "Creating…" : "Create Form"}
+							<Button
+								type="submit"
+								disabled={createForm.isPending}
+							>
+								{createForm.isPending
+									? "Creating…"
+									: "Create Form"}
 							</Button>
 						</DialogFooter>
 					</form>

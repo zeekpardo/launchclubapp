@@ -3,7 +3,10 @@
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useQuery } from "@tanstack/react-query";
 
-export function usePersonConsents(personId: string, academicYearId: string | undefined) {
+export function usePersonConsents(
+	personId: string,
+	academicYearId: string | undefined,
+) {
 	return useQuery(
 		orpc.personConsents.list.queryOptions({
 			input: { personId, academicYearId: academicYearId ?? "" },
@@ -12,7 +15,10 @@ export function usePersonConsents(personId: string, academicYearId: string | und
 	);
 }
 
-export function usePreviousYearConsents(personId: string, organizationId: string) {
+export function usePreviousYearConsents(
+	personId: string,
+	organizationId: string,
+) {
 	return useQuery(
 		orpc.personConsents.listPrevious.queryOptions({
 			input: { personId, organizationId },

@@ -131,9 +131,13 @@ export function AreaSitesTab({ areaId, organizationId }: AreaSitesTabProps) {
 								</Button>
 							</div>
 							<div className="pr-16">
-								<p className="font-semibold text-sm">{site.name}</p>
+								<p className="font-semibold text-sm">
+									{site.name}
+								</p>
 								<div className="mt-1.5 flex flex-wrap gap-2">
-									<Badge className="font-mono text-xs">{site.slug}</Badge>
+									<Badge className="font-mono text-xs">
+										{site.slug}
+									</Badge>
 									<Badge status="info">
 										{t("launchclub.sites.groupsCount", {
 											count: site._count?.groups ?? 0,

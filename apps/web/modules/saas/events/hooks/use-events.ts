@@ -2,7 +2,6 @@
 
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 
 export function useEvents(groupId: string) {
 	return useQuery(

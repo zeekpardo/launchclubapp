@@ -1,7 +1,11 @@
 import { ORPCError } from "@orpc/client";
-import { getPersonById, getPersonNoteById, updatePersonNote } from "@repo/database";
-import { verifyOrganizationMembership } from "../../organizations/lib/membership";
+import {
+	getPersonById,
+	getPersonNoteById,
+	updatePersonNote,
+} from "@repo/database";
 import { protectedProcedure } from "../../../orpc/procedures";
+import { verifyOrganizationMembership } from "../../organizations/lib/membership";
 import { updatePersonNoteSchema } from "../types";
 
 export const updatePersonNoteProcedure = protectedProcedure
@@ -10,7 +14,10 @@ export const updatePersonNoteProcedure = protectedProcedure
 	.handler(async ({ input, context }) => {
 		const person = await getPersonById(input.personId);
 		if (!person) throw new ORPCError("NOT_FOUND");
-		const membership = await verifyOrganizationMembership(person.organizationId, context.user.id);
+		const membership = await verifyOrganizationMembership(
+			person.organizationId,
+			context.user.id,
+		);
 		if (!membership) throw new ORPCError("FORBIDDEN");
 		const note = await getPersonNoteById(input.id);
 		if (!note) throw new ORPCError("NOT_FOUND");

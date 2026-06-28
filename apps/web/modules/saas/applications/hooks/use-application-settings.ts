@@ -1,8 +1,8 @@
 "use client";
 
+import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 
 export function useOrgApplicationSettings() {
 	const { activeOrganization } = useActiveOrganization();
@@ -19,9 +19,11 @@ export function useUpdateOrgApplicationSettings() {
 		...orpc.applications.updateOrgSettings.mutationOptions(),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: orpc.applications.getOrgSettings.queryOptions({
-					input: { organizationId: "" },
-				}).queryKey.slice(0, 1),
+				queryKey: orpc.applications.getOrgSettings
+					.queryOptions({
+						input: { organizationId: "" },
+					})
+					.queryKey.slice(0, 1),
 			});
 		},
 	});
@@ -33,9 +35,11 @@ export function useUpdateSiteApplicationSettings() {
 		...orpc.sites.update.mutationOptions(),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: orpc.sites.list.queryOptions({
-					input: { organizationId: "" },
-				}).queryKey.slice(0, 1),
+				queryKey: orpc.sites.list
+					.queryOptions({
+						input: { organizationId: "" },
+					})
+					.queryKey.slice(0, 1),
 			});
 		},
 	});

@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PURCHASE_REQUEST_CATEGORIES } from "@repo/api/modules/purchase-requests/types";
 import { Button } from "@repo/ui/components/button";
 import {
 	Dialog,
@@ -27,15 +28,14 @@ import {
 } from "@repo/ui/components/select";
 import { Textarea } from "@repo/ui/components/textarea";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { PURCHASE_REQUEST_CATEGORIES } from "@repo/api/modules/purchase-requests/types";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useEffect } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import {
+	type PurchaseRequest,
 	useCreatePurchaseRequest,
 	useUpdatePurchaseRequest,
-	type PurchaseRequest,
 } from "../hooks/use-purchase-requests";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -100,7 +100,12 @@ export function PurchaseRequestDialog({
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues: { name: "", dueDate: "", description: "", items: [defaultItem] },
+		defaultValues: {
+			name: "",
+			dueDate: "",
+			description: "",
+			items: [defaultItem],
+		},
 	});
 
 	const { fields, append, remove } = useFieldArray({
@@ -127,17 +132,26 @@ export function PurchaseRequestDialog({
 					url: i.url ?? "",
 					amount: Number(i.amount),
 					quantity: i.quantity,
-					category: i.category as (typeof PURCHASE_REQUEST_CATEGORIES)[number],
+					category:
+						i.category as (typeof PURCHASE_REQUEST_CATEGORIES)[number],
 				})),
 			});
 		} else {
-			form.reset({ name: "", dueDate: "", description: "", items: [defaultItem] });
+			form.reset({
+				name: "",
+				dueDate: "",
+				description: "",
+				items: [defaultItem],
+			});
 		}
 	}, [editRequest, form]);
 
 	const handleSubmit = form.handleSubmit(async (values) => {
 		try {
-			const items = values.items.map((i) => ({ ...i, url: i.url || undefined }));
+			const items = values.items.map((i) => ({
+				...i,
+				url: i.url || undefined,
+			}));
 			const dueDate = values.dueDate
 				? new Date(values.dueDate).toISOString()
 				: undefined;
@@ -165,7 +179,12 @@ export function PurchaseRequestDialog({
 				});
 				toastSuccess("Purchase request submitted.");
 			}
-			form.reset({ name: "", dueDate: "", description: "", items: [defaultItem] });
+			form.reset({
+				name: "",
+				dueDate: "",
+				description: "",
+				items: [defaultItem],
+			});
 			onOpenChange(false);
 		} catch {
 			toastError("Failed to submit request. Please try again.");
@@ -177,7 +196,9 @@ export function PurchaseRequestDialog({
 			<DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
 				<DialogHeader>
 					<DialogTitle>
-						{isEditing ? "Edit Purchase Request" : "New Purchase Request"}
+						{isEditing
+							? "Edit Purchase Request"
+							: "New Purchase Request"}
 					</DialogTitle>
 				</DialogHeader>
 
@@ -192,7 +213,10 @@ export function PurchaseRequestDialog({
 									<FormItem>
 										<FormLabel>Name</FormLabel>
 										<FormControl>
-											<Input {...field} placeholder="e.g. Spring field trip supplies" />
+											<Input
+												{...field}
+												placeholder="e.g. Spring field trip supplies"
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -262,7 +286,10 @@ export function PurchaseRequestDialog({
 											render={({ field: f }) => (
 												<FormItem className="space-y-0">
 													<FormControl>
-														<Input {...f} placeholder="Item name" />
+														<Input
+															{...f}
+															placeholder="Item name"
+														/>
 													</FormControl>
 													<FormMessage className="text-xs" />
 												</FormItem>
@@ -282,7 +309,13 @@ export function PurchaseRequestDialog({
 															min="1"
 															placeholder="1"
 															onChange={(e) =>
-																f.onChange(parseInt(e.target.value) || 1)
+																f.onChange(
+																	Number.parseInt(
+																		e.target
+																			.value,
+																		10,
+																	) || 1,
+																)
 															}
 														/>
 													</FormControl>
@@ -305,7 +338,12 @@ export function PurchaseRequestDialog({
 															min="0"
 															placeholder="0.00"
 															onChange={(e) =>
-																f.onChange(parseFloat(e.target.value) || 0)
+																f.onChange(
+																	Number.parseFloat(
+																		e.target
+																			.value,
+																	) || 0,
+																)
 															}
 														/>
 													</FormControl>
@@ -320,18 +358,36 @@ export function PurchaseRequestDialog({
 											name={`items.${index}.category`}
 											render={({ field: f }) => (
 												<FormItem className="space-y-0">
-													<Select onValueChange={f.onChange} value={f.value}>
+													<Select
+														onValueChange={
+															f.onChange
+														}
+														value={f.value}
+													>
 														<FormControl>
 															<SelectTrigger>
 																<SelectValue />
 															</SelectTrigger>
 														</FormControl>
 														<SelectContent>
-															{PURCHASE_REQUEST_CATEGORIES.map((cat) => (
-																<SelectItem key={cat} value={cat}>
-																	{CATEGORY_LABELS[cat]}
-																</SelectItem>
-															))}
+															{PURCHASE_REQUEST_CATEGORIES.map(
+																(cat) => (
+																	<SelectItem
+																		key={
+																			cat
+																		}
+																		value={
+																			cat
+																		}
+																	>
+																		{
+																			CATEGORY_LABELS[
+																				cat
+																			]
+																		}
+																	</SelectItem>
+																),
+															)}
 														</SelectContent>
 													</Select>
 													<FormMessage className="text-xs" />
@@ -346,7 +402,11 @@ export function PurchaseRequestDialog({
 											render={({ field: f }) => (
 												<FormItem className="space-y-0">
 													<FormControl>
-														<Input {...f} type="url" placeholder="https://..." />
+														<Input
+															{...f}
+															type="url"
+															placeholder="https://..."
+														/>
 													</FormControl>
 													<FormMessage className="text-xs" />
 												</FormItem>
@@ -381,7 +441,9 @@ export function PurchaseRequestDialog({
 								</Button>
 								<p className="text-sm font-semibold">
 									Total:{" "}
-									<span className="text-green-600">${total.toFixed(2)}</span>
+									<span className="text-green-600">
+										${total.toFixed(2)}
+									</span>
 								</p>
 							</div>
 						</div>
@@ -394,8 +456,13 @@ export function PurchaseRequestDialog({
 							>
 								Cancel
 							</Button>
-							<Button type="submit" loading={form.formState.isSubmitting}>
-								{isEditing ? "Update Request" : "Submit Request"}
+							<Button
+								type="submit"
+								loading={form.formState.isSubmitting}
+							>
+								{isEditing
+									? "Update Request"
+									: "Submit Request"}
 							</Button>
 						</DialogFooter>
 					</form>

@@ -1,6 +1,11 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/card";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@repo/ui/components/card";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 const GENDER_COLORS: Record<string, string> = {
@@ -22,7 +27,9 @@ export function GroupDemographicsCard({ data }: GroupDemographicsCardProps) {
 	return (
 		<Card>
 			<CardHeader className="pb-2">
-				<CardTitle className="text-muted-foreground text-sm font-medium">Demographics</CardTitle>
+				<CardTitle className="text-muted-foreground text-sm font-medium">
+					Demographics
+				</CardTitle>
 			</CardHeader>
 			<CardContent className="pt-0">
 				{data.length > 0 ? (
@@ -40,21 +47,35 @@ export function GroupDemographicsCard({ data }: GroupDemographicsCardProps) {
 									{data.map((entry) => (
 										<Cell
 											key={entry.name}
-											fill={GENDER_COLORS[entry.name] ?? "#94a3b8"}
+											fill={
+												GENDER_COLORS[entry.name] ??
+												"#94a3b8"
+											}
 										/>
 									))}
 								</Pie>
-								<Tooltip formatter={(value, name) => [value, name]} />
+								<Tooltip
+									formatter={(value, name) => [value, name]}
+								/>
 							</PieChart>
 						</ResponsiveContainer>
 						<div className="mt-2 flex flex-wrap justify-center gap-3">
 							{data.map((entry) => (
-								<div key={entry.name} className="flex items-center gap-1">
+								<div
+									key={entry.name}
+									className="flex items-center gap-1"
+								>
 									<div
 										className="h-2 w-2 rounded-full"
-										style={{ backgroundColor: GENDER_COLORS[entry.name] ?? "#94a3b8" }}
+										style={{
+											backgroundColor:
+												GENDER_COLORS[entry.name] ??
+												"#94a3b8",
+										}}
 									/>
-									<span className="text-xs">{entry.value} {entry.name}</span>
+									<span className="text-xs">
+										{entry.value} {entry.name}
+									</span>
 								</div>
 							))}
 						</div>

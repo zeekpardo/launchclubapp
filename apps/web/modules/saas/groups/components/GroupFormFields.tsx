@@ -31,9 +31,7 @@ interface DayPickerProps {
 /** Multi-select day-of-week pill buttons. Stores as "Monday, Wednesday". */
 export function DayPicker({ value, onChange }: DayPickerProps) {
 	const locale = useLocale();
-	const selected = value
-		? value.split(",").map((d) => d.trim())
-		: [];
+	const selected = value ? value.split(",").map((d) => d.trim()) : [];
 
 	const toggle = (day: string) => {
 		const next = selected.includes(day)
@@ -91,9 +89,7 @@ interface GradePickerProps {
 
 /** Multi-select grade picker for K–12. Stores as "4,5,6". */
 export function GradePicker({ value, onChange }: GradePickerProps) {
-	const selected = value
-		? value.split(",").map((g) => g.trim())
-		: [];
+	const selected = value ? value.split(",").map((g) => g.trim()) : [];
 
 	const toggle = (grade: string) => {
 		const next = selected.includes(grade)
@@ -125,7 +121,9 @@ export function GradePicker({ value, onChange }: GradePickerProps) {
 }
 
 /** Format a stored grade string ("4,5,6") for display ("4–6"). */
-export function formatGradeDisplay(gradeLevel: string | null | undefined): string {
+export function formatGradeDisplay(
+	gradeLevel: string | null | undefined,
+): string {
 	if (!gradeLevel) return "All Ages";
 	const grades = gradeLevel
 		.split(",")

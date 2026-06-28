@@ -57,7 +57,12 @@ interface HouseholdDialogProps {
 	onCreated?: (householdId: string) => void;
 }
 
-export function HouseholdDialog({ open, onOpenChange, household, onCreated }: HouseholdDialogProps) {
+export function HouseholdDialog({
+	open,
+	onOpenChange,
+	household,
+	onCreated,
+}: HouseholdDialogProps) {
 	const t = useTranslations();
 	const queryClient = useQueryClient();
 	const { activeOrganization } = useActiveOrganization();
@@ -114,7 +119,10 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 			};
 
 			if (household) {
-				await updateHousehold.mutateAsync({ id: household.id, ...payload });
+				await updateHousehold.mutateAsync({
+					id: household.id,
+					...payload,
+				});
 			} else {
 				if (!activeOrganization?.id) return;
 				const created = await createHousehold.mutateAsync({
@@ -147,13 +155,18 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 				</DialogHeader>
 
 				<Form {...form}>
-					<form onSubmit={onSubmit} className="grid grid-cols-1 gap-4">
+					<form
+						onSubmit={onSubmit}
+						className="grid grid-cols-1 gap-4"
+					>
 						<FormField
 							control={form.control}
 							name="name"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("launchclub.households.form.name")}</FormLabel>
+									<FormLabel>
+										{t("launchclub.households.form.name")}
+									</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -167,7 +180,11 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 							name="addressLine1"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("launchclub.households.form.address")}</FormLabel>
+									<FormLabel>
+										{t(
+											"launchclub.households.form.address",
+										)}
+									</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -182,7 +199,11 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 								name="city"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("launchclub.households.form.city")}</FormLabel>
+										<FormLabel>
+											{t(
+												"launchclub.households.form.city",
+											)}
+										</FormLabel>
 										<FormControl>
 											<Input {...field} />
 										</FormControl>
@@ -195,7 +216,11 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 								name="stateProvince"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("launchclub.households.form.state")}</FormLabel>
+										<FormLabel>
+											{t(
+												"launchclub.households.form.state",
+											)}
+										</FormLabel>
 										<FormControl>
 											<Input {...field} />
 										</FormControl>
@@ -211,7 +236,11 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 								name="postalCode"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("launchclub.households.form.zipCode")}</FormLabel>
+										<FormLabel>
+											{t(
+												"launchclub.households.form.zipCode",
+											)}
+										</FormLabel>
 										<FormControl>
 											<Input {...field} />
 										</FormControl>
@@ -239,7 +268,9 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 							name="phone"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("launchclub.households.form.phone")}</FormLabel>
+									<FormLabel>
+										{t("launchclub.households.form.phone")}
+									</FormLabel>
 									<FormControl>
 										<Input type="tel" {...field} />
 									</FormControl>
@@ -253,7 +284,9 @@ export function HouseholdDialog({ open, onOpenChange, household, onCreated }: Ho
 							name="email"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("launchclub.households.form.email")}</FormLabel>
+									<FormLabel>
+										{t("launchclub.households.form.email")}
+									</FormLabel>
 									<FormControl>
 										<Input type="email" {...field} />
 									</FormControl>

@@ -1,8 +1,8 @@
-import { listPersonNotesProcedure } from "./procedures/list";
 import { createPersonNoteProcedure } from "./procedures/create";
-import { updatePersonNoteProcedure } from "./procedures/update";
 import { deletePersonNoteProcedure } from "./procedures/delete";
+import { listPersonNotesProcedure } from "./procedures/list";
 import { listMentionableUsersProcedure } from "./procedures/list-mentionable-users";
+import { updatePersonNoteProcedure } from "./procedures/update";
 
 export const personNotesRouter = {
 	list: listPersonNotesProcedure,

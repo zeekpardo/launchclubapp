@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/card";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@repo/ui/components/card";
 import { OrgApplicationSettings } from "@saas/applications/components/OrgApplicationSettings";
 import { getTranslations } from "next-intl/server";
 
@@ -13,7 +18,9 @@ export default async function SettingsApplicationsPage() {
 		<div className="space-y-6">
 			<Card>
 				<CardHeader>
-					<CardTitle>{t("launchclub.applications.settings.title")}</CardTitle>
+					<CardTitle>
+						{t("launchclub.applications.settings.title")}
+					</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<OrgApplicationSettings />

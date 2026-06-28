@@ -1,7 +1,13 @@
 "use client";
 
+import type { CustomFieldType } from "@repo/api/modules/custom-fields/types";
 import { Button } from "@repo/ui/components/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/card";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@repo/ui/components/card";
 import { Checkbox } from "@repo/ui/components/checkbox";
 import {
 	FormControl,
@@ -20,13 +26,23 @@ import {
 } from "@repo/ui/components/select";
 import { Textarea } from "@repo/ui/components/textarea";
 import { CustomFieldInput } from "@saas/custom-fields/components/CustomFieldInput";
-import type { CustomFieldType } from "@repo/api/modules/custom-fields/types";
 import { orpcClient } from "@shared/lib/orpc-client";
-import { DownloadIcon, ImageIcon, PaperclipIcon, TrashIcon, XIcon } from "lucide-react";
+import {
+	DownloadIcon,
+	ImageIcon,
+	PaperclipIcon,
+	TrashIcon,
+	XIcon,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
-import { useWatch, type Control, type UseFormSetValue } from "react-hook-form";
-import type { ApplicationFormValues, BasicFormField, ConsentConfig, ProfileField } from "./ApplicationForm";
+import { type Control, type UseFormSetValue, useWatch } from "react-hook-form";
+import type {
+	ApplicationFormValues,
+	BasicFormField,
+	ConsentConfig,
+	ProfileField,
+} from "./ApplicationForm";
 
 interface ChildCardProps {
 	index: number;
@@ -41,7 +57,12 @@ interface ChildCardProps {
 	consentConfig?: ConsentConfig;
 }
 
-const FILE_FIELD_ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "application/pdf"] as const;
+const FILE_FIELD_ALLOWED_TYPES = [
+	"image/jpeg",
+	"image/jpg",
+	"image/png",
+	"application/pdf",
+] as const;
 const FILE_FIELD_MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
 interface FileFieldUploadProps {
@@ -52,7 +73,13 @@ interface FileFieldUploadProps {
 	uploadUrlProcedure?: "formField" | "consentSignature";
 }
 
-function FileFieldUpload({ fieldId, siteSlug, value, onChange, uploadUrlProcedure = "formField" }: FileFieldUploadProps) {
+function FileFieldUpload({
+	fieldId,
+	siteSlug,
+	value,
+	onChange,
+	uploadUrlProcedure = "formField",
+}: FileFieldUploadProps) {
 	const t = useTranslations("application.children");
 	const [uploading, setUploading] = useState(false);
 	const [fileName, setFileName] = useState<string | null>(null);
@@ -62,7 +89,9 @@ function FileFieldUpload({ fieldId, siteSlug, value, onChange, uploadUrlProcedur
 	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
-		if (!(FILE_FIELD_ALLOWED_TYPES as readonly string[]).includes(file.type)) {
+		if (
+			!(FILE_FIELD_ALLOWED_TYPES as readonly string[]).includes(file.type)
+		) {
 			setError(t("photo.error"));
 			return;
 		}
@@ -73,10 +102,18 @@ function FileFieldUpload({ fieldId, siteSlug, value, onChange, uploadUrlProcedur
 		setUploading(true);
 		setError(null);
 		try {
-			const contentType = file.type as (typeof FILE_FIELD_ALLOWED_TYPES)[number];
-			const { signedUploadUrl, path } = uploadUrlProcedure === "consentSignature"
-				? await orpcClient.applications.consentSignatureUploadUrl({ contentType, siteSlug })
-				: await orpcClient.applications.formFieldFileUploadUrl({ contentType, siteSlug });
+			const contentType =
+				file.type as (typeof FILE_FIELD_ALLOWED_TYPES)[number];
+			const { signedUploadUrl, path } =
+				uploadUrlProcedure === "consentSignature"
+					? await orpcClient.applications.consentSignatureUploadUrl({
+							contentType,
+							siteSlug,
+						})
+					: await orpcClient.applications.formFieldFileUploadUrl({
+							contentType,
+							siteSlug,
+						});
 			const res = await fetch(signedUploadUrl, {
 				method: "PUT",
 				body: file,
@@ -117,7 +154,11 @@ function FileFieldUpload({ fieldId, siteSlug, value, onChange, uploadUrlProcedur
 					onClick={() => ref.current?.click()}
 				>
 					<PaperclipIcon className="size-4 mr-1.5" />
-					{uploading ? t("photo.uploading") : value ? t("photo.change") : t("fileField.upload")}
+					{uploading
+						? t("photo.uploading")
+						: value
+							? t("photo.change")
+							: t("fileField.upload")}
 				</Button>
 				{value && (
 					<Button
@@ -135,14 +176,31 @@ function FileFieldUpload({ fieldId, siteSlug, value, onChange, uploadUrlProcedur
 				<p className="text-xs text-muted-foreground">{fileName}</p>
 			)}
 			{error && <p className="text-xs text-destructive">{error}</p>}
-			<p className="text-xs text-muted-foreground">{t("fileField.hint")}</p>
+			<p className="text-xs text-muted-foreground">
+				{t("fileField.hint")}
+			</p>
 		</div>
 	);
 }
 
-const DEFAULT_CONSENT_CONFIG: ConsentConfig = { showObservation: true, showTerms: true, showPhotoVideo: true };
+const DEFAULT_CONSENT_CONFIG: ConsentConfig = {
+	showObservation: true,
+	showTerms: true,
+	showPhotoVideo: true,
+};
 
-export function ChildCard({ index, canRemove, onRemove, control, setValue, profileFields = [], formFields = [] as BasicFormField[], siteSlug, enableConsentFileUpload = false, consentConfig = DEFAULT_CONSENT_CONFIG }: ChildCardProps) {
+export function ChildCard({
+	index,
+	canRemove,
+	onRemove,
+	control,
+	setValue,
+	profileFields = [],
+	formFields = [] as BasicFormField[],
+	siteSlug,
+	enableConsentFileUpload = false,
+	consentConfig = DEFAULT_CONSENT_CONFIG,
+}: ChildCardProps) {
 	const t = useTranslations("application.children");
 	const locale = useLocale();
 	const [obsChecked, termsChecked, photoChecked] = useWatch({
@@ -178,7 +236,11 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 		setUploadError(null);
 		try {
 			const contentType = file.type as (typeof ALLOWED_TYPES)[number];
-			const { signedUploadUrl, path } = await orpcClient.applications.childPhotoUploadUrl({ contentType, siteSlug });
+			const { signedUploadUrl, path } =
+				await orpcClient.applications.childPhotoUploadUrl({
+					contentType,
+					siteSlug,
+				});
 
 			const response = await fetch(signedUploadUrl, {
 				method: "PUT",
@@ -207,7 +269,9 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 		<Card>
 			<CardHeader>
 				<div className="flex items-center justify-between">
-					<CardTitle>{t("childNumber", { number: index + 1 })}</CardTitle>
+					<CardTitle>
+						{t("childNumber", { number: index + 1 })}
+					</CardTitle>
 					{canRemove && (
 						<Button
 							type="button"
@@ -227,7 +291,11 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 					<div className="flex items-center gap-4">
 						<div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-muted-foreground/30 bg-muted">
 							{preview ? (
-								<img src={preview} alt="Child" className="h-full w-full object-cover" />
+								<img
+									src={preview}
+									alt="Child"
+									className="h-full w-full object-cover"
+								/>
 							) : (
 								<ImageIcon className="size-8 text-muted-foreground/40" />
 							)}
@@ -246,9 +314,15 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 									variant="outline"
 									size="sm"
 									disabled={uploading}
-									onClick={() => fileInputRef.current?.click()}
+									onClick={() =>
+										fileInputRef.current?.click()
+									}
 								>
-									{uploading ? t("photo.uploading") : preview ? t("photo.change") : t("photo.upload")}
+									{uploading
+										? t("photo.uploading")
+										: preview
+											? t("photo.change")
+											: t("photo.upload")}
 								</Button>
 								{preview && (
 									<Button
@@ -263,7 +337,9 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 								)}
 							</div>
 							{uploadError && (
-								<p className="text-xs text-destructive">{uploadError}</p>
+								<p className="text-xs text-destructive">
+									{uploadError}
+								</p>
 							)}
 							<p className="text-xs text-muted-foreground">
 								{t("photo.hint")}
@@ -315,7 +391,9 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 										type="date"
 										value={field.value ?? ""}
 										onChange={(e) =>
-											field.onChange(e.target.value || undefined)
+											field.onChange(
+												e.target.value || undefined,
+											)
 										}
 									/>
 								</FormControl>
@@ -330,7 +408,10 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 							<FormItem>
 								<FormLabel>{t("grade")}</FormLabel>
 								<FormControl>
-									<Input placeholder={t("gradePlaceholder")} {...field} />
+									<Input
+										placeholder={t("gradePlaceholder")}
+										{...field}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -358,89 +439,123 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 				/>
 
 				{/* Consents */}
-				{(consentConfig.showObservation || consentConfig.showTerms || consentConfig.showPhotoVideo) && <div className="space-y-3 border-t pt-4">
-					<h4 className="font-semibold">{t("consents.title")}</h4>
-					{(
-						[
-							{
-								name: `children.${index}.observationConsent` as const,
-								label: t("consents.observation"),
-								fileFieldName: `children.${index}.observationConsentFileUrl` as const,
-								checked: obsChecked,
-								show: consentConfig.showObservation,
-								formUrl: consentConfig.observationFormUrl ?? null,
-							},
-							{
-								name: `children.${index}.termsConsent` as const,
-								label: t("consents.terms"),
-								fileFieldName: `children.${index}.termsConsentFileUrl` as const,
-								checked: termsChecked,
-								show: consentConfig.showTerms,
-								formUrl: consentConfig.termsFormUrl ?? null,
-							},
-							{
-								name: `children.${index}.photoVideoConsent` as const,
-								label: t("consents.photoVideo"),
-								fileFieldName: `children.${index}.photoVideoConsentFileUrl` as const,
-								checked: photoChecked,
-								show: consentConfig.showPhotoVideo,
-								formUrl: consentConfig.photoVideoFormUrl ?? null,
-							},
-						] as const
-					).filter(({ show }) => show).map(({ name, label, fileFieldName, checked, formUrl }) => (
-						<div key={name} className="space-y-2">
-							<FormField
-								control={control}
-								name={name}
-								render={({ field }) => (
-									<FormItem className="flex items-start gap-3 space-y-0">
-										<FormControl>
-											<Checkbox
-												checked={field.value as boolean}
-												onCheckedChange={field.onChange}
-											/>
-										</FormControl>
-										<div className="space-y-1">
-											<FormLabel className="font-normal">{label}</FormLabel>
-											{formUrl && (
-												<a
-													href={formUrl}
-													target="_blank"
-													rel="noopener noreferrer"
-													className="flex items-center gap-1 text-xs text-primary hover:underline w-fit"
-												>
-													<DownloadIcon className="size-3" />
-													Download form to sign
-												</a>
+				{(consentConfig.showObservation ||
+					consentConfig.showTerms ||
+					consentConfig.showPhotoVideo) && (
+					<div className="space-y-3 border-t pt-4">
+						<h4 className="font-semibold">{t("consents.title")}</h4>
+						{(
+							[
+								{
+									name: `children.${index}.observationConsent` as const,
+									label: t("consents.observation"),
+									fileFieldName:
+										`children.${index}.observationConsentFileUrl` as const,
+									checked: obsChecked,
+									show: consentConfig.showObservation,
+									formUrl:
+										consentConfig.observationFormUrl ??
+										null,
+								},
+								{
+									name: `children.${index}.termsConsent` as const,
+									label: t("consents.terms"),
+									fileFieldName:
+										`children.${index}.termsConsentFileUrl` as const,
+									checked: termsChecked,
+									show: consentConfig.showTerms,
+									formUrl: consentConfig.termsFormUrl ?? null,
+								},
+								{
+									name: `children.${index}.photoVideoConsent` as const,
+									label: t("consents.photoVideo"),
+									fileFieldName:
+										`children.${index}.photoVideoConsentFileUrl` as const,
+									checked: photoChecked,
+									show: consentConfig.showPhotoVideo,
+									formUrl:
+										consentConfig.photoVideoFormUrl ?? null,
+								},
+							] as const
+						)
+							.filter(({ show }) => show)
+							.map(
+								({
+									name,
+									label,
+									fileFieldName,
+									checked,
+									formUrl,
+								}) => (
+									<div key={name} className="space-y-2">
+										<FormField
+											control={control}
+											name={name}
+											render={({ field }) => (
+												<FormItem className="flex items-start gap-3 space-y-0">
+													<FormControl>
+														<Checkbox
+															checked={
+																field.value as boolean
+															}
+															onCheckedChange={
+																field.onChange
+															}
+														/>
+													</FormControl>
+													<div className="space-y-1">
+														<FormLabel className="font-normal">
+															{label}
+														</FormLabel>
+														{formUrl && (
+															<a
+																href={formUrl}
+																target="_blank"
+																rel="noopener noreferrer"
+																className="flex items-center gap-1 text-xs text-primary hover:underline w-fit"
+															>
+																<DownloadIcon className="size-3" />
+																Download form to
+																sign
+															</a>
+														)}
+														<FormMessage />
+													</div>
+												</FormItem>
 											)}
-											<FormMessage />
-										</div>
-									</FormItem>
-								)}
-							/>
-							{enableConsentFileUpload && checked && (
-								<FormField
-									control={control}
-									name={fileFieldName}
-									render={({ field }) => (
-										<FormItem className="pl-7">
-											<FormControl>
-												<FileFieldUpload
-													fieldId={`${fileFieldName}-${index}`}
-													siteSlug={siteSlug}
-													value={field.value ?? ""}
-													onChange={field.onChange}
-													uploadUrlProcedure="consentSignature"
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+										/>
+										{enableConsentFileUpload && checked && (
+											<FormField
+												control={control}
+												name={fileFieldName}
+												render={({ field }) => (
+													<FormItem className="pl-7">
+														<FormControl>
+															<FileFieldUpload
+																fieldId={`${fileFieldName}-${index}`}
+																siteSlug={
+																	siteSlug
+																}
+																value={
+																	field.value ??
+																	""
+																}
+																onChange={
+																	field.onChange
+																}
+																uploadUrlProcedure="consentSignature"
+															/>
+														</FormControl>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+										)}
+									</div>
+								),
 							)}
-						</div>
-					))}
-				</div>}
+					</div>
+				)}
 
 				{/* Per-child basic form fields */}
 				{formFields.length > 0 && (
@@ -449,9 +564,13 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 						{formFields.map((ff) =>
 							ff.type === "HEADER" ? (
 								<div key={ff.id} className="pt-2">
-									<h4 className="font-semibold text-base">{ff.label}</h4>
+									<h4 className="font-semibold text-base">
+										{ff.label}
+									</h4>
 									{ff.helpText && (
-										<p className="text-sm text-muted-foreground mt-0.5">{ff.helpText}</p>
+										<p className="text-sm text-muted-foreground mt-0.5">
+											{ff.helpText}
+										</p>
 									)}
 								</div>
 							) : (
@@ -466,7 +585,9 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 												{ff.required && " *"}
 											</FormLabel>
 											{ff.helpText && (
-												<p className="text-xs text-muted-foreground">{ff.helpText}</p>
+												<p className="text-xs text-muted-foreground">
+													{ff.helpText}
+												</p>
 											)}
 											{ff.type === "FILE" ? (
 												<FileFieldUpload
@@ -480,52 +601,115 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 													{ff.type === "TEXTAREA" ? (
 														<Textarea
 															rows={3}
-															placeholder={ff.placeholder ?? undefined}
+															placeholder={
+																ff.placeholder ??
+																undefined
+															}
 															{...field}
-															value={field.value ?? ""}
+															value={
+																field.value ??
+																""
+															}
 														/>
-													) : ff.type === "SELECT" && Array.isArray(ff.options) && ff.options.length > 0 ? (
+													) : ff.type === "SELECT" &&
+														Array.isArray(
+															ff.options,
+														) &&
+														ff.options.length >
+															0 ? (
 														<Select
-															value={field.value ?? ""}
-															onValueChange={field.onChange}
+															value={
+																field.value ??
+																""
+															}
+															onValueChange={
+																field.onChange
+															}
 														>
 															<SelectTrigger>
-																<SelectValue placeholder={ff.placeholder ?? "Select an option"} />
+																<SelectValue
+																	placeholder={
+																		ff.placeholder ??
+																		"Select an option"
+																	}
+																/>
 															</SelectTrigger>
 															<SelectContent>
-																{ff.options.map((opt: { label: string; value: string }) => (
-																	<SelectItem key={opt.value} value={opt.value}>
-																		{opt.label}
-																	</SelectItem>
-																))}
+																{ff.options.map(
+																	(opt: {
+																		label: string;
+																		value: string;
+																	}) => (
+																		<SelectItem
+																			key={
+																				opt.value
+																			}
+																			value={
+																				opt.value
+																			}
+																		>
+																			{
+																				opt.label
+																			}
+																		</SelectItem>
+																	),
+																)}
 															</SelectContent>
 														</Select>
-													) : ff.type === "CHECKBOX" ? (
+													) : ff.type ===
+														"CHECKBOX" ? (
 														<Checkbox
-															checked={field.value === "true"}
-															onCheckedChange={(v) =>
-																field.onChange(v ? "true" : "false")
+															checked={
+																field.value ===
+																"true"
+															}
+															onCheckedChange={(
+																v,
+															) =>
+																field.onChange(
+																	v
+																		? "true"
+																		: "false",
+																)
 															}
 														/>
 													) : ff.type === "DATE" ? (
 														<Input
 															type="date"
-															placeholder={ff.placeholder ?? undefined}
+															placeholder={
+																ff.placeholder ??
+																undefined
+															}
 															{...field}
-															value={field.value ?? ""}
+															value={
+																field.value ??
+																""
+															}
 														/>
 													) : ff.type === "NUMBER" ? (
 														<Input
 															type="number"
-															placeholder={ff.placeholder ?? undefined}
+															placeholder={
+																ff.placeholder ??
+																undefined
+															}
 															{...field}
-															value={field.value ?? ""}
+															value={
+																field.value ??
+																""
+															}
 														/>
 													) : (
 														<Input
-															placeholder={ff.placeholder ?? undefined}
+															placeholder={
+																ff.placeholder ??
+																undefined
+															}
 															{...field}
-															value={field.value ?? ""}
+															value={
+																field.value ??
+																""
+															}
 														/>
 													)}
 												</FormControl>
@@ -534,7 +718,7 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 										</FormItem>
 									)}
 								/>
-							)
+							),
 						)}
 					</div>
 				)}
@@ -551,7 +735,8 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>
-											{(locale === "es" && pf.nameEs) || pf.name}
+											{(locale === "es" && pf.nameEs) ||
+												pf.name}
 											{pf.required && " *"}
 										</FormLabel>
 										<FormControl>
@@ -560,14 +745,22 @@ export function ChildCard({ index, canRemove, onRemove, control, setValue, profi
 													fieldId={pf.id}
 													siteSlug={siteSlug}
 													value={field.value ?? ""}
-													onChange={(val) => field.onChange(val)}
+													onChange={(val) =>
+														field.onChange(val)
+													}
 												/>
 											) : (
 												<CustomFieldInput
-													type={pf.type as CustomFieldType}
+													type={
+														pf.type as CustomFieldType
+													}
 													value={field.value ?? null}
 													options={pf.options}
-													onChange={(val) => field.onChange(val ?? "")}
+													onChange={(val) =>
+														field.onChange(
+															val ?? "",
+														)
+													}
 												/>
 											)}
 										</FormControl>

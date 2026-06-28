@@ -21,7 +21,9 @@ import { useDebounceValue } from "usehooks-ts";
 
 const ITEMS_PER_PAGE = 10;
 
-function statusBadgeStatus(status: string): "success" | "error" | "warning" | "info" {
+function statusBadgeStatus(
+	status: string,
+): "success" | "error" | "warning" | "info" {
 	if (status === "APPROVED") return "success";
 	if (status === "REJECTED") return "error";
 	if (status === "PENDING") return "warning";
@@ -81,14 +83,19 @@ export function AllApplicationsList() {
 							<TableHead>Applicant</TableHead>
 							<TableHead>Org / Site</TableHead>
 							<TableHead>Status</TableHead>
-							<TableHead className="text-center">Children</TableHead>
+							<TableHead className="text-center">
+								Children
+							</TableHead>
 							<TableHead>Submitted</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{isLoading ? (
 							<TableRow>
-								<TableCell colSpan={5} className="h-24 text-center">
+								<TableCell
+									colSpan={5}
+									className="h-24 text-center"
+								>
 									<div className="flex h-full items-center justify-center">
 										<Spinner className="mr-2 size-4 text-primary" />
 										Loading…
@@ -101,7 +108,8 @@ export function AllApplicationsList() {
 									<TableCell>
 										<div className="leading-tight">
 											<span className="font-medium">
-												{app.parentFirstName} {app.parentLastName}
+												{app.parentFirstName}{" "}
+												{app.parentLastName}
 											</span>
 											{app.parentEmail && (
 												<span className="block text-foreground/60 text-sm">
@@ -113,7 +121,8 @@ export function AllApplicationsList() {
 									<TableCell>
 										<div className="leading-tight">
 											<span className="block font-medium text-sm">
-												{app.site?.area?.organization?.name ?? "—"}
+												{app.site?.area?.organization
+													?.name ?? "—"}
 											</span>
 											<span className="block text-foreground/60 text-xs">
 												{app.site?.name ?? "—"}
@@ -121,7 +130,11 @@ export function AllApplicationsList() {
 										</div>
 									</TableCell>
 									<TableCell>
-										<Badge status={statusBadgeStatus(app.status)}>
+										<Badge
+											status={statusBadgeStatus(
+												app.status,
+											)}
+										>
 											{app.status}
 										</Badge>
 									</TableCell>
@@ -129,13 +142,18 @@ export function AllApplicationsList() {
 										{app.children?.length ?? 0}
 									</TableCell>
 									<TableCell className="text-sm">
-										{new Date(app.createdAt).toLocaleDateString()}
+										{new Date(
+											app.createdAt,
+										).toLocaleDateString()}
 									</TableCell>
 								</TableRow>
 							))
 						) : (
 							<TableRow>
-								<TableCell colSpan={5} className="h-24 text-center">
+								<TableCell
+									colSpan={5}
+									className="h-24 text-center"
+								>
 									No applications found.
 								</TableCell>
 							</TableRow>

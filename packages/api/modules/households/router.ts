@@ -5,9 +5,9 @@ import { listHouseholds } from "./procedures/list";
 import { updateHouseholdProcedure } from "./procedures/update";
 
 export const householdsRouter = {
-  list: listHouseholds,
-  get: getHousehold,
-  create: createHouseholdProcedure,
-  update: updateHouseholdProcedure,
-  delete: deleteHouseholdProcedure,
+	list: listHouseholds,
+	get: getHousehold,
+	create: createHouseholdProcedure,
+	update: updateHouseholdProcedure,
+	delete: deleteHouseholdProcedure,
 };

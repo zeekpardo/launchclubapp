@@ -1,9 +1,13 @@
 import { ORPCError } from "@orpc/client";
-import { createPersonNote, createNotification, getPersonById } from "@repo/database";
-import { verifyOrganizationMembership } from "../../organizations/lib/membership";
+import {
+	createNotification,
+	createPersonNote,
+	getPersonById,
+} from "@repo/database";
 import { protectedProcedure } from "../../../orpc/procedures";
-import { createPersonNoteSchema } from "../types";
 import { NOTIFICATION_TYPES } from "../../notifications/lib/notification-types";
+import { verifyOrganizationMembership } from "../../organizations/lib/membership";
+import { createPersonNoteSchema } from "../types";
 
 export const createPersonNoteProcedure = protectedProcedure
 	.route({ method: "POST", path: "/person-notes", tags: ["Person Notes"] })
@@ -11,7 +15,10 @@ export const createPersonNoteProcedure = protectedProcedure
 	.handler(async ({ input, context }) => {
 		const person = await getPersonById(input.personId);
 		if (!person) throw new ORPCError("NOT_FOUND");
-		const membership = await verifyOrganizationMembership(person.organizationId, context.user.id);
+		const membership = await verifyOrganizationMembership(
+			person.organizationId,
+			context.user.id,
+		);
 		if (!membership) throw new ORPCError("FORBIDDEN");
 		const note = await createPersonNote({
 			personId: input.personId,

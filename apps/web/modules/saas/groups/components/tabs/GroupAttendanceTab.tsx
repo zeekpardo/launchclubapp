@@ -1,9 +1,7 @@
 "use client";
 
-import {
-	Avatar,
-	AvatarFallback,
-} from "@repo/ui/components/avatar";
+import { cn } from "@repo/ui";
+import { Avatar, AvatarFallback } from "@repo/ui/components/avatar";
 import { Button } from "@repo/ui/components/button";
 import { Checkbox } from "@repo/ui/components/checkbox";
 import {
@@ -13,21 +11,22 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@repo/ui/components/select";
-import { cn } from "@repo/ui";
-import { type GroupDetail } from "@saas/groups/hooks/use-groups";
+import type { GroupDetail } from "@saas/groups/hooks/use-groups";
+import { AttendanceDialog } from "@shared/components/AttendanceDialog";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
 import { PrinterIcon } from "lucide-react";
-import { useState } from "react";
-import { AttendanceDialog } from "@shared/components/AttendanceDialog";
+import { useMemo, useState } from "react";
 
 interface GroupAttendanceTabProps {
 	groupId: string;
 	group: GroupDetail;
 }
 
-export function GroupAttendanceTab({ groupId, group }: GroupAttendanceTabProps) {
+export function GroupAttendanceTab({
+	groupId,
+	group,
+}: GroupAttendanceTabProps) {
 	const [attendanceDateRange, setAttendanceDateRange] = useState("30");
 	const [customStart, setCustomStart] = useState("");
 	const [customEnd, setCustomEnd] = useState("");
@@ -39,9 +38,15 @@ export function GroupAttendanceTab({ groupId, group }: GroupAttendanceTabProps) 
 	const isCustom = attendanceDateRange === "custom";
 
 	const attendanceSince = useMemo(() => {
-		if (isCustom) return customStart ? new Date(customStart).toISOString() : undefined;
+		if (isCustom)
+			return customStart
+				? new Date(customStart).toISOString()
+				: undefined;
 		if (attendanceDateRange === "all") return undefined;
-		return new Date(Date.now() - Number.parseInt(attendanceDateRange) * 24 * 60 * 60 * 1000).toISOString();
+		return new Date(
+			Date.now() -
+				Number.parseInt(attendanceDateRange, 10) * 24 * 60 * 60 * 1000,
+		).toISOString();
 	}, [attendanceDateRange, isCustom, customStart]);
 
 	const attendanceUntil = useMemo(() => {
@@ -70,7 +75,10 @@ export function GroupAttendanceTab({ groupId, group }: GroupAttendanceTabProps) 
 	const sinceDate = useMemo(() => {
 		if (isCustom) return customStart ? new Date(customStart) : null;
 		if (attendanceDateRange === "all") return null;
-		return new Date(Date.now() - Number.parseInt(attendanceDateRange) * 24 * 60 * 60 * 1000);
+		return new Date(
+			Date.now() -
+				Number.parseInt(attendanceDateRange, 10) * 24 * 60 * 60 * 1000,
+		);
 	}, [attendanceDateRange, isCustom, customStart]);
 
 	const untilDate = useMemo(() => {
@@ -94,14 +102,25 @@ export function GroupAttendanceTab({ groupId, group }: GroupAttendanceTabProps) 
 	);
 	const attendanceMap = new Map<string, string>();
 	for (const record of attendanceRecords ?? []) {
-		attendanceMap.set(`${record.eventId}:${record.personId}`, record.status);
+		attendanceMap.set(
+			`${record.eventId}:${record.personId}`,
+			record.status,
+		);
 	}
 
-	const currentMemberIds = new Set(group.personGroups.map(({ person }) => person.id));
+	const currentMemberIds = new Set(
+		group.personGroups.map(({ person }) => person.id),
+	);
 	const removedPersons = useMemo(() => {
-		const seen = new Map<string, { person: { id: string; firstName: string; lastName: string } }>();
+		const seen = new Map<
+			string,
+			{ person: { id: string; firstName: string; lastName: string } }
+		>();
 		for (const record of attendanceRecords ?? []) {
-			if (!currentMemberIds.has(record.person.id) && !seen.has(record.person.id)) {
+			if (
+				!currentMemberIds.has(record.person.id) &&
+				!seen.has(record.person.id)
+			) {
 				seen.set(record.person.id, { person: record.person });
 			}
 		}
@@ -146,7 +165,9 @@ export function GroupAttendanceTab({ groupId, group }: GroupAttendanceTabProps) 
 								className="rounded-md border px-3 py-1.5 text-sm"
 								aria-label="Start date"
 							/>
-							<span className="text-sm text-muted-foreground">to</span>
+							<span className="text-sm text-muted-foreground">
+								to
+							</span>
 							<input
 								type="date"
 								value={customEnd}
@@ -201,15 +222,20 @@ export function GroupAttendanceTab({ groupId, group }: GroupAttendanceTabProps) 
 						</thead>
 						<tbody className="[&_tr:last-child]:border-0">
 							{group.personGroups.map(({ person, joinedAt }) => {
-								const initials = `${person.firstName.charAt(0)}${person.lastName.charAt(0)}`.toUpperCase();
+								const initials =
+									`${person.firstName.charAt(0)}${person.lastName.charAt(0)}`.toUpperCase();
 								const presentCount = pastEvents.filter(
 									(e) =>
-										attendanceMap.get(`${e.id}:${person.id}`) === "PRESENT",
+										attendanceMap.get(
+											`${e.id}:${person.id}`,
+										) === "PRESENT",
 								).length;
 								const pct =
 									pastEvents.length > 0
 										? Math.round(
-												(presentCount / pastEvents.length) * 100,
+												(presentCount /
+													pastEvents.length) *
+													100,
 											)
 										: 0;
 								return (
@@ -226,21 +252,29 @@ export function GroupAttendanceTab({ groupId, group }: GroupAttendanceTabProps) 
 												</Avatar>
 												<div>
 													<div className="font-medium">
-														{person.firstName} {person.lastName}
+														{person.firstName}{" "}
+														{person.lastName}
 													</div>
 													<div className="text-xs text-muted-foreground">
 														Joined{" "}
-														{new Date(joinedAt).toLocaleDateString("en-US", {
-															month: "short",
-															day: "numeric",
-															year: "numeric",
-														})}
+														{new Date(
+															joinedAt,
+														).toLocaleDateString(
+															"en-US",
+															{
+																month: "short",
+																day: "numeric",
+																year: "numeric",
+															},
+														)}
 													</div>
 												</div>
 											</div>
 										</td>
 										<td className="p-4 align-middle text-center">
-											<span className="font-semibold">{pct}%</span>
+											<span className="font-semibold">
+												{pct}%
+											</span>
 										</td>
 										{filteredEvents.map((event) => {
 											const status = attendanceMap.get(
@@ -255,10 +289,18 @@ export function GroupAttendanceTab({ groupId, group }: GroupAttendanceTabProps) 
 														<span
 															className={cn(
 																"text-xs font-medium",
-																status === "PRESENT" && "text-green-600",
-																status === "ABSENT" && "text-red-500",
-																status === "LATE" && "text-yellow-600",
-																status === "EXCUSED" && "text-blue-500",
+																status ===
+																	"PRESENT" &&
+																	"text-green-600",
+																status ===
+																	"ABSENT" &&
+																	"text-red-500",
+																status ===
+																	"LATE" &&
+																	"text-yellow-600",
+																status ===
+																	"EXCUSED" &&
+																	"text-blue-500",
 															)}
 														>
 															{status.charAt(0)}
@@ -274,62 +316,95 @@ export function GroupAttendanceTab({ groupId, group }: GroupAttendanceTabProps) 
 									</tr>
 								);
 							})}
-							{showRemovedMembers && removedPersons.map(({ person }) => {
-								const initials = `${person.firstName.charAt(0)}${person.lastName.charAt(0)}`.toUpperCase();
-								const presentCount = pastEvents.filter(
-									(e) => attendanceMap.get(`${e.id}:${person.id}`) === "PRESENT",
-								).length;
-								const pct = pastEvents.length > 0
-									? Math.round((presentCount / pastEvents.length) * 100)
-									: 0;
-								return (
-									<tr
-										key={person.id}
-										className="border-b opacity-60 transition-colors hover:bg-muted/50"
-									>
-										<td className="sticky left-0 z-10 bg-background p-4 align-middle">
-											<div className="flex items-center gap-3">
-												<Avatar className="h-10 w-10">
-													<AvatarFallback className="text-xs">
-														{initials}
-													</AvatarFallback>
-												</Avatar>
-												<div>
-													<div className="font-medium">
-														{person.firstName} {person.lastName}
-													</div>
-													<div className="text-xs text-muted-foreground">
-														Removed
+							{showRemovedMembers &&
+								removedPersons.map(({ person }) => {
+									const initials =
+										`${person.firstName.charAt(0)}${person.lastName.charAt(0)}`.toUpperCase();
+									const presentCount = pastEvents.filter(
+										(e) =>
+											attendanceMap.get(
+												`${e.id}:${person.id}`,
+											) === "PRESENT",
+									).length;
+									const pct =
+										pastEvents.length > 0
+											? Math.round(
+													(presentCount /
+														pastEvents.length) *
+														100,
+												)
+											: 0;
+									return (
+										<tr
+											key={person.id}
+											className="border-b opacity-60 transition-colors hover:bg-muted/50"
+										>
+											<td className="sticky left-0 z-10 bg-background p-4 align-middle">
+												<div className="flex items-center gap-3">
+													<Avatar className="h-10 w-10">
+														<AvatarFallback className="text-xs">
+															{initials}
+														</AvatarFallback>
+													</Avatar>
+													<div>
+														<div className="font-medium">
+															{person.firstName}{" "}
+															{person.lastName}
+														</div>
+														<div className="text-xs text-muted-foreground">
+															Removed
+														</div>
 													</div>
 												</div>
-											</div>
-										</td>
-										<td className="p-4 align-middle text-center">
-											<span className="font-semibold">{pct}%</span>
-										</td>
-										{filteredEvents.map((event) => {
-											const status = attendanceMap.get(`${event.id}:${person.id}`);
-											return (
-												<td key={event.id} className="p-4 align-middle text-center">
-													{status ? (
-														<span className={cn(
-															"text-xs font-medium",
-															status === "PRESENT" && "text-green-600",
-															status === "ABSENT" && "text-red-500",
-															status === "LATE" && "text-yellow-600",
-															status === "EXCUSED" && "text-blue-500",
-														)}>
-															{status.charAt(0)}
-														</span>
-													) : (
-														<span className="text-xs text-muted-foreground">-</span>
-													)}
-												</td>
-											);
-										})}
-									</tr>
-								);
-							})}
+											</td>
+											<td className="p-4 align-middle text-center">
+												<span className="font-semibold">
+													{pct}%
+												</span>
+											</td>
+											{filteredEvents.map((event) => {
+												const status =
+													attendanceMap.get(
+														`${event.id}:${person.id}`,
+													);
+												return (
+													<td
+														key={event.id}
+														className="p-4 align-middle text-center"
+													>
+														{status ? (
+															<span
+																className={cn(
+																	"text-xs font-medium",
+																	status ===
+																		"PRESENT" &&
+																		"text-green-600",
+																	status ===
+																		"ABSENT" &&
+																		"text-red-500",
+																	status ===
+																		"LATE" &&
+																		"text-yellow-600",
+																	status ===
+																		"EXCUSED" &&
+																		"text-blue-500",
+																)}
+															>
+																{status.charAt(
+																	0,
+																)}
+															</span>
+														) : (
+															<span className="text-xs text-muted-foreground">
+																-
+															</span>
+														)}
+													</td>
+												);
+											})}
+										</tr>
+									);
+								})}
 							{group.personGroups.length === 0 && (
 								<tr>
 									<td
@@ -346,12 +421,17 @@ export function GroupAttendanceTab({ groupId, group }: GroupAttendanceTabProps) 
 								</td>
 								<td className="p-4 align-middle" />
 								{filteredEvents.map((event) => (
-									<td key={event.id} className="p-4 align-middle text-center">
+									<td
+										key={event.id}
+										className="p-4 align-middle text-center"
+									>
 										<Button
 											variant="link"
 											size="sm"
 											className="h-auto p-0 text-xs"
-											onClick={() => setAttendanceEventId(event.id)}
+											onClick={() =>
+												setAttendanceEventId(event.id)
+											}
 										>
 											Take Attendance
 										</Button>

@@ -78,23 +78,29 @@ export function AreaRow({
 					onClick={() => setCollapsed((c) => !c)}
 					className="text-muted-foreground hover:text-foreground transition-colors"
 				>
-					{collapsed
-						? <ChevronRightIcon className="size-4" />
-						: <ChevronDownIcon className="size-4" />}
+					{collapsed ? (
+						<ChevronRightIcon className="size-4" />
+					) : (
+						<ChevronDownIcon className="size-4" />
+					)}
 				</button>
 
 				<button
 					type="button"
 					className="flex-1 min-w-0 text-left group"
 					onClick={() =>
-						router.push(`/app/${params.organizationSlug}/settings/areas/${area.id}`)
+						router.push(
+							`/app/${params.organizationSlug}/settings/areas/${area.id}`,
+						)
 					}
 				>
 					<p className="font-semibold text-sm group-hover:text-primary transition-colors">
 						{area.name}
 					</p>
 					<p className="text-xs text-muted-foreground mt-0.5">
-						{t("launchclub.areas.sitesCount", { count: sites.length })}
+						{t("launchclub.areas.sitesCount", {
+							count: sites.length,
+						})}
 					</p>
 				</button>
 
@@ -121,7 +127,9 @@ export function AreaRow({
 							<SiteRow
 								key={site.id}
 								site={site}
-								groups={groups.filter((g) => g.siteId === site.id)}
+								groups={groups.filter(
+									(g) => g.siteId === site.id,
+								)}
 								onEditSite={onEditSite}
 								onAddGroup={onAddGroup}
 								onEditGroup={onEditGroup}

@@ -1,9 +1,13 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/avatar";
+import { config as storageConfig } from "@repo/storage/config";
+import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+} from "@repo/ui/components/avatar";
 import { Button } from "@repo/ui/components/button";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { config as storageConfig } from "@repo/storage/config";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -20,19 +24,27 @@ interface PersonAvatarUploadProps {
 	avatarUrl: string | null;
 }
 
-export function PersonAvatarUpload({ personId, firstName, lastName, avatarUrl }: PersonAvatarUploadProps) {
+export function PersonAvatarUpload({
+	personId,
+	firstName,
+	lastName,
+	avatarUrl,
+}: PersonAvatarUploadProps) {
 	const t = useTranslations();
 	const { activeOrganization } = useActiveOrganization();
 	const queryClient = useQueryClient();
 	const updatePerson = useUpdatePerson();
-	const getAvatarUploadUrl = useMutation(orpc.people.avatarUploadUrl.mutationOptions());
+	const getAvatarUploadUrl = useMutation(
+		orpc.people.avatarUploadUrl.mutationOptions(),
+	);
 
 	const [uploading, setUploading] = useState(false);
 	const [cropDialogOpen, setCropDialogOpen] = useState(false);
 	const [pendingFile, setPendingFile] = useState<File | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+	const initials =
+		`${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
@@ -47,7 +59,8 @@ export function PersonAvatarUpload({ personId, firstName, lastName, avatarUrl }:
 		if (!croppedImageData) return;
 		setUploading(true);
 		try {
-			const { signedUploadUrl, path } = await getAvatarUploadUrl.mutateAsync({ personId });
+			const { signedUploadUrl, path } =
+				await getAvatarUploadUrl.mutateAsync({ personId });
 			const response = await fetch(signedUploadUrl, {
 				method: "PUT",
 				body: croppedImageData,
@@ -56,7 +69,12 @@ export function PersonAvatarUpload({ personId, firstName, lastName, avatarUrl }:
 			if (!response.ok) throw new Error("Upload failed");
 			await updatePerson.mutateAsync({ id: personId, avatarUrl: path });
 			await queryClient.invalidateQueries(
-				orpc.people.get.queryOptions({ input: { id: personId, organizationId: activeOrganization?.id ?? "" } }),
+				orpc.people.get.queryOptions({
+					input: {
+						id: personId,
+						organizationId: activeOrganization?.id ?? "",
+					},
+				}),
 			);
 			toastSuccess(t("launchclub.people.avatar.notifications.updated"));
 		} catch {
@@ -87,7 +105,9 @@ export function PersonAvatarUpload({ personId, firstName, lastName, avatarUrl }:
 					onClick={() => inputRef.current?.click()}
 				>
 					<UploadIcon className="mr-2 size-4" />
-					{uploading ? t("launchclub.people.avatar.uploading") : t("launchclub.people.avatar.upload")}
+					{uploading
+						? t("launchclub.people.avatar.uploading")
+						: t("launchclub.people.avatar.upload")}
 				</Button>
 				<input
 					ref={inputRef}

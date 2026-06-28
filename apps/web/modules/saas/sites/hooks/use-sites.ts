@@ -1,8 +1,8 @@
 "use client";
 
+import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 
 export function useSites(organizationId?: string) {
 	const { activeOrganization } = useActiveOrganization();
@@ -20,9 +20,11 @@ export function useCreateSite() {
 		...orpc.sites.create.mutationOptions(),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: orpc.sites.list.queryOptions({
-					input: { organizationId: "" },
-				}).queryKey.slice(0, 1),
+				queryKey: orpc.sites.list
+					.queryOptions({
+						input: { organizationId: "" },
+					})
+					.queryKey.slice(0, 1),
 			});
 		},
 	});

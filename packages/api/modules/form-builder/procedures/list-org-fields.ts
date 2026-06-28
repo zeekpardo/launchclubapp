@@ -1,6 +1,6 @@
 import { ORPCError } from "@orpc/client";
-import { verifyOrganizationMembership } from "../../organizations/lib/membership";
 import { protectedProcedure } from "../../../orpc/procedures";
+import { verifyOrganizationMembership } from "../../organizations/lib/membership";
 import { listOrgFieldsSchema } from "../types";
 
 /**
@@ -9,10 +9,17 @@ import { listOrgFieldsSchema } from "../types";
  * Use listFormFields instead.
  */
 export const listOrgFields = protectedProcedure
-  .route({ method: "GET", path: "/form-builder/org-fields", tags: ["FormBuilder"] })
-  .input(listOrgFieldsSchema)
-  .handler(async ({ input, context }) => {
-    const membership = await verifyOrganizationMembership(input.organizationId, context.user.id);
-    if (!membership) throw new ORPCError("FORBIDDEN");
-    return [];
-  });
+	.route({
+		method: "GET",
+		path: "/form-builder/org-fields",
+		tags: ["FormBuilder"],
+	})
+	.input(listOrgFieldsSchema)
+	.handler(async ({ input, context }) => {
+		const membership = await verifyOrganizationMembership(
+			input.organizationId,
+			context.user.id,
+		);
+		if (!membership) throw new ORPCError("FORBIDDEN");
+		return [];
+	});

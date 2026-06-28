@@ -72,22 +72,34 @@ export default async function SettingsLayout({
 							{
 								title: t("settings.menu.organization.areas"),
 								href: `${organizationSettingsBasePath}/areas`,
-								icon: <Building2Icon className="size-4 opacity-50" />,
+								icon: (
+									<Building2Icon className="size-4 opacity-50" />
+								),
 							},
 							{
-								title: t("settings.menu.organization.applications"),
+								title: t(
+									"settings.menu.organization.applications",
+								),
 								href: `${organizationSettingsBasePath}/applications`,
-								icon: <ClipboardListIcon className="size-4 opacity-50" />,
+								icon: (
+									<ClipboardListIcon className="size-4 opacity-50" />
+								),
 							},
 							{
-								title: t("settings.menu.organization.customFields"),
+								title: t(
+									"settings.menu.organization.customFields",
+								),
 								href: `${organizationSettingsBasePath}/custom-fields`,
-								icon: <SlidersIcon className="size-4 opacity-50" />,
+								icon: (
+									<SlidersIcon className="size-4 opacity-50" />
+								),
 							},
 							{
 								title: "Academic Years",
 								href: `${organizationSettingsBasePath}/academic-years`,
-								icon: <GraduationCapIcon className="size-4 opacity-50" />,
+								icon: (
+									<GraduationCapIcon className="size-4 opacity-50" />
+								),
 							},
 						]
 					: []),
@@ -120,7 +132,9 @@ export default async function SettingsLayout({
 				...(session?.user?.role === "admin"
 					? [
 							{
-								title: t("settings.menu.organization.superAdmin"),
+								title: t(
+									"settings.menu.organization.superAdmin",
+								),
 								href: `${organizationSettingsBasePath}/super-admin`,
 								icon: (
 									<ShieldIcon className="size-4 opacity-50" />

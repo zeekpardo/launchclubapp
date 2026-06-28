@@ -1,14 +1,19 @@
 "use client";
 
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { Switch } from "@repo/ui/components/switch";
 import { Textarea } from "@repo/ui/components/textarea";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVerticalIcon, Heading2Icon, PlusIcon, TrashIcon } from "lucide-react";
+import {
+	GripVerticalIcon,
+	Heading2Icon,
+	PlusIcon,
+	TrashIcon,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { slugify } from "../lib/slugify";
 
@@ -42,18 +47,38 @@ interface FieldCardProps {
 	expanded?: boolean;
 	onToggle?: (field: FormFieldItem) => void;
 	onDelete?: (id: string) => void;
-	onSave?: (id: string, data: Partial<FormFieldItem & { options: FieldOption[]; customFieldId?: string }>) => Promise<void>;
+	onSave?: (
+		id: string,
+		data: Partial<
+			FormFieldItem & { options: FieldOption[]; customFieldId?: string }
+		>,
+	) => Promise<void>;
 	customFieldOptions?: { id: string; name: string }[];
 }
 
-export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave, customFieldOptions }: FieldCardProps) {
+export function FieldCard({
+	field,
+	locked,
+	expanded,
+	onToggle,
+	onDelete,
+	onSave,
+	customFieldOptions,
+}: FieldCardProps) {
 	const isHeader = field.type === "HEADER";
 	const isCustom = field.type === "CUSTOM";
 	const isConsent = field.type === "CONSENT";
 	const isUnresolvedCustom = isCustom && !field.customFieldId;
 	const needsOptions = ["SELECT", "RADIO"].includes(field.type);
 
-	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({
 		id: field.id,
 		disabled: locked || expanded,
 	});
@@ -71,7 +96,9 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 	const [options, setOptions] = useState<FieldOption[]>(
 		Array.isArray(field.options) ? (field.options as FieldOption[]) : [],
 	);
-	const [pendingCustomFieldId, setPendingCustomFieldId] = useState(field.customFieldId ?? "");
+	const [pendingCustomFieldId, setPendingCustomFieldId] = useState(
+		field.customFieldId ?? "",
+	);
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -80,7 +107,11 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 		setPlaceholder(field.placeholder ?? "");
 		setHelpText(field.helpText ?? "");
 		setRequired(field.required);
-		setOptions(Array.isArray(field.options) ? (field.options as FieldOption[]) : []);
+		setOptions(
+			Array.isArray(field.options)
+				? (field.options as FieldOption[])
+				: [],
+		);
 		setPendingCustomFieldId(field.customFieldId ?? "");
 	}, [field.id]);
 
@@ -97,7 +128,10 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 			setError("Field name is required.");
 			return;
 		}
-		if (needsOptions && options.filter((o) => o.label.trim()).length === 0) {
+		if (
+			needsOptions &&
+			options.filter((o) => o.label.trim()).length === 0
+		) {
 			setError("Add at least one option.");
 			return;
 		}
@@ -112,11 +146,13 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 			await onSave(field.id, {
 				label,
 				fieldKey: slugify(label),
-				placeholder: !isHeader ? (placeholder || undefined) : undefined,
+				placeholder: !isHeader ? placeholder || undefined : undefined,
 				helpText: helpText || undefined,
 				required: !isHeader ? required : false,
 				options: needsOptions ? options : undefined,
-				customFieldId: isCustom ? (pendingCustomFieldId || undefined) : undefined,
+				customFieldId: isCustom
+					? pendingCustomFieldId || undefined
+					: undefined,
 			});
 			onToggle?.(field);
 		} finally {
@@ -129,7 +165,11 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 		setPlaceholder(field.placeholder ?? "");
 		setHelpText(field.helpText ?? "");
 		setRequired(field.required);
-		setOptions(Array.isArray(field.options) ? (field.options as FieldOption[]) : []);
+		setOptions(
+			Array.isArray(field.options)
+				? (field.options as FieldOption[])
+				: [],
+		);
 		onToggle?.(field);
 	};
 
@@ -162,11 +202,17 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 						<div className="flex items-center gap-2">
 							<Heading2Icon className="size-3.5 text-muted-foreground shrink-0" />
 							<p className="text-sm font-semibold truncate">
-								{field.label || <span className="italic text-muted-foreground font-normal">Untitled header</span>}
+								{field.label || (
+									<span className="italic text-muted-foreground font-normal">
+										Untitled header
+									</span>
+								)}
 							</p>
 						</div>
 						{field.helpText && (
-							<p className="text-xs text-muted-foreground truncate mt-0.5 pl-5">{field.helpText}</p>
+							<p className="text-xs text-muted-foreground truncate mt-0.5 pl-5">
+								{field.helpText}
+							</p>
 						)}
 					</button>
 					{!locked && (
@@ -174,7 +220,10 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 							variant="ghost"
 							size="icon"
 							className="size-7 text-muted-foreground hover:text-destructive shrink-0"
-							onClick={(e) => { e.stopPropagation(); onDelete?.(field.id); }}
+							onClick={(e) => {
+								e.stopPropagation();
+								onDelete?.(field.id);
+							}}
 						>
 							<TrashIcon className="size-3.5" />
 						</Button>
@@ -196,17 +245,26 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 					)}
 
 					<p className="flex-1 min-w-0 text-sm font-medium truncate">
-						{field.label || <span className="italic text-muted-foreground">Consent</span>}
+						{field.label || (
+							<span className="italic text-muted-foreground">
+								Consent
+							</span>
+						)}
 					</p>
 
 					<div className="flex items-center gap-1.5 shrink-0">
-						<Badge status="info" className="text-xs">consent</Badge>
+						<Badge status="info" className="text-xs">
+							consent
+						</Badge>
 						{!locked && (
 							<Button
 								variant="ghost"
 								size="icon"
 								className="size-7 text-muted-foreground hover:text-destructive"
-								onClick={(e) => { e.stopPropagation(); onDelete?.(field.id); }}
+								onClick={(e) => {
+									e.stopPropagation();
+									onDelete?.(field.id);
+								}}
 							>
 								<TrashIcon className="size-3.5" />
 							</Button>
@@ -234,25 +292,43 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 						onClick={() => !locked && onToggle?.(field)}
 					>
 						<p className="text-sm font-medium truncate">
-							{isUnresolvedCustom
-								? <span className="italic text-muted-foreground">Select a custom field…</span>
-								: field.label || <span className="italic text-muted-foreground">Untitled field</span>}
+							{isUnresolvedCustom ? (
+								<span className="italic text-muted-foreground">
+									Select a custom field…
+								</span>
+							) : (
+								field.label || (
+									<span className="italic text-muted-foreground">
+										Untitled field
+									</span>
+								)
+							)}
 						</p>
 					</button>
 
 					<div className="flex items-center gap-1.5 shrink-0">
-						<Badge status={isUnresolvedCustom ? "warning" : "info"} className="text-xs capitalize">
-							{isUnresolvedCustom ? "pending" : field.type.toLowerCase()}
+						<Badge
+							status={isUnresolvedCustom ? "warning" : "info"}
+							className="text-xs capitalize"
+						>
+							{isUnresolvedCustom
+								? "pending"
+								: field.type.toLowerCase()}
 						</Badge>
 						{field.required && (
-							<Badge status="error" className="text-xs">Required</Badge>
+							<Badge status="error" className="text-xs">
+								Required
+							</Badge>
 						)}
 						{!locked && (
 							<Button
 								variant="ghost"
 								size="icon"
 								className="size-7 text-muted-foreground hover:text-destructive"
-								onClick={(e) => { e.stopPropagation(); onDelete?.(field.id); }}
+								onClick={(e) => {
+									e.stopPropagation();
+									onDelete?.(field.id);
+								}}
 							>
 								<TrashIcon className="size-3.5" />
 							</Button>
@@ -267,7 +343,9 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 					{isHeader ? (
 						<>
 							<div className="space-y-1.5">
-								<Label htmlFor={`label-${field.id}`}>Title</Label>
+								<Label htmlFor={`label-${field.id}`}>
+									Title
+								</Label>
 								<Input
 									id={`label-${field.id}`}
 									value={label}
@@ -276,11 +354,15 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 								/>
 							</div>
 							<div className="space-y-1.5">
-								<Label htmlFor={`help-${field.id}`}>Description</Label>
+								<Label htmlFor={`help-${field.id}`}>
+									Description
+								</Label>
 								<Textarea
 									id={`help-${field.id}`}
 									value={helpText}
-									onChange={(e) => setHelpText(e.target.value)}
+									onChange={(e) =>
+										setHelpText(e.target.value)
+									}
 									placeholder="Optional description for this section"
 									rows={2}
 								/>
@@ -291,16 +373,27 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 							{/* Custom field selector — shown when type is CUSTOM */}
 							{isCustom && customFieldOptions && (
 								<div className="space-y-1.5">
-									<Label htmlFor={`custom-field-${field.id}`}>Custom Field</Label>
+									<Label htmlFor={`custom-field-${field.id}`}>
+										Custom Field
+									</Label>
 									<select
 										id={`custom-field-${field.id}`}
 										className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
 										value={pendingCustomFieldId}
-										onChange={(e) => { handleCustomFieldSelect(e.target.value); setError(null); }}
+										onChange={(e) => {
+											handleCustomFieldSelect(
+												e.target.value,
+											);
+											setError(null);
+										}}
 									>
-										<option value="">Select a custom field…</option>
+										<option value="">
+											Select a custom field…
+										</option>
 										{customFieldOptions.map((cf) => (
-											<option key={cf.id} value={cf.id}>{cf.name}</option>
+											<option key={cf.id} value={cf.id}>
+												{cf.name}
+											</option>
 										))}
 									</select>
 								</div>
@@ -308,30 +401,43 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 
 							<div className="grid grid-cols-2 gap-3">
 								<div className="space-y-1.5">
-									<Label htmlFor={`label-${field.id}`}>Label</Label>
+									<Label htmlFor={`label-${field.id}`}>
+										Label
+									</Label>
 									<Input
 										id={`label-${field.id}`}
 										value={label}
-										onChange={(e) => { setLabel(e.target.value); setError(null); }}
+										onChange={(e) => {
+											setLabel(e.target.value);
+											setError(null);
+										}}
 										placeholder="Enter field name…"
 									/>
 								</div>
 								<div className="space-y-1.5">
-									<Label htmlFor={`placeholder-${field.id}`}>Placeholder</Label>
+									<Label htmlFor={`placeholder-${field.id}`}>
+										Placeholder
+									</Label>
 									<Input
 										id={`placeholder-${field.id}`}
 										value={placeholder}
-										onChange={(e) => setPlaceholder(e.target.value)}
+										onChange={(e) =>
+											setPlaceholder(e.target.value)
+										}
 									/>
 								</div>
 							</div>
 
 							<div className="space-y-1.5">
-								<Label htmlFor={`help-${field.id}`}>Help Text</Label>
+								<Label htmlFor={`help-${field.id}`}>
+									Help Text
+								</Label>
 								<Textarea
 									id={`help-${field.id}`}
 									value={helpText}
-									onChange={(e) => setHelpText(e.target.value)}
+									onChange={(e) =>
+										setHelpText(e.target.value)
+									}
 									rows={2}
 								/>
 							</div>
@@ -340,7 +446,10 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 								<div className="space-y-2">
 									<Label>Options</Label>
 									{options.map((opt, i) => (
-										<div key={i} className="flex items-center gap-2">
+										<div
+											key={i}
+											className="flex items-center gap-2"
+										>
 											<GripVerticalIcon className="size-4 text-muted-foreground shrink-0" />
 											<Input
 												placeholder="Option label"
@@ -349,7 +458,16 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 													setOptions((prev) =>
 														prev.map((o, idx) =>
 															idx === i
-																? { label: e.target.value, value: slugify(e.target.value) }
+																? {
+																		label: e
+																			.target
+																			.value,
+																		value: slugify(
+																			e
+																				.target
+																				.value,
+																		),
+																	}
 																: o,
 														),
 													)
@@ -360,7 +478,14 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 												variant="ghost"
 												size="icon"
 												className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
-												onClick={() => setOptions((prev) => prev.filter((_, idx) => idx !== i))}
+												onClick={() =>
+													setOptions((prev) =>
+														prev.filter(
+															(_, idx) =>
+																idx !== i,
+														),
+													)
+												}
 											>
 												<TrashIcon className="size-3.5" />
 											</Button>
@@ -370,7 +495,13 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 										variant="outline"
 										size="sm"
 										className="gap-1.5"
-										onClick={() => { setOptions((prev) => [...prev, { label: "", value: "" }]); setError(null); }}
+										onClick={() => {
+											setOptions((prev) => [
+												...prev,
+												{ label: "", value: "" },
+											]);
+											setError(null);
+										}}
 									>
 										<PlusIcon className="size-3.5" />
 										Add option
@@ -384,7 +515,10 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 									checked={required}
 									onCheckedChange={setRequired}
 								/>
-								<Label htmlFor={`required-${field.id}`} className="font-normal cursor-pointer">
+								<Label
+									htmlFor={`required-${field.id}`}
+									className="font-normal cursor-pointer"
+								>
 									Required
 								</Label>
 							</div>
@@ -392,13 +526,23 @@ export function FieldCard({ field, locked, expanded, onToggle, onDelete, onSave,
 					)}
 
 					{error && (
-						<p className="text-xs text-destructive -mb-1">{error}</p>
+						<p className="text-xs text-destructive -mb-1">
+							{error}
+						</p>
 					)}
 					<div className="flex justify-end gap-2 border-t pt-3">
-						<Button variant="ghost" size="sm" onClick={handleCancel}>
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={handleCancel}
+						>
 							Cancel
 						</Button>
-						<Button size="sm" onClick={handleSave} disabled={saving}>
+						<Button
+							size="sm"
+							onClick={handleSave}
+							disabled={saving}
+						>
 							{saving ? "Saving…" : "Save"}
 						</Button>
 					</div>

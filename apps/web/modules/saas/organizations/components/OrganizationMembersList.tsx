@@ -130,7 +130,10 @@ export function OrganizationMembersList({
 								<MemberRoleEditor
 									memberId={row.original.id}
 									organizationId={organizationId}
-									currentRole={row.original.role as OrganizationMemberRole}
+									currentRole={
+										row.original
+											.role as OrganizationMemberRole
+									}
 									disabled={row.original.role === "owner"}
 									onSuccess={handleRoleUpdateSuccess}
 								/>

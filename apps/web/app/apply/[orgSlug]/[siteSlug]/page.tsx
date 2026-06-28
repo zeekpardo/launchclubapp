@@ -1,4 +1,8 @@
-import { getCollectInApplicationFieldsBySite, getFormFieldsBySiteSlug, getSiteBySlug } from "@repo/database";
+import {
+	getCollectInApplicationFieldsBySite,
+	getFormFieldsBySiteSlug,
+	getSiteBySlug,
+} from "@repo/database";
 import { getTranslations } from "next-intl/server";
 import { LanguageSwitcher } from "../../LanguageSwitcher";
 import type { BasicFormField } from "./ApplicationForm";

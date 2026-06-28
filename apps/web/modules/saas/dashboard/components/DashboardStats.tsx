@@ -38,14 +38,22 @@ export function DashboardStats({ areaId, siteId }: DashboardStatsProps) {
 
 	const { data: members, isLoading: membersLoading } = useQuery(
 		orpc.people.list.queryOptions({
-			input: { organizationId, personType: "MENTOR" as const, ...peopleFilter },
+			input: {
+				organizationId,
+				personType: "MENTOR" as const,
+				...peopleFilter,
+			},
 			enabled,
 		}),
 	);
 
 	const { data: kids, isLoading: kidsLoading } = useQuery(
 		orpc.people.list.queryOptions({
-			input: { organizationId, personType: "STUDENT" as const, ...peopleFilter },
+			input: {
+				organizationId,
+				personType: "STUDENT" as const,
+				...peopleFilter,
+			},
 			enabled,
 		}),
 	);

@@ -14,11 +14,11 @@ import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { type GroupDetail } from "@saas/groups/hooks/use-groups";
+import { EventDialog } from "@saas/events/components/EventDialog";
+import type { GroupDetail } from "@saas/groups/hooks/use-groups";
+import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
-import { EventDialog } from "@saas/events/components/EventDialog";
 import { CalendarIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -95,14 +95,22 @@ export function GroupEventsTab({ groupId, group }: GroupEventsTabProps) {
 								<div className="flex items-center gap-2">
 									<p className="font-medium">{event.name}</p>
 									{event.description && (
-										<Badge status="info" className="normal-case">
+										<Badge
+											status="info"
+											className="normal-case"
+										>
 											{event.description}
 										</Badge>
 									)}
 								</div>
 								<p className="mt-0.5 text-muted-foreground text-sm">
-									{new Date(event.startsAt).toLocaleDateString()} ·{" "}
-									{new Date(event.startsAt).toLocaleTimeString([], {
+									{new Date(
+										event.startsAt,
+									).toLocaleDateString()}{" "}
+									·{" "}
+									{new Date(
+										event.startsAt,
+									).toLocaleTimeString([], {
 										hour: "2-digit",
 										minute: "2-digit",
 									})}
@@ -115,14 +123,16 @@ export function GroupEventsTab({ groupId, group }: GroupEventsTabProps) {
 									variant="ghost"
 									size="icon"
 									className="h-8 w-8"
-									onClick={() => setEditEvent({
-										id: event.id,
-										name: event.name,
-										description: event.description,
-										startsAt: event.startsAt,
-										endsAt: event.endsAt,
-										eventGroups: event.eventGroups,
-									})}
+									onClick={() =>
+										setEditEvent({
+											id: event.id,
+											name: event.name,
+											description: event.description,
+											startsAt: event.startsAt,
+											endsAt: event.endsAt,
+											eventGroups: event.eventGroups,
+										})
+									}
 								>
 									<PencilIcon className="h-4 w-4" />
 								</Button>
@@ -140,7 +150,9 @@ export function GroupEventsTab({ groupId, group }: GroupEventsTabProps) {
 					{events?.length === 0 && (
 						<div className="flex flex-col items-center gap-3 py-12 text-muted-foreground">
 							<CalendarIcon className="size-8 opacity-40" />
-							<p className="text-sm">{t("launchclub.events.empty")}</p>
+							<p className="text-sm">
+								{t("launchclub.events.empty")}
+							</p>
 						</div>
 					)}
 				</div>
@@ -155,7 +167,9 @@ export function GroupEventsTab({ groupId, group }: GroupEventsTabProps) {
 
 			<EventDialog
 				open={!!editEvent}
-				onOpenChange={(open) => { if (!open) setEditEvent(null); }}
+				onOpenChange={(open) => {
+					if (!open) setEditEvent(null);
+				}}
 				organizationId={organizationId}
 				event={editEvent ?? undefined}
 			/>
@@ -168,13 +182,17 @@ export function GroupEventsTab({ groupId, group }: GroupEventsTabProps) {
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>{t("launchclub.events.confirmDelete.title")}</AlertDialogTitle>
+						<AlertDialogTitle>
+							{t("launchclub.events.confirmDelete.title")}
+						</AlertDialogTitle>
 						<AlertDialogDescription>
 							{t("launchclub.events.confirmDelete.message")}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>{t("launchclub.groups.form.cancel")}</AlertDialogCancel>
+						<AlertDialogCancel>
+							{t("launchclub.groups.form.cancel")}
+						</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={handleDeleteEvent}
 							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

@@ -21,24 +21,42 @@ export default async function MentorApplyPage({
 	]);
 	// Form fields are now scoped to specific mentor Forms (Phase 3).
 	// Until a mentor Form is assigned to this org, the public apply page shows no custom fields.
-	const rawFormFields: { id: string; label: string; fieldKey: string; type: string; placeholder: string | null; helpText: string | null; required: boolean; options: unknown }[] = [];
+	const rawFormFields: {
+		id: string;
+		label: string;
+		fieldKey: string;
+		type: string;
+		placeholder: string | null;
+		helpText: string | null;
+		required: boolean;
+		options: unknown;
+	}[] = [];
 
 	async function resolveDocUrl(key: string | null | undefined) {
 		if (!key) return null;
 		try {
-			return await getSignedUrl(key, { bucket: "consentForms", expiresIn: 3600 });
+			return await getSignedUrl(key, {
+				bucket: "consentForms",
+				expiresIn: 3600,
+			});
 		} catch {
 			return null;
 		}
 	}
 
 	const showMentorContract = orgSettings?.showMentorContract ?? false;
-	const showMentorSecurityClearance = orgSettings?.showMentorSecurityClearance ?? false;
-	const enableMentorDocumentUpload = orgSettings?.enableMentorDocumentUpload ?? false;
+	const showMentorSecurityClearance =
+		orgSettings?.showMentorSecurityClearance ?? false;
+	const enableMentorDocumentUpload =
+		orgSettings?.enableMentorDocumentUpload ?? false;
 
 	const [mentorContractUrl, mentorSecurityClearanceUrl] = await Promise.all([
-		showMentorContract ? resolveDocUrl(orgSettings?.mentorContractUrl) : null,
-		showMentorSecurityClearance ? resolveDocUrl(orgSettings?.mentorSecurityClearanceUrl) : null,
+		showMentorContract
+			? resolveDocUrl(orgSettings?.mentorContractUrl)
+			: null,
+		showMentorSecurityClearance
+			? resolveDocUrl(orgSettings?.mentorSecurityClearanceUrl)
+			: null,
 	]);
 
 	const formFields: BasicFormField[] = rawFormFields.map((f) => ({
@@ -71,7 +89,9 @@ export default async function MentorApplyPage({
 
 				{!org ? (
 					<div className="text-center py-16">
-						<p className="text-lg text-muted-foreground">Organization not found.</p>
+						<p className="text-lg text-muted-foreground">
+							Organization not found.
+						</p>
 					</div>
 				) : (
 					<MentorApplicationForm
@@ -83,12 +103,16 @@ export default async function MentorApplyPage({
 							nameEs: f.nameEs,
 							type: f.type,
 							required: f.required,
-							options: Array.isArray(f.options) ? (f.options as string[]) : [],
+							options: Array.isArray(f.options)
+								? (f.options as string[])
+								: [],
 						}))}
 						mentorContractUrl={mentorContractUrl}
 						mentorSecurityClearanceUrl={mentorSecurityClearanceUrl}
 						showMentorContract={showMentorContract}
-						showMentorSecurityClearance={showMentorSecurityClearance}
+						showMentorSecurityClearance={
+							showMentorSecurityClearance
+						}
 						enableMentorDocumentUpload={enableMentorDocumentUpload}
 					/>
 				)}

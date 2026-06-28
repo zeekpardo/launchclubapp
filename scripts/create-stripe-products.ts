@@ -3,12 +3,27 @@ import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 const plans = [
-	{ name: "LaunchClub Starter", monthly: 2000, yearly: 20000, key: "STARTER" },
+	{
+		name: "LaunchClub Starter",
+		monthly: 2000,
+		yearly: 20000,
+		key: "STARTER",
+	},
 	{ name: "LaunchClub Growth", monthly: 3700, yearly: 37000, key: "GROWTH" },
-	{ name: "LaunchClub Standard", monthly: 7500, yearly: 75000, key: "STANDARD" },
+	{
+		name: "LaunchClub Standard",
+		monthly: 7500,
+		yearly: 75000,
+		key: "STANDARD",
+	},
 	{ name: "LaunchClub Plus", monthly: 12000, yearly: 120000, key: "PLUS" },
 	{ name: "LaunchClub Pro", monthly: 18500, yearly: 185000, key: "PRO" },
-	{ name: "LaunchClub Unlimited", monthly: 24500, yearly: 245000, key: "UNLIMITED" },
+	{
+		name: "LaunchClub Unlimited",
+		monthly: 24500,
+		yearly: 245000,
+		key: "UNLIMITED",
+	},
 ];
 
 async function main() {

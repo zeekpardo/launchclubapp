@@ -4,8 +4,8 @@ import { listPreviousPersonConsentsProcedure } from "./procedures/list-previous"
 import { upsertPersonConsentProcedure } from "./procedures/upsert";
 
 export const personConsentsRouter = {
-  list: listPersonConsentsProcedure,
-  listPrevious: listPreviousPersonConsentsProcedure,
-  upsert: upsertPersonConsentProcedure,
-  createSignatureUploadUrl: createConsentSignatureUploadUrlProcedure,
+	list: listPersonConsentsProcedure,
+	listPrevious: listPreviousPersonConsentsProcedure,
+	upsert: upsertPersonConsentProcedure,
+	createSignatureUploadUrl: createConsentSignatureUploadUrlProcedure,
 };

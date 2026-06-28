@@ -1,5 +1,8 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { ConsentItemType } from "@repo/database";
+import { cn } from "@repo/ui";
 import { Button } from "@repo/ui/components/button";
 import {
 	Dialog,
@@ -11,18 +14,15 @@ import {
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
-import { cn } from "@repo/ui";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { FileTextIcon, UploadIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import type { ConsentItemType } from "@repo/database";
 import {
 	useCreateConsentItem,
-	useUpdateConsentItem,
-	usePdfUploadUrl,
 	usePdfDownloadUrl,
+	usePdfUploadUrl,
+	useUpdateConsentItem,
 } from "../hooks/use-consent-items";
 
 const formSchema = z.object({
@@ -53,7 +53,9 @@ export function ConsentItemDialog({
 	const pdfDownloadUrl = usePdfDownloadUrl();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [uploadingPdf, setUploadingPdf] = useState(false);
-	const [currentPdfKey, setCurrentPdfKey] = useState<string | null>(editTarget?.pdfKey ?? null);
+	const [currentPdfKey, setCurrentPdfKey] = useState<string | null>(
+		editTarget?.pdfKey ?? null,
+	);
 	const [pendingFile, setPendingFile] = useState<File | null>(null);
 
 	const {
@@ -67,21 +69,29 @@ export function ConsentItemDialog({
 		defaultValues: {
 			name: editTarget?.name ?? "",
 			nameES: editTarget?.nameES ?? "",
-			applicantType: (editTarget?.applicantType === "MENTOR" ? "MENTOR" : "STUDENT"),
+			applicantType:
+				editTarget?.applicantType === "MENTOR" ? "MENTOR" : "STUDENT",
 		},
 	});
 
 	const applicantType = watch("applicantType");
 
 	async function uploadFile(itemId: string, file: File) {
-		const { uploadUrl, fileKey } = await pdfUploadUrl.mutateAsync({ id: itemId, organizationId });
+		const { uploadUrl, fileKey } = await pdfUploadUrl.mutateAsync({
+			id: itemId,
+			organizationId,
+		});
 		const res = await fetch(uploadUrl, {
 			method: "PUT",
 			body: file,
 			headers: { "Content-Type": "application/pdf" },
 		});
 		if (!res.ok) throw new Error("Upload failed");
-		await updateItem.mutateAsync({ id: itemId, organizationId, pdfKey: fileKey });
+		await updateItem.mutateAsync({
+			id: itemId,
+			organizationId,
+			pdfKey: fileKey,
+		});
 		return fileKey;
 	}
 
@@ -170,7 +180,9 @@ export function ConsentItemDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle>{isEditing ? "Edit consent item" : "Add consent item"}</DialogTitle>
+					<DialogTitle>
+						{isEditing ? "Edit consent item" : "Add consent item"}
+					</DialogTitle>
 				</DialogHeader>
 
 				<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -182,7 +194,9 @@ export function ConsentItemDialog({
 							{...register("name")}
 						/>
 						{errors.name && (
-							<p className="text-xs text-destructive">{errors.name.message}</p>
+							<p className="text-xs text-destructive">
+								{errors.name.message}
+							</p>
 						)}
 					</div>
 
@@ -202,7 +216,9 @@ export function ConsentItemDialog({
 								<button
 									key={type}
 									type="button"
-									onClick={() => setValue("applicantType", type)}
+									onClick={() =>
+										setValue("applicantType", type)
+									}
 									className={cn(
 										"px-3 py-1.5 text-sm",
 										i > 0 && "border-l",
@@ -211,7 +227,8 @@ export function ConsentItemDialog({
 											: "text-muted-foreground hover:bg-muted",
 									)}
 								>
-									{type.charAt(0) + type.slice(1).toLowerCase()}
+									{type.charAt(0) +
+										type.slice(1).toLowerCase()}
 								</button>
 							))}
 						</div>
@@ -236,11 +253,15 @@ export function ConsentItemDialog({
 										type="button"
 										variant="outline"
 										size="sm"
-										onClick={() => fileInputRef.current?.click()}
+										onClick={() =>
+											fileInputRef.current?.click()
+										}
 										disabled={uploadingPdf}
 									>
 										<UploadIcon className="size-3.5" />
-										{uploadingPdf ? "Uploading..." : "Replace"}
+										{uploadingPdf
+											? "Uploading..."
+											: "Replace"}
 									</Button>
 									<Button
 										type="button"
@@ -258,11 +279,15 @@ export function ConsentItemDialog({
 									type="button"
 									variant="outline"
 									size="sm"
-									onClick={() => fileInputRef.current?.click()}
+									onClick={() =>
+										fileInputRef.current?.click()
+									}
 									disabled={uploadingPdf}
 								>
 									<UploadIcon className="size-3.5" />
-									{uploadingPdf ? "Uploading..." : "Attach PDF"}
+									{uploadingPdf
+										? "Uploading..."
+										: "Attach PDF"}
 								</Button>
 							)}
 							<input
@@ -278,7 +303,9 @@ export function ConsentItemDialog({
 							<Label>PDF Attachment</Label>
 							{pendingFile ? (
 								<div className="flex items-center gap-2">
-									<span className="text-xs text-muted-foreground truncate max-w-[200px]">{pendingFile.name}</span>
+									<span className="text-xs text-muted-foreground truncate max-w-[200px]">
+										{pendingFile.name}
+									</span>
 									<Button
 										type="button"
 										variant="ghost"
@@ -294,7 +321,9 @@ export function ConsentItemDialog({
 									type="button"
 									variant="outline"
 									size="sm"
-									onClick={() => fileInputRef.current?.click()}
+									onClick={() =>
+										fileInputRef.current?.click()
+									}
 								>
 									<UploadIcon className="size-3.5" />
 									Attach PDF

@@ -1,6 +1,11 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/card";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@repo/ui/components/card";
 import { ChartColumnIcon, TrendingUpIcon, UserCheckIcon } from "lucide-react";
 import {
 	CartesianGrid,
@@ -42,13 +47,19 @@ export function GroupOverviewCharts({
 	return (
 		<div className="space-y-3">
 			<div className="flex items-center gap-4 text-sm text-muted-foreground">
-				<p className="font-semibold text-muted-foreground text-xs uppercase">Stats over time</p>
+				<p className="font-semibold text-muted-foreground text-xs uppercase">
+					Stats over time
+				</p>
 				{TIME_PERIODS.map(({ key, label }) => (
 					<button
 						key={key}
 						type="button"
 						onClick={() => onTimePeriodChange(key)}
-						className={timePeriod === key ? "font-semibold text-foreground" : "hover:text-foreground"}
+						className={
+							timePeriod === key
+								? "font-semibold text-foreground"
+								: "hover:text-foreground"
+						}
 					>
 						{label}
 					</button>
@@ -68,16 +79,27 @@ export function GroupOverviewCharts({
 							<ResponsiveContainer width="100%" height={200}>
 								<LineChart data={attendanceData}>
 									<CartesianGrid strokeDasharray="3 3" />
-									<XAxis dataKey="name" tick={{ fontSize: 12 }} />
+									<XAxis
+										dataKey="name"
+										tick={{ fontSize: 12 }}
+									/>
 									<YAxis tick={{ fontSize: 12 }} />
 									<Tooltip />
-									<Line type="monotone" dataKey="count" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} />
+									<Line
+										type="monotone"
+										dataKey="count"
+										stroke="#10b981"
+										strokeWidth={2}
+										dot={{ r: 4 }}
+									/>
 								</LineChart>
 							</ResponsiveContainer>
 						) : (
 							<div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
 								<ChartColumnIcon className="mx-auto mb-2 h-8 w-8 opacity-50" />
-								<p className="text-sm">No attendance data available</p>
+								<p className="text-sm">
+									No attendance data available
+								</p>
 							</div>
 						)}
 					</CardContent>
@@ -95,10 +117,22 @@ export function GroupOverviewCharts({
 							<ResponsiveContainer width="100%" height={200}>
 								<LineChart data={membershipData}>
 									<CartesianGrid strokeDasharray="3 3" />
-									<XAxis dataKey="month" tick={{ fontSize: 12 }} />
-									<YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
+									<XAxis
+										dataKey="month"
+										tick={{ fontSize: 12 }}
+									/>
+									<YAxis
+										tick={{ fontSize: 12 }}
+										allowDecimals={false}
+									/>
 									<Tooltip />
-									<Line type="monotone" dataKey="count" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} />
+									<Line
+										type="monotone"
+										dataKey="count"
+										stroke="#10b981"
+										strokeWidth={2}
+										dot={{ r: 4 }}
+									/>
 								</LineChart>
 							</ResponsiveContainer>
 						) : (

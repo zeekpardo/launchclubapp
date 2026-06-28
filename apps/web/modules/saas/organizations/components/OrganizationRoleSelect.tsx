@@ -9,7 +9,11 @@ import {
 
 type LcSelectRole = "admin" | "site-leader" | "group-leader";
 
-const LC_ROLE_OPTIONS: { value: LcSelectRole; label: string; description: string }[] = [
+const LC_ROLE_OPTIONS: {
+	value: LcSelectRole;
+	label: string;
+	description: string;
+}[] = [
 	{
 		value: "admin",
 		label: "Admin",
@@ -30,7 +34,7 @@ const LC_ROLE_OPTIONS: { value: LcSelectRole; label: string; description: string
 // Map the underlying Better Auth role to which select value to show.
 // Since site-leader and group-leader both resolve to "member", we can't
 // distinguish them after the fact — fall back to showing "member" as-is.
-function toSelectValue(role: OrganizationMemberRole): string {
+function _toSelectValue(role: OrganizationMemberRole): string {
 	return role; // "admin" | "member" | "owner" — shown in trigger via SelectValue
 }
 
@@ -79,7 +83,9 @@ export function OrganizationRoleSelect({
 					<SelectItem key={option.value} value={option.value}>
 						<div className="flex flex-col">
 							<span>{option.label}</span>
-							<span className="text-muted-foreground text-xs">{option.description}</span>
+							<span className="text-muted-foreground text-xs">
+								{option.description}
+							</span>
 						</div>
 					</SelectItem>
 				))}

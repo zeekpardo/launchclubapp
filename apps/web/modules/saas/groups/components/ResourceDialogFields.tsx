@@ -8,7 +8,6 @@ import {
 	FormMessage,
 } from "@repo/ui/components/form";
 import { Input } from "@repo/ui/components/input";
-import { Textarea } from "@repo/ui/components/textarea";
 import {
 	Select,
 	SelectContent,
@@ -16,7 +15,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@repo/ui/components/select";
-import { type Control } from "react-hook-form";
+import { Textarea } from "@repo/ui/components/textarea";
+import type { Control } from "react-hook-form";
 
 export interface ResourceFormValues {
 	name: string;
@@ -36,7 +36,10 @@ interface ResourceDialogFieldsProps {
 	events: ResourceEvent[];
 }
 
-export function ResourceDialogFields({ control, events }: ResourceDialogFieldsProps) {
+export function ResourceDialogFields({
+	control,
+	events,
+}: ResourceDialogFieldsProps) {
 	return (
 		<>
 			<FormField
@@ -46,7 +49,10 @@ export function ResourceDialogFields({ control, events }: ResourceDialogFieldsPr
 					<FormItem>
 						<FormLabel>Resource Name</FormLabel>
 						<FormControl>
-							<Input {...field} placeholder="Enter resource name" />
+							<Input
+								{...field}
+								placeholder="Enter resource name"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -60,7 +66,11 @@ export function ResourceDialogFields({ control, events }: ResourceDialogFieldsPr
 					<FormItem>
 						<FormLabel>URL</FormLabel>
 						<FormControl>
-							<Input {...field} type="url" placeholder="https://example.com" />
+							<Input
+								{...field}
+								type="url"
+								placeholder="https://example.com"
+							/>
 						</FormControl>
 						<FormMessage />
 					</FormItem>
@@ -93,7 +103,9 @@ export function ResourceDialogFields({ control, events }: ResourceDialogFieldsPr
 					<FormItem>
 						<FormLabel>Linked Event (Optional)</FormLabel>
 						<Select
-							onValueChange={(val) => field.onChange(val === "none" ? undefined : val)}
+							onValueChange={(val) =>
+								field.onChange(val === "none" ? undefined : val)
+							}
 							value={field.value ?? "none"}
 						>
 							<FormControl>
@@ -102,11 +114,15 @@ export function ResourceDialogFields({ control, events }: ResourceDialogFieldsPr
 								</SelectTrigger>
 							</FormControl>
 							<SelectContent>
-								<SelectItem value="none">No linked event</SelectItem>
+								<SelectItem value="none">
+									No linked event
+								</SelectItem>
 								{events.map((event) => (
 									<SelectItem key={event.id} value={event.id}>
 										{event.name} &mdash;{" "}
-										{new Date(event.startsAt).toLocaleDateString()}
+										{new Date(
+											event.startsAt,
+										).toLocaleDateString()}
 									</SelectItem>
 								))}
 							</SelectContent>

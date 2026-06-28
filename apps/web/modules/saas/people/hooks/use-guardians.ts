@@ -11,7 +11,12 @@ export function useAddGuardian() {
 		orpc.guardians.add.mutationOptions({
 			onSuccess: (_, { kidId }) => {
 				queryClient.invalidateQueries(
-					orpc.people.get.queryOptions({ input: { id: kidId, organizationId: activeOrganization?.id ?? "" } }),
+					orpc.people.get.queryOptions({
+						input: {
+							id: kidId,
+							organizationId: activeOrganization?.id ?? "",
+						},
+					}),
 				);
 				queryClient.invalidateQueries(
 					orpc.people.list.queryOptions({
@@ -33,7 +38,12 @@ export function useRemoveGuardian() {
 		orpc.guardians.remove.mutationOptions({
 			onSuccess: (_, { kidId }) => {
 				queryClient.invalidateQueries(
-					orpc.people.get.queryOptions({ input: { id: kidId, organizationId: activeOrganization?.id ?? "" } }),
+					orpc.people.get.queryOptions({
+						input: {
+							id: kidId,
+							organizationId: activeOrganization?.id ?? "",
+						},
+					}),
 				);
 				queryClient.invalidateQueries(
 					orpc.people.list.queryOptions({
