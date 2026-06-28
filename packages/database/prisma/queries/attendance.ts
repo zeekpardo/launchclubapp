@@ -4,7 +4,11 @@ export async function getAttendanceByGroup(groupId: string, since?: Date, until?
   return db.attendance.findMany({
     where: {
       event: {
-        groupId,
+        // Events link to groups via the EventGroup join table (the direct
+        // event.groupId column is left null on create), so match the same way
+        // getEventsByGroup does — otherwise no attendance records are returned
+        // and the report shows event columns with no marks.
+        eventGroups: { some: { groupId } },
         ...(since || until ? {
           startsAt: {
             ...(since ? { gte: since } : {}),
