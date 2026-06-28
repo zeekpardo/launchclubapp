@@ -28,8 +28,10 @@ export async function upsertAcademicRecord(data: {
   });
 }
 
-export async function deleteAcademicRecord(id: string) {
-  return db.academicRecord.delete({ where: { id } });
+export async function deleteAcademicRecord(id: string, personId: string) {
+  // Scope the delete to the person so a record can't be deleted by id alone
+  // (the caller is only authorized for this person's organization).
+  return db.academicRecord.deleteMany({ where: { id, personId } });
 }
 
 export async function getLatestAcademicRecord(personId: string) {
