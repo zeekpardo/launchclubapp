@@ -27,7 +27,7 @@ Ordered **bugs → essential features → nice-to-haves**, with bugs ranked by s
 
 6. [ ] 🐞 **Can't edit anything in an application** *(§6.7)*.
 7. [ ] 🐞 **Uploaded PDF can't be opened/viewed** *(§6.1)*.
-8. [ ] 🐞 **Group end time won't save** *(§8.1)*.
+8. [x] 🐞 **Group end time won't save** *(§8.1)*. **✅ VERIFIED RESOLVED** — the full chain (settings form + dialog bindings, update schema/procedure, `updateGroup` query, `getGroupById` read) correctly persists `meetingEndTime`; data round-trip confirms it saves and reads back. Already fixed in current code (no change needed).
 9. [ ] 🐞 **Attendance report doesn't show** after attendance is taken *(§8.6a)*.
 10. [ ] 🐞 **Parents not showing up in People** *(§9.1)*.
 
