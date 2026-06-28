@@ -6,6 +6,7 @@ import {
 	deleteInvitationRoleAssignment,
 	getInvitationById,
 	getInvitationRoleAssignment,
+	getPendingInvitationByEmail,
 	getPurchasesByOrganizationId,
 	getPurchasesByUserId,
 	getUserByEmail,
@@ -165,6 +166,29 @@ export const auth = betterAuth({
 				}
 			}
 		}),
+	},
+	databaseHooks: {
+		user: {
+			create: {
+				before: async (user) => {
+					// An invitation proves the recipient owns this email, so
+					// verify it up front. This lets invited users sign in
+					// immediately instead of being blocked by
+					// `requireEmailVerification` in production, and avoids the
+					// verification email round-trip that drops the invitationId
+					// and pushes them into creating a brand-new organization.
+					const pendingInvitation = await getPendingInvitationByEmail(
+						user.email,
+					);
+
+					if (pendingInvitation) {
+						return { data: { ...user, emailVerified: true } };
+					}
+
+					return { data: user };
+				},
+			},
+		},
 	},
 	user: {
 		additionalFields: {

@@ -15,7 +15,9 @@ import {
 } from "@repo/ui/components/form";
 import { Input } from "@repo/ui/components/input";
 import { useAuthErrorMessages } from "@saas/auth/hooks/errors-messages";
+import { sessionQueryKey } from "@saas/auth/lib/api";
 import { OrganizationInvitationAlert } from "@saas/organizations/components/OrganizationInvitationAlert";
+import { useQueryClient } from "@tanstack/react-query";
 import {
 	AlertTriangleIcon,
 	ArrowRightIcon,
@@ -47,6 +49,7 @@ const formSchema = z.object({
 export function SignupForm({ prefillEmail }: { prefillEmail?: string }) {
 	const t = useTranslations();
 	const router = useRouter();
+	const queryClient = useQueryClient();
 	const { user, loaded: sessionLoaded } = useSession();
 	const { getAuthErrorMessage } = useAuthErrorMessages();
 	const searchParams = useSearchParams();
@@ -65,8 +68,6 @@ export function SignupForm({ prefillEmail }: { prefillEmail?: string }) {
 		},
 	});
 
-	const invitationOnlyMode = !authConfig.enableSignup && invitationId;
-
 	const redirectPath = invitationId
 		? `/organization-invitation/${invitationId}`
 		: (redirectTo ?? config.saas.redirectAfterSignIn);
@@ -79,34 +80,48 @@ export function SignupForm({ prefillEmail }: { prefillEmail?: string }) {
 
 	const onSubmit = form.handleSubmit(async ({ email, password, name }) => {
 		try {
-			const { error } = await (authConfig.enablePasswordLogin
-				? await authClient.signUp.email({
-						email,
-						password,
-						name,
-						callbackURL: redirectPath,
-					})
-				: authClient.signIn.magicLink({
-						email,
-						name,
-						callbackURL: redirectPath,
-					}));
+			if (authConfig.enablePasswordLogin) {
+				const { error: signUpError } = await authClient.signUp.email({
+					email,
+					password,
+					name,
+					callbackURL: redirectPath,
+				});
 
-			if (error) {
-				throw error;
-			}
+				if (signUpError) {
+					throw signUpError;
+				}
 
-			if (invitationOnlyMode) {
-				const { error } =
-					await authClient.organization.acceptInvitation({
-						invitationId,
+				// Invited users: open-signup mode disables `autoSignIn`, so a
+				// fresh signup has no session and `acceptInvitation` can't run.
+				// The invitation already proves email ownership, so sign the
+				// user in here and send them to the invitation page to join the
+				// existing organization. Without this they'd land with no org
+				// and get pushed into creating a brand-new one.
+				if (invitationId) {
+					const { error: signInError } =
+						await authClient.signIn.email({ email, password });
+
+					if (signInError) {
+						throw signInError;
+					}
+
+					await queryClient.invalidateQueries({
+						queryKey: sessionQueryKey,
 					});
+					router.replace(redirectPath);
+					return;
+				}
+			} else {
+				const { error } = await authClient.signIn.magicLink({
+					email,
+					name,
+					callbackURL: redirectPath,
+				});
 
 				if (error) {
 					throw error;
 				}
-
-				router.push(config.saas.redirectAfterSignIn);
 			}
 		} catch (e) {
 			form.setError("root", {
@@ -128,7 +143,7 @@ export function SignupForm({ prefillEmail }: { prefillEmail?: string }) {
 				{t("auth.signup.message")}
 			</p>
 
-			{form.formState.isSubmitSuccessful && !invitationOnlyMode ? (
+			{form.formState.isSubmitSuccessful && !invitationId ? (
 				<Alert variant="success">
 					<MailboxIcon />
 					<AlertTitle>
