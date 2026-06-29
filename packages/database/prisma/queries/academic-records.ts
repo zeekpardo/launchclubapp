@@ -18,6 +18,7 @@ export async function upsertAcademicRecord(data: {
 	gradeLevel?: string | null;
 	gradeScale?: number;
 	notes?: string | null;
+	photoUrl?: string | null;
 	recordedById?: string | null;
 }) {
 	const { personId, schoolYear, term, ...rest } = data;

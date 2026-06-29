@@ -23,6 +23,12 @@ export const upsertAcademicRecordSchema = z.object({
 	cumulativeGpa: z.number().min(0).max(4.0).nullish(),
 	gradeLevel: z.string().max(50).nullish(),
 	notes: z.string().max(5000).nullish(),
+	photoUrl: z.string().max(500).nullish(),
+});
+
+export const academicPhotoUploadUrlSchema = z.object({
+	personId: z.string().max(36),
+	contentType: z.enum(["image/jpeg", "image/png"]),
 });
 
 export const deleteAcademicRecordSchema = z.object({

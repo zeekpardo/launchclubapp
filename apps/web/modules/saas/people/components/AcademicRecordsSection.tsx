@@ -28,8 +28,10 @@ import { Textarea } from "@repo/ui/components/textarea";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useSession } from "@saas/auth/hooks/use-session";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
+import { orpcClient } from "@shared/lib/orpc-client";
 import {
 	ChevronDownIcon,
+	ImageIcon,
 	PencilIcon,
 	PlusIcon,
 	Trash2Icon,
@@ -42,6 +44,7 @@ import {
 	useDeleteAcademicRecord,
 	useUpsertAcademicRecord,
 } from "../hooks/use-academic-records";
+import { type GradeInputMode, LETTER_OPTIONS, toGpa } from "../lib/gpa";
 
 const GPA_TERM_LABELS: Record<string, string> = {
 	Q1: "Q1",
@@ -63,6 +66,7 @@ interface AcademicRecordFormValues {
 	cumulativeGpa: string;
 	gradeLevel: string;
 	notes: string;
+	photoUrl: string;
 }
 
 interface AcademicRecordsSectionProps {
@@ -79,6 +83,7 @@ interface AcademicRecord {
 	cumulativeGpa: number | null;
 	gradeLevel: string | null;
 	notes: string | null;
+	photoUrl: string | null;
 }
 
 export function AcademicRecordsSection({
@@ -99,6 +104,9 @@ export function AcademicRecordsSection({
 	const [editingRecord, setEditingRecord] = useState<AcademicRecord | null>(
 		null,
 	);
+	const [gpaMode, setGpaMode] = useState<GradeInputMode>("gpa");
+	const [gpaRaw, setGpaRaw] = useState("");
+	const [photoUploading, setPhotoUploading] = useState(false);
 
 	const isAdmin = isOrganizationAdmin(activeOrganization, user);
 
@@ -111,8 +119,42 @@ export function AcademicRecordsSection({
 				cumulativeGpa: "",
 				gradeLevel: "",
 				notes: "",
+				photoUrl: "",
 			},
 		});
+
+	const photoUrl = watch("photoUrl");
+
+	// In percent/letter mode, convert the raw grade to a 4.0 GPA and store it.
+	function handleGpaRawChange(raw: string) {
+		setGpaRaw(raw);
+		const computed = toGpa(gpaMode, raw);
+		setValue("termGpa", computed != null ? String(computed) : "");
+	}
+
+	async function handlePhotoSelect(file: File) {
+		setPhotoUploading(true);
+		try {
+			const contentType =
+				file.type === "image/png" ? "image/png" : "image/jpeg";
+			const { signedUploadUrl, path } =
+				await orpcClient.academicRecords.photoUploadUrl({
+					personId,
+					contentType,
+				});
+			const res = await fetch(signedUploadUrl, {
+				method: "PUT",
+				headers: { "Content-Type": contentType },
+				body: file,
+			});
+			if (!res.ok) throw new Error("upload failed");
+			setValue("photoUrl", path);
+		} catch {
+			toastError("Photo upload failed. Please try again.");
+		} finally {
+			setPhotoUploading(false);
+		}
+	}
 
 	const termValue = watch("term");
 
@@ -120,6 +162,8 @@ export function AcademicRecordsSection({
 
 	function openAdd() {
 		setEditingRecord(null);
+		setGpaMode("gpa");
+		setGpaRaw("");
 		reset({
 			schoolYear: "",
 			term: "",
@@ -127,6 +171,7 @@ export function AcademicRecordsSection({
 			cumulativeGpa: "",
 			gradeLevel: "",
 			notes: "",
+			photoUrl: "",
 		});
 		setCollapsed(false);
 		setDialogOpen(true);
@@ -134,6 +179,8 @@ export function AcademicRecordsSection({
 
 	function openEdit(record: AcademicRecord) {
 		setEditingRecord(record);
+		setGpaMode("gpa");
+		setGpaRaw("");
 		reset({
 			schoolYear: record.schoolYear,
 			term: record.term,
@@ -144,6 +191,7 @@ export function AcademicRecordsSection({
 					: "",
 			gradeLevel: record.gradeLevel ?? "",
 			notes: record.notes ?? "",
+			photoUrl: record.photoUrl ?? "",
 		});
 		setDialogOpen(true);
 	}
@@ -173,6 +221,7 @@ export function AcademicRecordsSection({
 				gradeLevel:
 					values.gradeLevel !== "" ? values.gradeLevel : undefined,
 				notes: values.notes !== "" ? values.notes : undefined,
+				photoUrl: values.photoUrl !== "" ? values.photoUrl : null,
 			});
 			toastSuccess("Academic record saved");
 			setDialogOpen(false);
@@ -282,6 +331,21 @@ export function AcademicRecordsSection({
 										<span className="text-xs">
 											{record.gradeLevel ?? "—"}
 										</span>
+										{record.photoUrl && (
+											<a
+												href={`/image-proxy/customFields/${record.photoUrl}`}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="col-span-5 pt-1"
+											>
+												{/* biome-ignore lint/performance/noImgElement: signed image-proxy URL */}
+												<img
+													src={`/image-proxy/customFields/${record.photoUrl}`}
+													alt="Academic record"
+													className="h-12 w-12 rounded border object-cover"
+												/>
+											</a>
+										)}
 										{isAdmin && (
 											<div className="col-span-5 flex gap-1 pt-0.5">
 												<Button
@@ -384,9 +448,34 @@ export function AcademicRecordsSection({
 							</Select>
 						</div>
 
-						<div className="grid grid-cols-2 gap-4">
-							<div className="space-y-2">
+						<div className="space-y-2">
+							<div className="flex items-center justify-between gap-2">
 								<Label htmlFor="termGpa">Term GPA</Label>
+								<Select
+									value={gpaMode}
+									onValueChange={(v) => {
+										setGpaMode(v as GradeInputMode);
+										setGpaRaw("");
+										setValue("termGpa", "");
+									}}
+								>
+									<SelectTrigger className="h-7 w-[140px] text-xs">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="gpa">
+											Enter GPA
+										</SelectItem>
+										<SelectItem value="percent">
+											Enter percentage
+										</SelectItem>
+										<SelectItem value="letter">
+											Enter letter grade
+										</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+							{gpaMode === "gpa" ? (
 								<Input
 									id="termGpa"
 									type="number"
@@ -396,21 +485,57 @@ export function AcademicRecordsSection({
 									step={0.01}
 									{...register("termGpa")}
 								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="cumulativeGpa">
-									Cumulative GPA
-								</Label>
+							) : gpaMode === "percent" ? (
 								<Input
-									id="cumulativeGpa"
+									id="termGpa"
 									type="number"
-									placeholder="3.82"
+									placeholder="92"
 									min={0}
-									max={4.0}
-									step={0.01}
-									{...register("cumulativeGpa")}
+									max={100}
+									value={gpaRaw}
+									onChange={(e) =>
+										handleGpaRawChange(e.target.value)
+									}
 								/>
-							</div>
+							) : (
+								<Select
+									value={gpaRaw}
+									onValueChange={handleGpaRawChange}
+								>
+									<SelectTrigger id="termGpa">
+										<SelectValue placeholder="Select letter grade" />
+									</SelectTrigger>
+									<SelectContent>
+										{LETTER_OPTIONS.map((l) => (
+											<SelectItem key={l} value={l}>
+												{l}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							)}
+							{gpaMode !== "gpa" && (
+								<p className="text-xs text-muted-foreground">
+									{watch("termGpa")
+										? `Converts to ${watch("termGpa")} GPA`
+										: "Enter a value to convert to a 4.0 GPA"}
+								</p>
+							)}
+						</div>
+
+						<div className="space-y-2">
+							<Label htmlFor="cumulativeGpa">
+								Cumulative GPA
+							</Label>
+							<Input
+								id="cumulativeGpa"
+								type="number"
+								placeholder="3.82"
+								min={0}
+								max={4.0}
+								step={0.01}
+								{...register("cumulativeGpa")}
+							/>
 						</div>
 
 						<div className="space-y-2">
@@ -429,6 +554,47 @@ export function AcademicRecordsSection({
 								placeholder="Optional notes..."
 								{...register("notes")}
 							/>
+						</div>
+
+						<div className="space-y-2">
+							<Label>Photo (e.g. report card)</Label>
+							{photoUrl ? (
+								<div className="flex items-center gap-3">
+									{/* biome-ignore lint/performance/noImgElement: signed image-proxy URL */}
+									<img
+										src={`/image-proxy/customFields/${photoUrl}`}
+										alt="Academic record"
+										className="h-16 w-16 rounded-md border object-cover"
+									/>
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										className="text-destructive hover:text-destructive"
+										onClick={() => setValue("photoUrl", "")}
+									>
+										Remove
+									</Button>
+								</div>
+							) : (
+								<label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed px-3 py-2 text-sm hover:bg-muted">
+									<ImageIcon className="size-4" />
+									{photoUploading
+										? "Uploading…"
+										: "Upload photo"}
+									<input
+										type="file"
+										accept="image/jpeg,image/png"
+										className="sr-only"
+										disabled={photoUploading}
+										onChange={(e) => {
+											const file = e.target.files?.[0];
+											if (file) handlePhotoSelect(file);
+											e.target.value = "";
+										}}
+									/>
+								</label>
+							)}
 						</div>
 
 						<DialogFooter>

@@ -31,6 +31,7 @@ export async function createPersonNote(data: {
 	authorId: string;
 	body: string;
 	mentionUserIds: string[];
+	photoUrl?: string | null;
 }) {
 	const { mentionUserIds, ...noteData } = data;
 	return db.personNote.create({
@@ -53,12 +54,14 @@ export async function updatePersonNote(data: {
 	id: string;
 	body: string;
 	mentionUserIds: string[];
+	photoUrl?: string | null;
 }) {
-	const { id, body, mentionUserIds } = data;
+	const { id, body, mentionUserIds, photoUrl } = data;
 	return db.personNote.update({
 		where: { id },
 		data: {
 			body,
+			photoUrl,
 			mentions: {
 				deleteMany: {},
 				create: mentionUserIds.map((userId) => ({ userId })),
