@@ -24,6 +24,13 @@ export const addMemberSchema = z.object({
 	role: z.enum(["MEMBER", "LEADER"]).default("MEMBER"),
 });
 
+export const changeMemberGroupSchema = z.object({
+	personId: z.string().max(36),
+	fromGroupId: z.string().max(36),
+	toGroupId: z.string().max(36),
+	role: z.enum(["MEMBER", "LEADER"]).optional(),
+});
+
 export type CreateGroupInput = z.infer<typeof createGroupSchema>;
 export type UpdateGroupInput = z.infer<typeof updateGroupSchema>;
 export type AddMemberInput = z.infer<typeof addMemberSchema>;

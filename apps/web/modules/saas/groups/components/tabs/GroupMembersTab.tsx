@@ -3,7 +3,22 @@
 import { Avatar, AvatarFallback } from "@repo/ui/components/avatar";
 import { Button } from "@repo/ui/components/button";
 import { Checkbox } from "@repo/ui/components/checkbox";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@repo/ui/components/dialog";
 import { Input } from "@repo/ui/components/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@repo/ui/components/select";
 import {
 	Table,
 	TableBody,
@@ -15,11 +30,14 @@ import {
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import {
 	type GroupDetail,
+	useChangeMemberGroup,
+	useGroups,
 	useRemoveMember,
 } from "@saas/groups/hooks/use-groups";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+	ArrowRightLeftIcon,
 	DownloadIcon,
 	MailIcon,
 	PlusIcon,
@@ -39,10 +57,43 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 	const t = useTranslations();
 	const queryClient = useQueryClient();
 	const removeMember = useRemoveMember();
+	const changeMemberGroup = useChangeMemberGroup();
+	const { data: allGroups } = useGroups();
 
 	const [memberSearch, setMemberSearch] = useState("");
 	const [addMemberOpen, setAddMemberOpen] = useState(false);
 	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+	const [moveMember, setMoveMember] = useState<{
+		personId: string;
+		name: string;
+	} | null>(null);
+	const [moveTargetId, setMoveTargetId] = useState("");
+
+	const moveTargetGroups = useMemo(
+		() => (allGroups ?? []).filter((g) => g.id !== groupId),
+		[allGroups, groupId],
+	);
+
+	const handleMoveMember = async () => {
+		if (!moveMember || !moveTargetId) return;
+		try {
+			await changeMemberGroup.mutateAsync({
+				personId: moveMember.personId,
+				fromGroupId: groupId,
+				toGroupId: moveTargetId,
+			});
+			await invalidateGroup();
+			toastSuccess(`${moveMember.name} moved to the selected group.`);
+			setMoveMember(null);
+			setMoveTargetId("");
+		} catch (err) {
+			toastError(
+				err instanceof Error
+					? err.message
+					: t("launchclub.groups.form.notifications.error"),
+			);
+		}
+	};
 
 	const invalidateGroup = () =>
 		queryClient.invalidateQueries(
@@ -385,16 +436,35 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 										).toLocaleDateString()}
 									</TableCell>
 									<TableCell>
-										<Button
-											variant="ghost"
-											size="icon"
-											className="h-8 w-8 text-destructive hover:text-destructive"
-											onClick={() =>
-												handleRemoveMember(person.id)
-											}
-										>
-											<XIcon className="h-4 w-4" />
-										</Button>
+										<div className="flex items-center justify-end gap-1">
+											<Button
+												variant="ghost"
+												size="icon"
+												className="h-8 w-8"
+												title="Move to another group"
+												onClick={() => {
+													setMoveTargetId("");
+													setMoveMember({
+														personId: person.id,
+														name: `${person.firstName} ${person.lastName}`,
+													});
+												}}
+											>
+												<ArrowRightLeftIcon className="h-4 w-4" />
+											</Button>
+											<Button
+												variant="ghost"
+												size="icon"
+												className="h-8 w-8 text-destructive hover:text-destructive"
+												onClick={() =>
+													handleRemoveMember(
+														person.id,
+													)
+												}
+											>
+												<XIcon className="h-4 w-4" />
+											</Button>
+										</div>
 									</TableCell>
 								</TableRow>
 							);
@@ -427,6 +497,69 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 					onSuccess={invalidateGroup}
 				/>
 			)}
+
+			<Dialog
+				open={!!moveMember}
+				onOpenChange={(open) => {
+					if (!open) {
+						setMoveMember(null);
+						setMoveTargetId("");
+					}
+				}}
+			>
+				<DialogContent className="max-w-md">
+					<DialogHeader>
+						<DialogTitle>Move to another group</DialogTitle>
+						<DialogDescription>
+							Move {moveMember?.name} out of {group.name} and into
+							the group you select. Their role is preserved.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="py-2">
+						<Select
+							value={moveTargetId}
+							onValueChange={setMoveTargetId}
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="Select a group…" />
+							</SelectTrigger>
+							<SelectContent>
+								{moveTargetGroups.length === 0 ? (
+									<div className="px-3 py-2 text-muted-foreground text-sm">
+										No other groups available.
+									</div>
+								) : (
+									moveTargetGroups.map((g) => (
+										<SelectItem key={g.id} value={g.id}>
+											{g.site?.name
+												? `${g.site.name} — ${g.name}`
+												: g.name}
+										</SelectItem>
+									))
+								)}
+							</SelectContent>
+						</Select>
+					</div>
+					<DialogFooter>
+						<Button
+							variant="outline"
+							onClick={() => {
+								setMoveMember(null);
+								setMoveTargetId("");
+							}}
+						>
+							Cancel
+						</Button>
+						<Button
+							onClick={handleMoveMember}
+							disabled={!moveTargetId}
+							loading={changeMemberGroup.isPending}
+						>
+							Move
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
