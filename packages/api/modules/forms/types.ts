@@ -39,6 +39,9 @@ export const publicGetFormSchema = z.object({
 
 export const publicConsentUploadUrlSchema = z.object({
 	consentItemId: z.string(),
+	contentType: z
+		.enum(["image/jpeg", "image/jpg", "image/png", "application/pdf"])
+		.default("application/pdf"),
 });
 
 export const publicFormFieldUploadUrlSchema = z.object({

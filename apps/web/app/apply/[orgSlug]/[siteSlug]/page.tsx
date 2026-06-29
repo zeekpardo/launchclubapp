@@ -46,6 +46,14 @@ export default async function ApplyPage({
 					{site && (
 						<p className="text-sm font-medium text-muted-foreground">
 							{t("applyingFor")}{" "}
+							{site.area?.name && (
+								<span className="text-foreground">
+									{site.area.name}{" "}
+									<span className="text-muted-foreground">
+										›
+									</span>{" "}
+								</span>
+							)}
 							<span className="text-foreground">{site.name}</span>
 						</p>
 					)}

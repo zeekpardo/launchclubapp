@@ -899,6 +899,8 @@
 				"zipCode": "Código Postal",
 				"phone": "Teléfono",
 				"email": "Correo electrónico",
+				"startDate": "Fecha de inicio",
+				"endDate": "Fecha de finalización",
 				"save": "Guardar",
 				"notifications": {
 					"created": "Sede creada exitosamente.",

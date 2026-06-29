@@ -15,7 +15,6 @@ import {
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import {
 	type GroupDetail,
-	useAddMember,
 	useRemoveMember,
 } from "@saas/groups/hooks/use-groups";
 import { orpc } from "@shared/lib/orpc-query-utils";
@@ -40,7 +39,6 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 	const t = useTranslations();
 	const queryClient = useQueryClient();
 	const removeMember = useRemoveMember();
-	const addMember = useAddMember();
 
 	const [memberSearch, setMemberSearch] = useState("");
 	const [addMemberOpen, setAddMemberOpen] = useState(false);
@@ -61,20 +59,6 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 			});
 			await invalidateGroup();
 			toastSuccess(t("launchclub.groups.members.remove"));
-		} catch {
-			toastError(t("launchclub.groups.form.notifications.error"));
-		}
-	};
-
-	const handleChangeRole = async (personId: string, currentRole: string) => {
-		const newRole = currentRole === "LEADER" ? "MEMBER" : "LEADER";
-		try {
-			await addMember.mutateAsync({
-				groupId,
-				personId,
-				role: newRole as "MEMBER" | "LEADER",
-			});
-			await invalidateGroup();
 		} catch {
 			toastError(t("launchclub.groups.form.notifications.error"));
 		}
@@ -372,21 +356,6 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 										<span className="capitalize">
 											{role.toLowerCase()}
 										</span>
-										<Button
-											variant="link"
-											size="sm"
-											className="ml-1 h-auto p-0 text-xs"
-											onClick={() =>
-												handleChangeRole(
-													person.id,
-													role,
-												)
-											}
-										>
-											{t(
-												"launchclub.groups.members.editRole",
-											)}
-										</Button>
 									</TableCell>
 									<TableCell className="text-muted-foreground">
 										{person.personType === "STUDENT" &&

@@ -34,6 +34,8 @@ const formSchema = z.object({
 	country: z.string().optional(),
 	phone: z.string().optional(),
 	email: z.string().email().optional().or(z.literal("")),
+	startDate: z.string().optional(),
+	endDate: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -59,6 +61,15 @@ interface EditingSite {
 	country?: string | null;
 	phone?: string | null;
 	email?: string | null;
+	startDate?: string | Date | null;
+	endDate?: string | Date | null;
+}
+
+// Convert a stored Date/ISO string to a yyyy-mm-dd value for <input type="date">.
+function toDateInput(v: string | Date | null | undefined): string {
+	if (!v) return "";
+	const d = new Date(v);
+	return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
 }
 
 interface SiteDialogProps {
@@ -112,6 +123,8 @@ export function SiteDialog({
 			country: site?.country ?? "",
 			phone: site?.phone ?? "",
 			email: site?.email ?? "",
+			startDate: toDateInput(site?.startDate),
+			endDate: toDateInput(site?.endDate),
 		});
 	}, [site]);
 
@@ -136,6 +149,8 @@ export function SiteDialog({
 				country: values.country || undefined,
 				phone: values.phone || undefined,
 				email: values.email || undefined,
+				startDate: values.startDate || undefined,
+				endDate: values.endDate || undefined,
 			};
 
 			if (isEditing && site) {
