@@ -27,7 +27,17 @@ export const updateSiteProcedure = protectedProcedure
 			if (!(await canAccessSite(context.user.id, input.id)))
 				throw new ORPCError("FORBIDDEN");
 		}
-		const { id, applicationDeadline, startDate, endDate, ...rest } = input;
+		// areaId is intentionally dropped: a site's area is not changed on edit
+		// (updateSite's type omits it), and passing the scalar makes Prisma throw
+		// "Unknown argument areaId".
+		const {
+			id,
+			areaId: _areaId,
+			applicationDeadline,
+			startDate,
+			endDate,
+			...rest
+		} = input;
 		const toDate = (v: string | null | undefined) =>
 			v === null ? null : v ? new Date(v) : undefined;
 		return updateSite(id, {
