@@ -18,6 +18,8 @@ import { PublicFormSubmit } from "./PublicFormSubmit";
 interface Site {
 	id: string;
 	name: string;
+	slug?: string;
+	areaName?: string | null;
 }
 
 interface StudentEntry {
@@ -148,8 +150,35 @@ export function StudentFormLayout({
 		);
 	}
 
+	const activeSite = sites.find(
+		(s) => s.id === (preselectedSiteId ?? selectedSiteId),
+	);
+
 	return (
 		<div className="space-y-6">
+			{/* Heading: form name + Area › Site context */}
+			<div className="space-y-1 text-center">
+				<h1 className="text-2xl font-bold">{formName}</h1>
+				{activeSite && (
+					<p className="text-sm font-medium text-muted-foreground">
+						{activeSite.areaName && (
+							<>
+								{activeSite.areaName}{" "}
+								<span className="opacity-60">›</span>{" "}
+							</>
+						)}
+						<span className="text-foreground">
+							{activeSite.name}
+						</span>
+					</p>
+				)}
+				{formDescription && (
+					<p className="text-sm text-muted-foreground">
+						{formDescription}
+					</p>
+				)}
+			</div>
+
 			{/* Site selector */}
 			{hasSiteSelector && !preselectedSiteId && sites.length > 0 && (
 				<Card>
@@ -172,7 +201,9 @@ export function StudentFormLayout({
 								<option value="">Select a site…</option>
 								{sites.map((site) => (
 									<option key={site.id} value={site.id}>
-										{site.name}
+										{site.areaName
+											? `${site.areaName} › ${site.name}`
+											: site.name}
 									</option>
 								))}
 							</select>

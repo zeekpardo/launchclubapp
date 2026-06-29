@@ -14,6 +14,8 @@ import { PublicFormSubmit } from "./PublicFormSubmit";
 interface Site {
 	id: string;
 	name: string;
+	slug?: string;
+	areaName?: string | null;
 }
 
 interface MentorFormLayoutProps {
@@ -76,11 +78,28 @@ export function MentorFormLayout({
 		);
 	}
 
+	const activeSite = sites.find(
+		(s) => s.id === (preselectedSiteId ?? selectedSiteId),
+	);
+
 	return (
 		<div className="space-y-6">
 			<Card>
 				<CardHeader>
 					<CardTitle>{formName}</CardTitle>
+					{activeSite && (
+						<p className="text-sm font-medium text-muted-foreground">
+							{activeSite.areaName && (
+								<>
+									{activeSite.areaName}{" "}
+									<span className="opacity-60">›</span>{" "}
+								</>
+							)}
+							<span className="text-foreground">
+								{activeSite.name}
+							</span>
+						</p>
+					)}
 					{formDescription && (
 						<p className="text-sm text-muted-foreground">
 							{formDescription}
@@ -110,7 +129,9 @@ export function MentorFormLayout({
 									<option value="">Select a site…</option>
 									{sites.map((site) => (
 										<option key={site.id} value={site.id}>
-											{site.name}
+											{site.areaName
+												? `${site.areaName} › ${site.name}`
+												: site.name}
 										</option>
 									))}
 								</select>

@@ -32,7 +32,11 @@ export async function getFormBySlug(organizationId: string, slug: string) {
 					},
 				},
 			},
-			formSites: { include: { site: true } },
+			formSites: {
+				include: {
+					site: { include: { area: { select: { name: true } } } },
+				},
+			},
 		},
 	});
 }

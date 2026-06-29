@@ -33,13 +33,19 @@ export default async function PublicFormPage({
 
 	const formSites = (form.formSites ?? []) as {
 		siteId: string;
-		site?: { id: string; name: string; slug: string };
+		site?: {
+			id: string;
+			name: string;
+			slug: string;
+			area?: { name: string } | null;
+		};
 	}[];
 
 	const sites = formSites.map((fs) => ({
 		id: fs.siteId,
 		name: fs.site?.name ?? fs.siteId,
 		slug: fs.site?.slug ?? "",
+		areaName: fs.site?.area?.name ?? null,
 	}));
 
 	const preselectedSiteId = siteSlug

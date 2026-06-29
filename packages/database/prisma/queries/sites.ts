@@ -26,7 +26,7 @@ export async function getSiteById(id: string) {
 export async function getSiteBySlug(slug: string) {
 	return db.site.findUnique({
 		where: { slug },
-		include: { area: { select: { organizationId: true } } },
+		include: { area: { select: { organizationId: true, name: true } } },
 	});
 }
 
