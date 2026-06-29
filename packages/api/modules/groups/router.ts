@@ -1,5 +1,6 @@
 import { addMember } from "./procedures/add-member";
 import { assignGroupLeader } from "./procedures/assign-leader";
+import { changeMemberGroup } from "./procedures/change-member-group";
 import { createGroupProcedure } from "./procedures/create";
 import { createGroupImageUploadUrl } from "./procedures/create-image-upload-url";
 import { deleteGroupProcedure } from "./procedures/delete";
@@ -17,6 +18,7 @@ export const groupsRouter = {
 	delete: deleteGroupProcedure,
 	addMember,
 	removeMember,
+	changeMemberGroup,
 	assignLeader: assignGroupLeader,
 	removeLeader: removeGroupLeader,
 	imageUploadUrl: createGroupImageUploadUrl,

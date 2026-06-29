@@ -79,3 +79,7 @@ export function useAddMember() {
 export function useRemoveMember() {
 	return useMutation(orpc.groups.removeMember.mutationOptions());
 }
+
+export function useChangeMemberGroup() {
+	return useMutation(orpc.groups.changeMemberGroup.mutationOptions());
+}

@@ -34,6 +34,10 @@ export const createEventSchema = z
 	})
 	.merge(guestFields);
 
+export const createEventsFromGroupScheduleSchema = z.object({
+	groupId: z.string(),
+});
+
 export const updateEventSchema = z
 	.object({
 		id: z.string(),

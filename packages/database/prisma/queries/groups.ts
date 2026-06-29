@@ -99,6 +99,37 @@ export async function removePersonFromGroup(personId: string, groupId: string) {
 	});
 }
 
+/**
+ * Move a person from one group to another, preserving their role unless a new
+ * one is given. Runs in a transaction so the person is never left in neither
+ * (or both) group. Idempotent on the destination via upsert.
+ */
+export async function movePersonBetweenGroups(
+	personId: string,
+	fromGroupId: string,
+	toGroupId: string,
+	role?: string,
+) {
+	return db.$transaction(async (tx) => {
+		const existing = await tx.personGroup.findUnique({
+			where: { personId_groupId: { personId, groupId: fromGroupId } },
+		});
+		const nextRole = role ?? existing?.role ?? "MEMBER";
+		if (existing) {
+			await tx.personGroup.delete({
+				where: {
+					personId_groupId: { personId, groupId: fromGroupId },
+				},
+			});
+		}
+		return tx.personGroup.upsert({
+			where: { personId_groupId: { personId, groupId: toGroupId } },
+			create: { personId, groupId: toGroupId, role: nextRole },
+			update: { role: nextRole },
+		});
+	});
+}
+
 export async function countGroupsByOrganization(organizationId: string) {
 	return db.group.count({ where: { site: { area: { organizationId } } } });
 }
