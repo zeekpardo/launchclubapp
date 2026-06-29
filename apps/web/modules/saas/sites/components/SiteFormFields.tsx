@@ -34,6 +34,8 @@ interface SiteFormValues {
 	country?: string;
 	phone?: string;
 	email?: string;
+	startDate?: string;
+	endDate?: string;
 }
 
 interface SiteFormFieldsProps {
@@ -219,6 +221,48 @@ export function SiteFormFields({ control, areas }: SiteFormFieldsProps) {
 					</FormItem>
 				)}
 			/>
+
+			<div className="grid grid-cols-2 gap-4">
+				<FormField
+					control={control}
+					name="startDate"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>
+								{t("launchclub.sites.form.startDate")}
+							</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									type="date"
+									value={field.value ?? ""}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={control}
+					name="endDate"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>
+								{t("launchclub.sites.form.endDate")}
+							</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									type="date"
+									value={field.value ?? ""}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+			</div>
 		</>
 	);
 }

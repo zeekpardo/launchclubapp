@@ -20,11 +20,13 @@ export const createSiteProcedure = protectedProcedure
 			membership?.role === "admin" ||
 			context.user.role === "admin";
 		if (!isOwner) throw new ORPCError("FORBIDDEN");
-		const { applicationDeadline, ...rest } = input;
+		const { applicationDeadline, startDate, endDate, ...rest } = input;
 		return createSite({
 			...rest,
 			applicationDeadline: applicationDeadline
 				? new Date(applicationDeadline)
 				: undefined,
+			startDate: startDate ? new Date(startDate) : undefined,
+			endDate: endDate ? new Date(endDate) : undefined,
 		});
 	});

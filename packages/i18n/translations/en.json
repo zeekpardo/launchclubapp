@@ -939,6 +939,8 @@
 				"zipCode": "Zip Code",
 				"phone": "Phone",
 				"email": "Email",
+				"startDate": "Start Date",
+				"endDate": "End Date",
 				"save": "Save",
 				"notifications": {
 					"created": "Site created successfully.",

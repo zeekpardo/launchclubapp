@@ -16,6 +16,8 @@ export const createSiteSchema = z.object({
 	email: z.string().email().optional(),
 	acceptApplications: z.boolean().optional(),
 	applicationDeadline: z.string().optional().nullable(),
+	startDate: z.string().optional().nullable(),
+	endDate: z.string().optional().nullable(),
 });
 
 export const updateSiteSchema = createSiteSchema

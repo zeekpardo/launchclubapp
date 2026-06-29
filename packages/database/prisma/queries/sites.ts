@@ -51,6 +51,8 @@ export async function createSite(data: {
 	email?: string;
 	acceptApplications?: boolean;
 	applicationDeadline?: Date | null;
+	startDate?: Date | null;
+	endDate?: Date | null;
 }) {
 	return db.site.create({ data });
 }

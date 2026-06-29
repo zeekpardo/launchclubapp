@@ -27,14 +27,13 @@ export const updateSiteProcedure = protectedProcedure
 			if (!(await canAccessSite(context.user.id, input.id)))
 				throw new ORPCError("FORBIDDEN");
 		}
-		const { id, applicationDeadline, ...rest } = input;
+		const { id, applicationDeadline, startDate, endDate, ...rest } = input;
+		const toDate = (v: string | null | undefined) =>
+			v === null ? null : v ? new Date(v) : undefined;
 		return updateSite(id, {
 			...rest,
-			applicationDeadline:
-				applicationDeadline === null
-					? null
-					: applicationDeadline
-						? new Date(applicationDeadline)
-						: undefined,
+			applicationDeadline: toDate(applicationDeadline),
+			startDate: toDate(startDate),
+			endDate: toDate(endDate),
 		});
 	});
