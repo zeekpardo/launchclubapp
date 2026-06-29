@@ -26,6 +26,7 @@ export const createPersonNoteProcedure = protectedProcedure
 			authorId: context.user.id,
 			body: input.body,
 			mentionUserIds: input.mentionUserIds,
+			photoUrl: input.photoUrl,
 		});
 
 		if (note.mentions.length > 0) {

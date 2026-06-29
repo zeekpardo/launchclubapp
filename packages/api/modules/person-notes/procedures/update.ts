@@ -36,5 +36,6 @@ export const updatePersonNoteProcedure = protectedProcedure
 			id: input.id,
 			body: input.body,
 			mentionUserIds: input.mentionUserIds,
+			photoUrl: input.photoUrl,
 		});
 	});

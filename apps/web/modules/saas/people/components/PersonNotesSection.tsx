@@ -12,8 +12,10 @@ import { Textarea } from "@repo/ui/components/textarea";
 import { toastError, toastSuccess } from "@repo/ui/components/toast";
 import { useSession } from "@saas/auth/hooks/use-session";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
+import { orpcClient } from "@shared/lib/orpc-client";
 import {
 	ChevronDownIcon,
+	ImageIcon,
 	PencilIcon,
 	PlusIcon,
 	Trash2Icon,
@@ -79,18 +81,26 @@ interface NoteComposerProps {
 	personId: string;
 	organizationId: string;
 	mentionableUsers: MentionableUser[];
-	editingNote?: { id: string; body: string } | undefined;
-	onCreate: (body: string, mentionUserIds: string[]) => Promise<void>;
+	editingNote?:
+		| { id: string; body: string; photoUrl?: string | null }
+		| undefined;
+	onCreate: (
+		body: string,
+		mentionUserIds: string[],
+		photoUrl: string | null,
+	) => Promise<void>;
 	onUpdate: (
 		id: string,
 		body: string,
 		mentionUserIds: string[],
+		photoUrl: string | null,
 	) => Promise<void>;
 	onCancel: () => void;
 	isSubmitting: boolean;
 }
 
 function NoteComposer({
+	personId,
 	mentionableUsers,
 	editingNote,
 	onCreate,
@@ -100,7 +110,35 @@ function NoteComposer({
 }: NoteComposerProps) {
 	const [body, setBody] = useState(editingNote?.body ?? "");
 	const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+	const [photoUrl, setPhotoUrl] = useState<string | null>(
+		editingNote?.photoUrl ?? null,
+	);
+	const [photoUploading, setPhotoUploading] = useState(false);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+	async function handlePhotoSelect(file: File) {
+		setPhotoUploading(true);
+		try {
+			const contentType =
+				file.type === "image/png" ? "image/png" : "image/jpeg";
+			const { signedUploadUrl, path } =
+				await orpcClient.personNotes.photoUploadUrl({
+					personId,
+					contentType,
+				});
+			const res = await fetch(signedUploadUrl, {
+				method: "PUT",
+				headers: { "Content-Type": contentType },
+				body: file,
+			});
+			if (!res.ok) throw new Error("upload failed");
+			setPhotoUrl(path);
+		} catch {
+			toastError("Photo upload failed. Please try again.");
+		} finally {
+			setPhotoUploading(false);
+		}
+	}
 
 	const handleChange = useCallback(
 		(e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -160,9 +198,9 @@ function NoteComposer({
 		if (!body.trim()) return;
 		const mentionUserIds = extractMentionIds(body);
 		if (editingNote) {
-			await onUpdate(editingNote.id, body, mentionUserIds);
+			await onUpdate(editingNote.id, body, mentionUserIds, photoUrl);
 		} else {
-			await onCreate(body, mentionUserIds);
+			await onCreate(body, mentionUserIds, photoUrl);
 		}
 	}
 
@@ -211,6 +249,41 @@ function NoteComposer({
 					</div>
 				)}
 			</div>
+			{photoUrl ? (
+				<div className="flex items-center gap-3">
+					{/* biome-ignore lint/performance/noImgElement: signed image-proxy URL */}
+					<img
+						src={`/image-proxy/customFields/${photoUrl}`}
+						alt="Note attachment"
+						className="h-16 w-16 rounded-md border object-cover"
+					/>
+					<Button
+						type="button"
+						variant="ghost"
+						size="sm"
+						className="h-7 text-xs text-destructive hover:text-destructive"
+						onClick={() => setPhotoUrl(null)}
+					>
+						Remove photo
+					</Button>
+				</div>
+			) : (
+				<label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-md border border-dashed px-3 py-1.5 text-xs hover:bg-muted">
+					<ImageIcon className="size-3.5" />
+					{photoUploading ? "Uploading…" : "Add photo"}
+					<input
+						type="file"
+						accept="image/jpeg,image/png"
+						className="sr-only"
+						disabled={photoUploading}
+						onChange={(e) => {
+							const file = e.target.files?.[0];
+							if (file) handlePhotoSelect(file);
+							e.target.value = "";
+						}}
+					/>
+				</label>
+			)}
 			<div className="flex justify-end gap-2">
 				<Button
 					type="button"
@@ -309,16 +382,22 @@ export function PersonNotesSection({ personId }: PersonNotesSectionProps) {
 											notes as Array<{
 												id: string;
 												body: string;
+												photoUrl?: string | null;
 											}>
 										).find((n) => n.id === editingNoteId)
 									: undefined
 							}
-							onCreate={async (body, mentionUserIds) => {
+							onCreate={async (
+								body,
+								mentionUserIds,
+								photoUrl,
+							) => {
 								try {
 									await createNote.mutateAsync({
 										personId,
 										body,
 										mentionUserIds,
+										photoUrl,
 									});
 									toastSuccess("Note added");
 									setComposerOpen(false);
@@ -326,13 +405,19 @@ export function PersonNotesSection({ personId }: PersonNotesSectionProps) {
 									toastError("Failed to add note");
 								}
 							}}
-							onUpdate={async (id, body, mentionUserIds) => {
+							onUpdate={async (
+								id,
+								body,
+								mentionUserIds,
+								photoUrl,
+							) => {
 								try {
 									await updateNote.mutateAsync({
 										id,
 										personId,
 										body,
 										mentionUserIds,
+										photoUrl,
 									});
 									toastSuccess("Note updated");
 									setComposerOpen(false);
@@ -359,6 +444,7 @@ export function PersonNotesSection({ personId }: PersonNotesSectionProps) {
 							notes as Array<{
 								id: string;
 								body: string;
+								photoUrl: string | null;
 								createdAt: string | Date;
 								author: {
 									id: string;
@@ -434,6 +520,20 @@ export function PersonNotesSection({ personId }: PersonNotesSectionProps) {
 									<div className="text-sm leading-relaxed">
 										{renderNoteBody(note.body)}
 									</div>
+									{note.photoUrl && (
+										<a
+											href={`/image-proxy/customFields/${note.photoUrl}`}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											{/* biome-ignore lint/performance/noImgElement: signed image-proxy URL */}
+											<img
+												src={`/image-proxy/customFields/${note.photoUrl}`}
+												alt="Note attachment"
+												className="mt-1 max-h-48 rounded-md border object-cover"
+											/>
+										</a>
+									)}
 								</div>
 							);
 						})

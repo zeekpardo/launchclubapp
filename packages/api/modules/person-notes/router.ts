@@ -1,4 +1,5 @@
 import { createPersonNoteProcedure } from "./procedures/create";
+import { createNotePhotoUploadUrlProcedure } from "./procedures/create-photo-upload-url";
 import { deletePersonNoteProcedure } from "./procedures/delete";
 import { listPersonNotesProcedure } from "./procedures/list";
 import { listMentionableUsersProcedure } from "./procedures/list-mentionable-users";
@@ -9,5 +10,6 @@ export const personNotesRouter = {
 	create: createPersonNoteProcedure,
 	update: updatePersonNoteProcedure,
 	delete: deletePersonNoteProcedure,
+	photoUploadUrl: createNotePhotoUploadUrlProcedure,
 	mentionableUsers: listMentionableUsersProcedure,
 };
