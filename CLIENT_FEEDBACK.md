@@ -1,11 +1,13 @@
 # Client Feedback — Testing & Feature Requests
 
 > Source: Kelvin and Lucy, testing session on **6/13**
-> Logged: 2026-06-27
+> Logged: 2026-06-27 · **Updated: 2026-06-28**
 
 Legend: 🐞 Bug · ✨ Feature request · 💡 Nice-to-have
 
-> Jump to: [**Prioritized Roadmap**](#prioritized-roadmap) · [Detailed feedback by area](#1-organization--members--invite-members)
+> **Status — ✅ All 17 reported bugs are fixed, merged to `main`, and deployed to production** (PRs [#10](https://github.com/zeekpardo/launchclubapp/pull/10) + [#9](https://github.com/zeekpardo/launchclubapp/pull/9); production deploy `bd09d9e0`). Feature requests & nice-to-haves below are **not started** (deferred — bug-fix scope only). We also shipped extra security/operational hardening beyond the client list — see [Additional work shipped](#additional-work-shipped).
+
+> Jump to: [**Prioritized Roadmap**](#prioritized-roadmap) · [Detailed feedback by area](#1-organization--members--invite-members) · [Additional work shipped](#additional-work-shipped)
 
 ---
 
@@ -13,16 +15,16 @@ Legend: 🐞 Bug · ✨ Feature request · 💡 Nice-to-have
 
 Ordered **bugs → essential features → nice-to-haves**, with bugs ranked by severity. Section references (e.g. `§6.6`) link back to the detailed notes below.
 
-## 🔴 P0 — Critical bugs (data integrity / total blockers)
+## 🔴 P0 — Critical bugs (data integrity / total blockers) — ✅ all fixed
 > Fix first. These corrupt data or make a core flow unusable.
 
-1. [ ] 🐞 **Applications attributed to the wrong site** — both NTCC and GBBC links file everything under GBBC. *(§6.6)* — corrupts which site a child belongs to.
-2. [ ] 🐞 **"No group (assign later)" applications disappear** — approved record can't be found anywhere. *(§6.5)* — effective data loss.
-3. [x] 🐞 **Invite members is broken** — inconsistent, and accepting an invite spins up a *new* organization + forces area/site/group setup instead of joining the inviter's org. *(§1)* — blocks all team onboarding. **✅ FIXED (dev + prod)** — two changes: (a) `SignupForm.tsx` now signs invited new users in and routes them to the invitation modal to join the existing org; (b) `auth.ts` `databaseHooks.user.create.before` marks an invited user's email verified at signup, so production's `requireEmailVerification` no longer forces a verification round-trip that dropped the `invitationId` and pushed them into creating a new org. Verified end-to-end (membership = existing org, `emailVerified: true`, invitation `accepted`).
+1. [x] 🐞 **Applications attributed to the wrong site** — both NTCC and GBBC links file everything under GBBC. *(§6.6)* — **✅ FIXED** — the student & mentor form layouts now submit with the selected site (`siteId={selectedSiteId || undefined}`) instead of falling back to a default, so each application files under the site whose link it came through.
+2. [x] 🐞 **"No group (assign later)" applications disappear** — approved record can't be found anywhere. *(§6.5)* — **✅ FIXED** — approval now migrates the applicant into People idempotently even when "No group (assign later)" is chosen (`applications/review.ts` + idempotent `migrateApplicationToPeople`), so the person record always lands in People regardless of group choice.
+3. [x] 🐞 **Invite members is broken** — inconsistent, and accepting an invite spins up a *new* organization + forces area/site/group setup instead of joining the inviter's org. *(§1)* — blocks all team onboarding. **✅ FIXED (dev + prod)** — `SignupForm.tsx` now signs an invited new user in and routes them to the invitation modal to **join the inviter's org** instead of new-org onboarding. When production requires email verification, the verification email carries the `invitationId` in its `callbackURL`, so after verifying, the user lands on the join-org flow (not new-org setup). *(An earlier approach auto-verified invited emails at signup; it was **removed during the security review** because it enabled account pre-takeover, and replaced with the callbackURL approach above.)*
 4. [x] 🐞 **Site leader gets 404 on "People"** *(§2.1)* — **✅ FIXED** (People page now allows site- and group-scoped members; residual 404 was the pre-§1 invite assignment bug).
 5. [x] 🐞 **Group leader can't see "People"** for their own groups *(§2.2)* — **✅ FIXED** (nav shows People to group leaders; page allows group-scoped access; verified).
 
-## 🟠 P1 — High-impact bugs (core feature broken)
+## 🟠 P1 — High-impact bugs (core feature broken) — ✅ all fixed
 > Feature exists but doesn't work.
 
 6. [x] 🐞 **Can't edit anything in an application** *(§6.7)* — **✅ FIXED** (Edit dialog for parent + child core fields; new `applications.update` procedure; verified).
@@ -31,7 +33,7 @@ Ordered **bugs → essential features → nice-to-haves**, with bugs ranked by s
 9. [x] 🐞 **Attendance report doesn't show** after attendance is taken *(§8.6a)* — **✅ FIXED** (`getAttendanceByGroup` now matches events via the EventGroup join table instead of the always-null `event.groupId`; verified records appear).
 10. [x] 🐞 **Parents not showing up in People** *(§9.1)*. **✅ RESOLVED via §6.5** — the People "parents" tab query (`getPeopleByOrganization` with `personType: PARENT`) correctly returns all parents for an admin/owner; the empty list was a downstream effect of approval never migrating applicants to people (autoMigrate gated off). With §6.5 fixed, approving an application creates the parent records and they appear. Verified the owner parents-tab query returns the created parents. (Scoped site/group leaders still only see students in their scope — guardian visibility for leaders is a separate enhancement, not this bug.)
 
-## 🟡 P2 — Medium bugs (correctness / filtering / display)
+## 🟡 P2 — Medium bugs (correctness / filtering / display) — ✅ all fixed
 > Wrong or confusing data, but not blocking.
 
 11. [x] 🐞 **Approval doesn't distinguish parent vs child** *(§6.8)* — **✅ FIXED** (approve dialog copy clarifies students are admitted, parent kept as contact; "Students to admit" heading).
@@ -40,7 +42,7 @@ Ordered **bugs → essential features → nice-to-haves**, with bugs ranked by s
 14. [x] 🐞 **Group details missing the site** *(§8.2)* — **✅ FIXED** (site badge added to the group header).
 15. [x] 🐞 **Settings: site name doesn't show up** *(§8.3)* — **✅ FIXED** (site selector falls back to the current site name).
 
-## ✨ Essential feature requests
+## ✨ Essential feature requests — ⏳ not started (deferred)
 > Needed to run the program well; several directly reduce the bugs above.
 
 16. [ ] ✨ **Share-link heading showing Area / Site / Group** *(§4.1)* — directly mitigates the wrong-site confusion (P0 #1).
@@ -52,7 +54,7 @@ Ordered **bugs → essential features → nice-to-haves**, with bugs ranked by s
 22. [ ] ✨ **Auto-create attendance Events** from a group's meeting schedule *(§8.6a-event)*.
 23. [ ] ✨ **Remove the "Edit" option under Role** in group Members *(§8.7)* — prevents accidental bad edits.
 
-## 💡 Nice-to-haves
+## 💡 Nice-to-haves — ⏳ not started (deferred)
 > Convenience / polish; schedule after the above.
 
 24. [ ] ✨ **Form fields can select an existing member** instead of typing a name *(§4.3)* — also cuts duplicate-person data.
@@ -65,25 +67,27 @@ Ordered **bugs → essential features → nice-to-haves**, with bugs ranked by s
 
 # Detailed feedback by area
 
+> 🐞 bugs below are checked `[x]` where fixed & deployed; ✨/💡 feature items remain `[ ]` (deferred).
+
 ## 1. Organization → Members → Invite members
 
-- [ ] 🐞 Inviting members **doesn't work consistently**.
-- [ ] 🐞 Clicking the invitation link created an account but flowed into the wrong place:
+- [x] 🐞 Inviting members **doesn't work consistently**.
+- [x] 🐞 Clicking the invitation link created an account but flowed into the wrong place:
   - "Happy accident" — ended up **creating a new organization** instead of joining the inviter's.
   - Was forced to set up an **area, site, and group**.
   - Then taken to **login/create account**.
-- [ ] 🐞 Inconsistent invite results between users:
+- [x] 🐞 Inconsistent invite results between users:
   - The invite Kelvin sent to **Lucy didn't work properly**.
   - The invite Lucy sent (with a new location) **worked well**.
 
-**Likely root cause to investigate:** invitation acceptance is not attaching the new user to the existing org; instead it kicks off the new-org onboarding flow.
+**Root cause (fixed):** invitation acceptance was not attaching the new user to the existing org and was kicking off new-org onboarding; in production, email verification dropped the `invitationId`. Both addressed (see roadmap P0 #3).
 
 ---
 
 ## 2. Permissions
 
-- [ ] 🐞 A **site leader** can see the "People" page but gets a **404**.
-- [ ] 🐞 A **group leader** can't see the "People" button at all — they **should** be able to see the people in their own groups.
+- [x] 🐞 A **site leader** can see the "People" page but gets a **404**.
+- [x] 🐞 A **group leader** can't see the "People" button at all — they **should** be able to see the people in their own groups.
 
 ---
 
@@ -110,14 +114,14 @@ Ordered **bugs → essential features → nice-to-haves**, with bugs ranked by s
 
 ## 6. Applications
 
-- [ ] 🐞 Uploaded **PDF is visible but can't be opened/viewed**.
+- [x] 🐞 Uploaded **PDF is visible but can't be opened/viewed**.
 - [ ] ✨ Put the **child at the top** of the application view.
 - [ ] ✨ **Label the parent** clearly.
 - [ ] ✨ When approving, **show the Site** — not just the Group.
-- [ ] 🐞 Approved an application with **"No group (assign later)"** — the application then **can't be found anywhere**.
-- [ ] 🐞 **Wrong site attribution:** two sites created (NTCC and GBBC), each with its own application link. Applications submitted through **both** links all show up under **GBBC**.
-- [ ] 🐞 **Can't edit anything** in an application.
-- [ ] 🐞 When approving, it's **not clear whether you're approving the parent or the child**. We should only be approving **children, not parents**.
+- [x] 🐞 Approved an application with **"No group (assign later)"** — the application then **can't be found anywhere**.
+- [x] 🐞 **Wrong site attribution:** two sites created (NTCC and GBBC), each with its own application link. Applications submitted through **both** links all show up under **GBBC**.
+- [x] 🐞 **Can't edit anything** in an application.
+- [x] 🐞 When approving, it's **not clear whether you're approving the parent or the child**. We should only be approving **children, not parents**.
 
 ---
 
@@ -129,23 +133,23 @@ Ordered **bugs → essential features → nice-to-haves**, with bugs ranked by s
 
 ## 8. Groups
 
-- [ ] 🐞 Group **end time won't save**.
-- [ ] 🐞 Group details show **group name and area but not the site**.
-- [ ] 🐞 Under settings, the **site name doesn't show up**.
-- [ ] 🐞 In "Add member," parents, children, and admins are listed with **no distinction** between them.
-- [ ] 🐞 "Add member" shows **everyone who applied** — the system doesn't **filter by the location** the person applied to.
+- [x] 🐞 Group **end time won't save**.
+- [x] 🐞 Group details show **group name and area but not the site**.
+- [x] 🐞 Under settings, the **site name doesn't show up**.
+- [x] 🐞 In "Add member," parents, children, and admins are listed with **no distinction** between them.
+- [x] 🐞 "Add member" shows **everyone who applied** — the system doesn't **filter by the location** the person applied to.
 - [ ] ✨ Under Members, **remove the "Edit" option** under Role.
 
 ### 8a. Attendance
 
 - [ ] ✨ Can an **"Event" be created automatically** based on the group's meeting schedule?
-- [ ] 🐞 After attendance was taken, the **report is not showing up**.
+- [x] 🐞 After attendance was taken, the **report is not showing up**.
 
 ---
 
 ## 9. People
 
-- [ ] 🐞 **Parents are not showing up**.
+- [x] 🐞 **Parents are not showing up**.
 - [ ] ✨ **Internal notes:** add the ability to **upload a photo**.
 - [ ] ✨ Add the ability to **change a member's and mentor's group assignment**.
 
@@ -170,17 +174,38 @@ Ordered **bugs → essential features → nice-to-haves**, with bugs ranked by s
 
 ---
 
+# Additional work shipped
+
+Beyond the client's list, the same release hardened security and operations (all merged & deployed in PRs #9/#10):
+
+**🔒 Security hardening (11 fixes)**
+- Cross-tenant authorization added to `forms.get`, `events.get`, `guardians.add/remove`, `households.get` (previously fetchable across orgs).
+- IDOR fixes on `academic-records.delete`, `person-notes.update/delete`, `custom-fields.setValue/listValues`.
+- Org-scoping of `createMember` / `updateMemberRole` site & group IDs, and `getMyLcRole`.
+- Group-leader management permissions (`canManageGroup`) on group add/remove member.
+- Event group-scope authorization on create / createSeries / update (previously only the first group was checked).
+- `image-proxy` now requires a session and scopes file access to the caller's org.
+- **Removed invite-email auto-verification** (security-review HIGH finding — enabled account pre-takeover).
+
+**⚙️ Operational / product**
+- **Rate limiting** on public endpoints (application submit, public form submit, contact, newsletter).
+- **SaaS-only mode** enabled — marketing site disabled, `/legal` pages preserved.
+- **Auth simplified** to email + password and magic link (OAuth & passkeys hidden).
+- Builder **file-upload** fix (form FILE fields were storing a fake path and never uploading) + signed file-download URLs.
+
+---
+
 ## Summary counts
 
-| Area | Bugs | Features / Nice-to-haves |
-| --- | --- | --- |
-| 1. Invite members | 3 | 0 |
-| 2. Permissions | 2 | 0 |
-| 3. Custom fields | 0 | 1 |
-| 4. Forms | 0 | 3 |
-| 5. Consents | 0 | 2 |
-| 6. Applications | 5 | 3 |
-| 7. Sites | 0 | 1 |
-| 8. Groups | 6 | 2 |
-| 9. People | 1 | 5 |
-| **Total** | **17** | **17** |
+| Area | Bugs | Bugs fixed | Features / Nice-to-haves |
+| --- | --- | --- | --- |
+| 1. Invite members | 3 | 3 ✅ | 0 |
+| 2. Permissions | 2 | 2 ✅ | 0 |
+| 3. Custom fields | 0 | — | 1 |
+| 4. Forms | 0 | — | 3 |
+| 5. Consents | 0 | — | 2 |
+| 6. Applications | 5 | 5 ✅ | 3 |
+| 7. Sites | 0 | — | 1 |
+| 8. Groups | 6 | 6 ✅ | 2 |
+| 9. People | 1 | 1 ✅ | 5 |
+| **Total** | **17** | **17 ✅** | **17 ⏳ deferred** |
