@@ -6,6 +6,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@repo/ui/components/card";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { PublicFormField } from "./FormFieldRenderer";
 import { FormFieldRenderer } from "./FormFieldRenderer";
@@ -37,6 +38,7 @@ export function MentorFormLayout({
 	sites,
 	preselectedSiteId,
 }: MentorFormLayoutProps) {
+	const t = useTranslations("publicForm");
 	const [values, setValues] = useState<Record<string, string>>({});
 	const [selectedSiteId, setSelectedSiteId] = useState(
 		preselectedSiteId ?? "",
@@ -69,9 +71,9 @@ export function MentorFormLayout({
 					</svg>
 				</div>
 				<div>
-					<p className="text-2xl font-bold">Submitted!</p>
+					<p className="text-2xl font-bold">{t("submittedTitle")}</p>
 					<p className="mt-2 text-muted-foreground max-w-sm">
-						Thank you for your interest. We will be in touch soon.
+						{t("submittedMentor")}
 					</p>
 				</div>
 			</div>
@@ -115,7 +117,7 @@ export function MentorFormLayout({
 									className="text-sm font-medium"
 									htmlFor="site-selector"
 								>
-									Site{" "}
+									{t("site")}{" "}
 									<span className="text-destructive">*</span>
 								</label>
 								<select
@@ -126,7 +128,7 @@ export function MentorFormLayout({
 									}
 									className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
 								>
-									<option value="">Select a site…</option>
+									<option value="">{t("selectSite")}</option>
 									{sites.map((site) => (
 										<option key={site.id} value={site.id}>
 											{site.areaName
