@@ -2,6 +2,7 @@ import { getFormBySlug, getOrganizationBySlug } from "@repo/database";
 import { getSignedUrl } from "@repo/storage";
 import { MentorFormLayout } from "@saas/forms/components/public/MentorFormLayout";
 import { StudentFormLayout } from "@saas/forms/components/public/StudentFormLayout";
+import { LanguageSwitcher } from "../../../LanguageSwitcher";
 
 export default async function PublicFormPage({
 	params,
@@ -87,6 +88,7 @@ export default async function PublicFormPage({
 					? {
 							id: f.consentItem.id,
 							name: f.consentItem.name,
+							nameES: f.consentItem.nameES,
 							pdfKey: f.consentItem.pdfKey,
 							downloadUrl,
 						}
@@ -98,6 +100,7 @@ export default async function PublicFormPage({
 	return (
 		<div className="min-h-screen bg-background py-12 px-4">
 			<div className="max-w-2xl mx-auto space-y-8">
+				<LanguageSwitcher />
 				{form.type === "STUDENT" ? (
 					<StudentFormLayout
 						orgSlug={orgSlug}

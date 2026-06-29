@@ -26,6 +26,7 @@ export async function getFormBySlug(organizationId: string, slug: string) {
 						select: {
 							id: true,
 							name: true,
+							nameES: true,
 							applicantType: true,
 							pdfKey: true,
 						},
@@ -68,6 +69,7 @@ export async function getFormById(id: string) {
 						select: {
 							id: true,
 							name: true,
+							nameES: true,
 							applicantType: true,
 							pdfKey: true,
 						},

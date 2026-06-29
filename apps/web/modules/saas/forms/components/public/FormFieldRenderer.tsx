@@ -5,7 +5,10 @@ import { Label } from "@repo/ui/components/label";
 import { Textarea } from "@repo/ui/components/textarea";
 import { orpcClient } from "@shared/lib/orpc-client";
 import { DownloadIcon } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
+
+type Translator = ReturnType<typeof useTranslations>;
 
 const GRADES = [
 	"Pre-K",
@@ -44,6 +47,7 @@ export interface PublicFormField {
 	consentItem?: {
 		id: string;
 		name: string;
+		nameES?: string | null;
 		pdfKey?: string | null;
 		downloadUrl?: string | null;
 	} | null;
@@ -111,6 +115,7 @@ function renderProfileField(
 	field: PublicFormField,
 	value: string,
 	onChange: (v: string) => void,
+	t: Translator,
 ): React.ReactNode {
 	const id = `field-${field.id}`;
 
@@ -119,7 +124,7 @@ function renderProfileField(
 			return (
 				<FieldWrapper field={field}>
 					<NativeSelect id={id} value={value} onChange={onChange}>
-						<option value="">Select a grade…</option>
+						<option value="">{t("selectGrade")}</option>
 						{GRADES.map((g) => (
 							<option key={g} value={g}>
 								{g}
@@ -206,6 +211,7 @@ function renderCustomField(
 	field: PublicFormField,
 	value: string,
 	onChange: (v: string) => void,
+	t: Translator,
 ): React.ReactNode {
 	const id = `field-${field.id}`;
 	const cf = field.customField;
@@ -273,7 +279,7 @@ function renderCustomField(
 			return (
 				<FieldWrapper field={field}>
 					<NativeSelect id={id} value={value} onChange={onChange}>
-						<option value="">Select an option…</option>
+						<option value="">{t("selectOption")}</option>
 						{cf.options.map((opt) => (
 							<option key={opt} value={opt}>
 								{opt}
@@ -321,6 +327,7 @@ export function FormFieldRenderer({
 	value,
 	onChange,
 }: FormFieldRendererProps) {
+	const t = useTranslations("publicForm");
 	const options = Array.isArray(field.options)
 		? (field.options as FieldOption[])
 		: [];
@@ -342,11 +349,11 @@ export function FormFieldRenderer({
 	if (field.type === "SITE_SELECTOR") return null;
 
 	if (field.type === "PROFILE") {
-		return <>{renderProfileField(field, value, onChange)}</>;
+		return <>{renderProfileField(field, value, onChange, t)}</>;
 	}
 
 	if (field.type === "CUSTOM") {
-		return <>{renderCustomField(field, value, onChange)}</>;
+		return <>{renderCustomField(field, value, onChange, t)}</>;
 	}
 
 	if (field.type === "CONSENT") {
@@ -393,7 +400,7 @@ export function FormFieldRenderer({
 				<div className="space-y-1.5">
 					{label}
 					<NativeSelect id={id} value={value} onChange={onChange}>
-						<option value="">Select an option…</option>
+						<option value="">{t("selectOption")}</option>
 						{options.map((opt) => (
 							<option key={opt.value} value={opt.value}>
 								{opt.label}
@@ -522,6 +529,7 @@ function FileField({
 	value: string;
 	onChange: (v: string) => void;
 }) {
+	const t = useTranslations("publicForm");
 	const [uploading, setUploading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -537,7 +545,7 @@ function FileField({
 			"application/pdf",
 		];
 		if (!allowed.includes(contentType)) {
-			setError("Please upload a JPG, PNG, or PDF.");
+			setError(t("uploadInvalid"));
 			if (fileInputRef.current) fileInputRef.current.value = "";
 			return;
 		}
@@ -561,7 +569,7 @@ function FileField({
 			// Store the storage key so the admin can open the file later.
 			onChange(path);
 		} catch {
-			setError("Upload failed. Please try again.");
+			setError(t("uploadFailed"));
 			if (fileInputRef.current) fileInputRef.current.value = "";
 		} finally {
 			setUploading(false);
@@ -580,10 +588,12 @@ function FileField({
 				className="block w-full text-sm text-foreground file:mr-3 file:rounded-md file:border file:border-input file:bg-background file:px-3 file:py-1.5 file:text-sm file:font-medium hover:file:bg-muted disabled:opacity-50"
 			/>
 			{uploading && (
-				<p className="text-xs text-muted-foreground">Uploading…</p>
+				<p className="text-xs text-muted-foreground">
+					{t("uploading")}
+				</p>
 			)}
 			{!uploading && value && (
-				<p className="text-xs text-green-600">File uploaded.</p>
+				<p className="text-xs text-green-600">{t("fileUploaded")}</p>
 			)}
 			{error && <p className="text-xs text-destructive">{error}</p>}
 		</div>
@@ -601,7 +611,12 @@ function ConsentField({
 	value: string;
 	onChange: (v: string) => void;
 }) {
-	const consentName = field.consentItem?.name ?? field.label;
+	const t = useTranslations("publicForm");
+	const locale = useLocale();
+	const consentName =
+		(locale === "es" && field.consentItem?.nameES) ||
+		field.consentItem?.name ||
+		field.label;
 	const downloadUrl = field.consentItem?.downloadUrl;
 	const consentItemId = field.consentItem?.id;
 
@@ -657,7 +672,7 @@ function ConsentField({
 
 			onChange(`agreed:${fileKey}`);
 		} catch {
-			setUploadError("Upload failed. Please try again.");
+			setUploadError(t("uploadFailed"));
 		} finally {
 			setUploading(false);
 			if (fileInputRef.current) fileInputRef.current.value = "";
@@ -717,25 +732,29 @@ function ConsentField({
 					{uploadedFileKey ? (
 						<div className="flex items-center gap-2 text-sm">
 							<span className="text-green-600 dark:text-green-400 font-medium">
-								✓ Signed form uploaded
+								✓ {t("consentUploaded")}
 							</span>
 							<button
 								type="button"
 								onClick={handleRemoveFile}
 								className="text-xs text-muted-foreground underline hover:text-foreground"
 							>
-								Remove
+								{t("remove")}
 							</button>
 						</div>
 					) : (
 						<div className="space-y-1">
 							<p className="text-xs text-muted-foreground">
-								Upload your signed copy — PDF or photo{" "}
-								<span className="opacity-60">(optional)</span>
+								{t("consentUploadHint")}{" "}
+								<span className="opacity-60">
+									{t("optional")}
+								</span>
 							</p>
 							<div className="flex flex-wrap gap-2">
 								<label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-xs hover:bg-muted transition-colors">
-									{uploading ? "Uploading…" : "Choose file"}
+									{uploading
+										? t("uploading")
+										: t("chooseFile")}
 									<input
 										ref={fileInputRef}
 										type="file"
@@ -746,7 +765,7 @@ function ConsentField({
 									/>
 								</label>
 								<label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-xs hover:bg-muted transition-colors sm:hidden">
-									Take photo
+									{t("takePhoto")}
 									<input
 										type="file"
 										accept="image/jpeg,image/png"

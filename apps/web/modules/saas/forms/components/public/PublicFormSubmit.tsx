@@ -4,6 +4,7 @@ import { Button } from "@repo/ui/components/button";
 import { Card, CardContent, CardTitle } from "@repo/ui/components/card";
 import { orpcClient } from "@shared/lib/orpc-client";
 import { CheckCircleIcon, LoaderIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 interface PublicFormSubmitProps {
@@ -29,6 +30,7 @@ export function PublicFormSubmit({
 	siteId,
 	onSuccess,
 }: PublicFormSubmitProps) {
+	const t = useTranslations("publicForm");
 	const [submitting, setSubmitting] = useState(false);
 	const [submitted, setSubmitted] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -49,7 +51,7 @@ export function PublicFormSubmit({
 			onSuccess?.();
 		} catch (err: unknown) {
 			const message = (err as { message?: string })?.message;
-			setError(message ?? "Something went wrong. Please try again.");
+			setError(message ?? t("genericError"));
 		} finally {
 			setSubmitting(false);
 		}
@@ -61,9 +63,11 @@ export function PublicFormSubmit({
 				<CardContent className="flex flex-col items-center gap-4 py-16 text-center">
 					<CheckCircleIcon className="size-14 text-green-500" />
 					<div>
-						<CardTitle className="text-2xl">Submitted!</CardTitle>
+						<CardTitle className="text-2xl">
+							{t("submittedTitle")}
+						</CardTitle>
 						<p className="mt-2 text-muted-foreground max-w-sm">
-							Thank you for submitting. We will be in touch soon.
+							{t("submittedGeneric")}
 						</p>
 					</div>
 				</CardContent>
@@ -87,10 +91,10 @@ export function PublicFormSubmit({
 					{submitting ? (
 						<>
 							<LoaderIcon className="mr-2 size-4 animate-spin" />
-							Submitting…
+							{t("submitting")}
 						</>
 					) : (
-						"Submit"
+						t("submit")
 					)}
 				</Button>
 			</div>
