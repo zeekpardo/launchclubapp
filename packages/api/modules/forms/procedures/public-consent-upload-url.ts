@@ -19,10 +19,14 @@ export const publicConsentUploadUrl = publicProcedure
 			30,
 			10 * 60 * 1000,
 		);
-		const fileKey = `consent-responses/${input.consentItemId}/${nanoid()}.pdf`;
+		const ext =
+			input.contentType === "application/pdf"
+				? "pdf"
+				: input.contentType.split("/")[1];
+		const fileKey = `consent-responses/${input.consentItemId}/${nanoid()}.${ext}`;
 		const uploadUrl = await getSignedUploadUrl(fileKey, {
 			bucket: "consentSignatures",
-			contentType: "application/pdf",
+			contentType: input.contentType,
 			maxBytes: 20 * 1024 * 1024,
 		});
 		return { uploadUrl, fileKey };

@@ -630,14 +630,27 @@ function ConsentField({
 		setUploadError(null);
 
 		try {
+			const allowed = [
+				"image/jpeg",
+				"image/jpg",
+				"image/png",
+				"application/pdf",
+			] as const;
+			const contentType = (
+				allowed.includes(file.type as (typeof allowed)[number])
+					? file.type
+					: "application/pdf"
+			) as (typeof allowed)[number];
+
 			const { uploadUrl, fileKey } =
 				await orpcClient.forms.publicConsentUploadUrl({
 					consentItemId,
+					contentType,
 				});
 
 			const upload = await fetch(uploadUrl, {
 				method: "PUT",
-				headers: { "Content-Type": "application/pdf" },
+				headers: { "Content-Type": contentType },
 				body: file,
 			});
 			if (!upload.ok) throw new Error("Upload failed");
@@ -717,20 +730,33 @@ function ConsentField({
 					) : (
 						<div className="space-y-1">
 							<p className="text-xs text-muted-foreground">
-								Upload your signed copy{" "}
+								Upload your signed copy — PDF or photo{" "}
 								<span className="opacity-60">(optional)</span>
 							</p>
-							<label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-xs hover:bg-muted transition-colors">
-								{uploading ? "Uploading…" : "Choose PDF file"}
-								<input
-									ref={fileInputRef}
-									type="file"
-									accept="application/pdf"
-									className="sr-only"
-									disabled={uploading}
-									onChange={handleFileChange}
-								/>
-							</label>
+							<div className="flex flex-wrap gap-2">
+								<label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-xs hover:bg-muted transition-colors">
+									{uploading ? "Uploading…" : "Choose file"}
+									<input
+										ref={fileInputRef}
+										type="file"
+										accept="image/jpeg,image/png,application/pdf"
+										className="sr-only"
+										disabled={uploading}
+										onChange={handleFileChange}
+									/>
+								</label>
+								<label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-xs hover:bg-muted transition-colors sm:hidden">
+									Take photo
+									<input
+										type="file"
+										accept="image/jpeg,image/png"
+										capture="environment"
+										className="sr-only"
+										disabled={uploading}
+										onChange={handleFileChange}
+									/>
+								</label>
+							</div>
 							{uploadError && (
 								<p className="text-xs text-destructive">
 									{uploadError}
