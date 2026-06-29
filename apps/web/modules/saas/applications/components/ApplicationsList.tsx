@@ -264,6 +264,7 @@ export function ApplicationsList() {
 										<ApplicationStatusActions
 											applicationId={app.id}
 											siteId={app.site?.id ?? ""}
+											siteName={app.site?.name}
 											currentStatus={app.status}
 											children={app.children ?? []}
 										/>

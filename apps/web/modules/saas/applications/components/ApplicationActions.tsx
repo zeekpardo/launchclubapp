@@ -38,6 +38,7 @@ type ApplicationChild = { id: string; firstName: string; lastName: string };
 interface ApproveDialogProps {
 	applicationId: string;
 	siteId: string;
+	siteName?: string | null;
 	children: ApplicationChild[];
 	onClose: () => void;
 }
@@ -45,6 +46,7 @@ interface ApproveDialogProps {
 export function ApproveDialog({
 	applicationId,
 	siteId,
+	siteName,
 	children,
 	onClose,
 }: ApproveDialogProps) {
@@ -100,6 +102,15 @@ export function ApproveDialog({
 					<p className="text-sm text-muted-foreground">
 						{t("approveDialog.assignChildren")}
 					</p>
+
+					{siteName && (
+						<div className="rounded-md border bg-muted/30 px-3 py-2 text-sm">
+							<span className="text-muted-foreground">
+								{t("columns.site")}:{" "}
+							</span>
+							<span className="font-medium">{siteName}</span>
+						</div>
+					)}
 
 					<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 						{t("approveDialog.studentsHeading")}
@@ -165,6 +176,7 @@ export function ApproveDialog({
 interface ApplicationStatusActionsProps {
 	applicationId: string;
 	siteId: string;
+	siteName?: string | null;
 	currentStatus: string;
 	children: ApplicationChild[];
 }
@@ -172,6 +184,7 @@ interface ApplicationStatusActionsProps {
 export function ApplicationStatusActions({
 	applicationId,
 	siteId,
+	siteName,
 	currentStatus,
 	children,
 }: ApplicationStatusActionsProps) {
@@ -239,6 +252,7 @@ export function ApplicationStatusActions({
 				<ApproveDialog
 					applicationId={applicationId}
 					siteId={siteId}
+					siteName={siteName}
 					children={children}
 					onClose={() => setApproveOpen(false)}
 				/>

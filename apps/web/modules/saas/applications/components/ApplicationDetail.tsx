@@ -83,6 +83,13 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 		);
 	};
 
+	const childNames = (application.children ?? [])
+		.map((c) => `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim())
+		.filter(Boolean);
+	const applicantTitle = childNames.length
+		? childNames.join(", ")
+		: `${application.parentFirstName ?? ""} ${application.parentLastName ?? ""}`.trim();
+
 	return (
 		<div className="space-y-6">
 			<Link
@@ -94,11 +101,17 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 			</Link>
 
 			<Card>
-				<CardHeader className="flex flex-row items-center justify-between">
-					<CardTitle>
-						{application.parentFirstName}{" "}
-						{application.parentLastName}
-					</CardTitle>
+				<CardHeader className="flex flex-row items-start justify-between">
+					<div className="space-y-0.5">
+						<CardTitle>{applicantTitle}</CardTitle>
+						<p className="text-sm text-muted-foreground">
+							Parent / Guardian:{" "}
+							<span className="text-foreground">
+								{application.parentFirstName}{" "}
+								{application.parentLastName}
+							</span>
+						</p>
+					</div>
 					<div className="flex items-center gap-2">
 						{statusBadge()}
 						<Button
@@ -112,39 +125,13 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 						<ApplicationStatusActions
 							applicationId={applicationId}
 							siteId={application.siteId}
+							siteName={application.site?.name}
 							currentStatus={application.status}
 							children={application.children ?? []}
 						/>
 					</div>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-						<DetailRow
-							label={t("launchclub.applications.columns.email")}
-							value={application.parentEmail ?? "—"}
-						/>
-						<DetailRow
-							label={t("launchclub.applications.columns.phone")}
-							value={application.parentPhone ?? "—"}
-						/>
-						<DetailRow
-							label={t("launchclub.applications.columns.site")}
-							value={application.site?.name ?? "—"}
-						/>
-						<DetailRow
-							label="Area"
-							value={application.site?.area?.name ?? "—"}
-						/>
-						<DetailRow
-							label={t(
-								"launchclub.applications.columns.submitted",
-							)}
-							value={new Date(
-								application.createdAt,
-							).toLocaleDateString()}
-						/>
-					</div>
-
 					{application.children &&
 						application.children.length > 0 && (
 							<div className="pt-2 border-t space-y-3">
@@ -328,6 +315,44 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
 								))}
 							</div>
 						)}
+					{/* Parent / Guardian (primary contact) */}
+					<div className="space-y-3 border-t pt-3">
+						<p className="text-sm font-medium text-muted-foreground">
+							Parent / Guardian (primary contact)
+						</p>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<DetailRow
+								label={t(
+									"launchclub.applications.columns.email",
+								)}
+								value={application.parentEmail ?? "—"}
+							/>
+							<DetailRow
+								label={t(
+									"launchclub.applications.columns.phone",
+								)}
+								value={application.parentPhone ?? "—"}
+							/>
+							<DetailRow
+								label={t(
+									"launchclub.applications.columns.site",
+								)}
+								value={application.site?.name ?? "—"}
+							/>
+							<DetailRow
+								label="Area"
+								value={application.site?.area?.name ?? "—"}
+							/>
+							<DetailRow
+								label={t(
+									"launchclub.applications.columns.submitted",
+								)}
+								value={new Date(
+									application.createdAt,
+								).toLocaleDateString()}
+							/>
+						</div>
+					</div>
 				</CardContent>
 			</Card>
 
