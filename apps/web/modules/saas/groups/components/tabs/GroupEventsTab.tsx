@@ -19,7 +19,13 @@ import type { GroupDetail } from "@saas/groups/hooks/use-groups";
 import { useActiveOrganization } from "@saas/organizations/hooks/use-active-organization";
 import { orpc } from "@shared/lib/orpc-query-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
+import {
+	CalendarClockIcon,
+	CalendarIcon,
+	PencilIcon,
+	PlusIcon,
+	TrashIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -51,6 +57,34 @@ export function GroupEventsTab({ groupId, group }: GroupEventsTabProps) {
 
 	const deleteEvent = useMutation(orpc.events.delete.mutationOptions());
 
+	const generateEvents = useMutation(
+		orpc.events.createFromGroupSchedule.mutationOptions(),
+	);
+
+	const handleGenerateEvents = async () => {
+		try {
+			const res = await generateEvents.mutateAsync({ groupId });
+			queryClient.invalidateQueries(
+				orpc.events.list.queryOptions({ input: { groupId } }),
+			);
+			if (res.count === 0) {
+				toastSuccess(
+					`All ${res.skipped} scheduled event(s) already exist — nothing to add.`,
+				);
+			} else {
+				toastSuccess(
+					`Created ${res.count} event(s) from the meeting schedule${res.skipped ? ` (${res.skipped} already existed)` : ""}.`,
+				);
+			}
+		} catch (err) {
+			toastError(
+				err instanceof Error
+					? err.message
+					: t("launchclub.groups.form.notifications.error"),
+			);
+		}
+	};
+
 	const handleDeleteEvent = async () => {
 		if (!deleteEventId) return;
 		try {
@@ -71,10 +105,23 @@ export function GroupEventsTab({ groupId, group }: GroupEventsTabProps) {
 				<h2 className="text-xl font-semibold">
 					{t("launchclub.events.title")}
 				</h2>
-				<Button onClick={() => setEventDialogOpen(true)}>
-					<PlusIcon className="mr-2 h-4 w-4" />
-					{t("launchclub.events.new")}
-				</Button>
+				<div className="flex items-center gap-2">
+					{group.meetingDay && (
+						<Button
+							variant="outline"
+							onClick={handleGenerateEvents}
+							loading={generateEvents.isPending}
+							title="Create attendance events from this group's meeting schedule"
+						>
+							<CalendarClockIcon className="mr-2 h-4 w-4" />
+							Generate from schedule
+						</Button>
+					)}
+					<Button onClick={() => setEventDialogOpen(true)}>
+						<PlusIcon className="mr-2 h-4 w-4" />
+						{t("launchclub.events.new")}
+					</Button>
+				</div>
 			</div>
 
 			{eventsLoading ? (
