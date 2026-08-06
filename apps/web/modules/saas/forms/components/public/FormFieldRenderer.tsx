@@ -159,6 +159,21 @@ function renderProfileField(
 				</FieldWrapper>
 			);
 
+		case "gender":
+			return (
+				<FieldWrapper field={field}>
+					<NativeSelect id={id} value={value} onChange={onChange}>
+						<option value="">{t("selectGender")}</option>
+						<option value="male">{t("genderMale")}</option>
+						<option value="female">{t("genderFemale")}</option>
+						<option value="other">{t("genderOther")}</option>
+						<option value="preferNotToSay">
+							{t("genderPreferNotToSay")}
+						</option>
+					</NativeSelect>
+				</FieldWrapper>
+			);
+
 		case "phone":
 		case "emergency_contact_phone":
 			return (
