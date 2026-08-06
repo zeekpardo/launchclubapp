@@ -13,6 +13,7 @@ import {
 	HashIcon,
 	Heading2Icon,
 	ListIcon,
+	MailIcon,
 	MapPinIcon,
 	PhoneCallIcon,
 	PhoneIcon,
@@ -31,8 +32,12 @@ interface ProfileFieldDef {
 	icon: LucideIcon;
 }
 
+// Parent's own name + email are collected as core inputs in the layout, so
+// they are intentionally omitted here to avoid duplicate fields.
 export const PARENT_PROFILE_FIELDS: ProfileFieldDef[] = [
 	{ key: "phone", label: "Phone", icon: PhoneIcon },
+	{ key: "gender", label: "Gender", icon: UserIcon },
+	{ key: "dateOfBirth", label: "Date of Birth", icon: CalendarIcon },
 	{ key: "addressLine1", label: "Address", icon: MapPinIcon },
 	{
 		key: "emergency_contact_name",
@@ -46,17 +51,27 @@ export const PARENT_PROFILE_FIELDS: ProfileFieldDef[] = [
 	},
 ];
 
+// Student's own name is collected as a core input in the layout.
 export const STUDENT_PROFILE_FIELDS: ProfileFieldDef[] = [
 	{ key: "dateOfBirth", label: "Date of Birth", icon: CalendarIcon },
 	{ key: "grade", label: "Grade", icon: BookOpenIcon },
+	{ key: "gender", label: "Gender", icon: UserIcon },
+	{ key: "email", label: "Email", icon: MailIcon },
+	{ key: "phone", label: "Phone", icon: PhoneIcon },
 	{ key: "allergies", label: "Allergies", icon: AlertTriangleIcon },
 	{ key: "medicalNotes", label: "Medical Notes", icon: ActivityIcon },
 ];
 
+// Mentor forms have no hard-coded core inputs — every field, including name and
+// the required email, must be addable here.
 export const MENTOR_PROFILE_FIELDS: ProfileFieldDef[] = [
+	{ key: "firstName", label: "First Name", icon: UserIcon },
+	{ key: "lastName", label: "Last Name", icon: UserIcon },
+	{ key: "email", label: "Email", icon: MailIcon },
 	{ key: "phone", label: "Phone", icon: PhoneIcon },
-	{ key: "addressLine1", label: "Address", icon: MapPinIcon },
+	{ key: "gender", label: "Gender", icon: UserIcon },
 	{ key: "dateOfBirth", label: "Date of Birth", icon: CalendarIcon },
+	{ key: "addressLine1", label: "Address", icon: MapPinIcon },
 	{
 		key: "emergency_contact_name",
 		label: "Emergency Name",

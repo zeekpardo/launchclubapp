@@ -45,6 +45,7 @@ import {
 	XIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { AddMemberDialog } from "../AddMemberDialog";
 
@@ -55,7 +56,12 @@ interface GroupMembersTabProps {
 
 export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 	const t = useTranslations();
+	const params = useParams<{ organizationSlug: string }>();
+	const router = useRouter();
 	const queryClient = useQueryClient();
+
+	const goToPerson = (personId: string) =>
+		router.push(`/app/${params.organizationSlug}/people/${personId}`);
 	const removeMember = useRemoveMember();
 	const changeMemberGroup = useChangeMemberGroup();
 	const { data: allGroups } = useGroups();
@@ -397,10 +403,18 @@ export function GroupMembersTab({ groupId, group }: GroupMembersTabProps) {
 											</AvatarFallback>
 										</Avatar>
 									</TableCell>
-									<TableCell className="cursor-pointer font-medium transition-colors hover:text-primary">
+									<TableCell
+										className="cursor-pointer font-medium transition-colors hover:text-primary hover:underline"
+										onClick={() => goToPerson(person.id)}
+										title={`View ${person.firstName} ${person.lastName}'s profile`}
+									>
 										{person.firstName}
 									</TableCell>
-									<TableCell className="cursor-pointer transition-colors hover:text-primary">
+									<TableCell
+										className="cursor-pointer transition-colors hover:text-primary hover:underline"
+										onClick={() => goToPerson(person.id)}
+										title={`View ${person.firstName} ${person.lastName}'s profile`}
+									>
 										{person.lastName}
 									</TableCell>
 									<TableCell>
